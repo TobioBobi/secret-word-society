@@ -51,6 +51,7 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 - `lib/data/word_catalog_loader.dart`: Laden und Prüfen der gebündelten Inhalte.
 - `lib/l10n/app_de.arb`: deutsche UI-Texte; Dart-Lokalisierungen werden generiert.
 - `test/`: Spielregeln, Inhalte, Sitzungsverwaltung und Bedienung der Ansichten.
+- `integration_test/`: Bedienabläufe in der laufenden Android-App mit echten Assets.
 - `android/`: Android-Anbindung mit geschütztem App-Fenster (`FLAG_SECURE`).
 
 ```powershell
@@ -78,18 +79,34 @@ und ein Android-Release-Build. Ein fehlgeschlagener Schritt stoppt den Job.
 Ergebnisse und Logs stehen am Pull Request und unter **Actions**. Der Release-Build
 nutzt derzeit die Debug-Signierung aus der Android-Konfiguration; für eine
 Store-Veröffentlichung ist später eine eigene Release-Signierung nötig.
-Der Workflow führt keine Emulator- oder Gerätetests aus.
+Ein separater Job startet einen Android-Emulator mit API 35 (`google_apis`,
+`x86_64`, Pixel-7-Pro-Profil) und führt die beiden Integrationstests aus. Er läuft
+parallel zu Analyse, Unit-/Widget-Tests und Release-Build. Auch ein fehlgeschlagener
+Integrationstest meldet den Workflow als fehlgeschlagen. Es werden keine APKs
+oder Bildschirmaufnahmen hochgeladen.
 
 Dieselben Prüfungen lokal (Flutter 3.47.7):
 
 ```powershell
 flutter pub get --enforce-lockfile
 flutter gen-l10n
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test integration_test
 flutter analyze --no-pub --fatal-infos
 flutter test --no-pub
-flutter build apk --release --no-pub
+flutter build apk --release
 ```
+
+Integrationstests zusätzlich auf einem gestarteten Android-Emulator oder einem
+verbundenen Testgerät ausführen (`flutter devices` zeigt die Geräte-ID):
+
+```powershell
+flutter devices
+flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded
+```
+
+Dabei wird eine Testversion installiert; eine laufende Spielsitzung auf dem
+gewählten Gerät geht verloren. Abdeckung, Voraussetzungen und Grenzen:
+[Android-Integrationstests](docs/testing.md).
 
 Bei Flutter-Upgrades die feste Version im Workflow und diese Anleitung gemeinsam
 aktualisieren. Der Workflow meldet seinen Status am Pull Request; eine verpflichtende
