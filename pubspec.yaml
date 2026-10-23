@@ -1,5 +1,5 @@
 name: secret_word_society
-description: "A new Flutter project."
+description: "Offline-Partyspiel mit geheimem Wort und einem Imposter."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -51,6 +54,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
+  assets:
+    - assets/words/de.json
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

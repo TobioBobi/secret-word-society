@@ -26,8 +26,10 @@ Stand: 23.10.2026.
 
 ## Projektstruktur
 
-- `lib/main.dart`: die komplette HelloWorld-App in Dart.
-- `test/widget_test.dart`: prueft die Anzeige von Hello World.
+- `lib/main.dart`: deutscher Platzhalter-Startbildschirm, noch keine Spielansichten.
+- `lib/game/`: Spielkern mit Rollen, Geheimnissen und Phasenwechseln (Ticket 2).
+- `assets/words/de.json` und `lib/l10n/`: Wortbestand und getrennte UI-Texte.
+- `test/`: Spielkern-, Inhalts- und Widget-Prüfungen.
 - `android/`: benoetigte Android-Anbindung aus der Flutter-Vorlage. Dazu gehoeren auch `MainActivity.kt` und die Gradle-Dateien; diese sind Bestandteil der Flutter-App.
 
 Das Projekt ist fuer Android eingerichtet. Windows als Entwicklungsrechner bedeutet nicht, dass die App als Windows-Desktop-App gestartet wird. Die Visual-Studio-Warnung in `flutter doctor` betrifft Windows-Desktop-Builds und erfordert fuer diese Android-App keine Nachinstallation.

@@ -1,0 +1,6 @@
+{
+  "@@locale": "de",
+  "appTitle": "Secret Word Society",
+  "greeting": "Hallo, Welt!",
+  "@greeting": { "description": "Vorläufiger Startbildschirm bis Ticket 3." }
+}
