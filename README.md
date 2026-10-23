@@ -1,8 +1,10 @@
 # Secret Word Society
 
 Flutter-App für ein Offline-Partyspiel auf Android. Ihr könnt eure Gruppe anlegen,
-Namen hinzufügen/entfernen und ab drei Personen eine Runde starten. Die erste
-Übergabe bleibt verdeckt; Aufdecken, Timer und Abstimmung folgen in Tickets 4–6.
+Namen hinzufügen/entfernen und ab drei Personen eine Runde starten. Jede Person
+deckt ihre private Karte bewusst auf und verbirgt sie vor der nächsten Übergabe.
+Nach der letzten Person erscheint die Bereit-Ansicht; Timer und Abstimmung folgen
+in Tickets 5–6.
 Der Spielkern und 16 deutsche Wort-Hinweis-Paare sind bereits enthalten.
 
 ## MVP-Entwurf
@@ -12,7 +14,9 @@ Der [klickbare Entwurf](docs/mvp/prototype.html) lässt sich lokal im Browser ö
 Er zeigt eine Beispielrunde. [Ticket 2: Spielkern und Wortbestand](docs/mvp/ticket-2-spielkern.md)
 beschreibt die implementierte Logik und die Anbindung für die folgenden Tickets.
 [Ticket 3: Spieleranlage und Rundenstart](docs/mvp/ticket-3-spieleranlage.md)
-beschreibt die bedienbare Oberfläche und ihren aktuellen Umfang.
+beschreibt die Spieleranlage.
+[Ticket 4: Geheime Karten](docs/mvp/ticket-4-geheime-karten.md) beschreibt
+die Verteilung, sichere Rücknavigation und den Android-Geheimnisschutz.
 
 ## Starten
 
@@ -40,14 +44,14 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 ## Dateien und Checks
 
 - `lib/main.dart`: App-Einstieg, Party-Theme und deutsche Lokalisierung.
-- `lib/ui/`: Spieleranlage, erste verdeckte Übergabe und Gestaltung.
+- `lib/ui/`: Spieleranlage, Kartenverteilung, Bereit-Ansicht und Gestaltung.
 - `lib/game/game_session.dart`: Gruppe und aktuelle Runde im Sitzungsspeicher.
 - `lib/game/`: Flutter-unabhängige Modelle und Phasenwechsel einer Runde.
 - `assets/words/de.json`: eigener deutscher Startwortbestand, offline gebündelt.
 - `lib/data/word_catalog_loader.dart`: Laden und Prüfen der gebündelten Inhalte.
 - `lib/l10n/app_de.arb`: deutsche UI-Texte; Dart-Lokalisierungen werden generiert.
 - `test/`: Spielregeln, Inhalte, Sitzungsverwaltung und Bedienung der Ansichten.
-- `android/`: von Flutter erzeugte Android-Anbindung.
+- `android/`: Android-Anbindung mit geschütztem App-Fenster (`FLAG_SECURE`).
 
 ```powershell
 flutter pub get

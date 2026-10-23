@@ -40,6 +40,42 @@ Future<void> showStart(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> tapVisible(WidgetTester tester, String label) async {
+  if (find.text(label).evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      find.text(label),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+  }
+  await tester.ensureVisible(find.text(label));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label));
+  await tester.pumpAndSettle();
+}
+
+Future<void> startTestRound(WidgetTester tester) async {
+  await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
+  await readyGroup(tester);
+  await showStart(tester);
+  await tapVisible(tester, 'Runde starten');
+}
+
+String semanticsTree(WidgetTester tester) {
+  final tree = StringBuffer();
+  tester.binding.rootPipelineOwner.visitChildren((owner) {
+    tree.writeln(owner.semanticsOwner?.rootSemanticsNode?.toStringDeep());
+  });
+  return tree.toString();
+}
+
+void expectConcealed(WidgetTester tester) {
+  for (final secret in ['Popcorn', 'Kino', 'Du bist der Imposter']) {
+    expect(find.text(secret), findsNothing);
+    expect(semanticsTree(tester), isNot(contains(secret)));
+  }
+}
+
 void main() {
   testWidgets('starts empty and validates names through button and keyboard', (
     tester,
@@ -126,6 +162,7 @@ void main() {
 
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
+    await tapVisible(tester, 'Runde verlassen');
     expect(find.text('Wer ist dabei?'), findsOneWidget);
     expect(find.text('Anna'), findsOneWidget);
     expect(find.text('3 Personen'), findsOneWidget);
@@ -135,6 +172,7 @@ void main() {
     await tester.ensureVisible(find.text('Gruppe bearbeiten'));
     await tester.tap(find.text('Gruppe bearbeiten'));
     await tester.pumpAndSettle();
+    await tapVisible(tester, 'Runde verlassen');
     expect(find.text('Wer ist dabei?'), findsOneWidget);
     expect(find.text('3 Personen'), findsOneWidget);
 
@@ -238,7 +276,210 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Gruppe bearbeiten'));
       await tester.pumpAndSettle();
+      await tapVisible(tester, 'Runde verlassen');
       expect(find.text('12 Personen'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'distributes exactly one hint, conceals every handoff and ends ready',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+
+      await startTestRound(tester);
+      var words = 0;
+      var hints = 0;
+      for (final (index, name) in ['Anna', 'Ben', 'Cem'].indexed) {
+        expect(find.text('Handy an $name.'), findsOneWidget);
+        expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
+        expectConcealed(tester);
+        await tapVisible(tester, 'Geheimnis aufdecken');
+        expect(find.text('Nur für $name.'), findsOneWidget);
+        if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
+          hints++;
+          expect(find.text('Dein Hinweis'), findsOneWidget);
+          expect(find.text('Kino'), findsOneWidget);
+          expect(find.text('Popcorn'), findsNothing);
+          expect(semanticsTree(tester), isNot(contains('Popcorn')));
+        } else {
+          words++;
+          expect(find.text('Dein geheimes Wort'), findsOneWidget);
+          expect(find.text('Popcorn'), findsOneWidget);
+          expect(find.text('Kino'), findsNothing);
+        }
+        await tapVisible(
+          tester,
+          index == 2 ? 'Verbergen & weiter' : 'Verbergen & weitergeben',
+        );
+        expectConcealed(tester);
+        expect(find.text('Nur für $name.'), findsNothing);
+      }
+      expect(words, 2);
+      expect(hints, 1);
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      expect(find.text('Alle Geheimnisse sind verteilt.'), findsOneWidget);
+      expect(find.text('Geheimnis aufdecken'), findsNothing);
+      await tester.pump(const Duration(minutes: 3));
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tapVisible(tester, 'Weiterspielen');
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'interruptions hide a card and preserve the current person and secret',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await startTestRound(tester);
+      await tapVisible(tester, 'Geheimnis aufdecken');
+      await tapVisible(tester, 'Verbergen & weitergeben');
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.paused,
+        AppLifecycleState.detached,
+      ]) {
+        await tapVisible(tester, 'Geheimnis aufdecken');
+        final secret = find.text('Popcorn').evaluate().isNotEmpty
+            ? 'Popcorn'
+            : 'Kino';
+        final staleAction = tester
+            .widget<FilledButton>(find.byType(FilledButton))
+            .onPressed!;
+        tester.binding.handleAppLifecycleStateChanged(state);
+        // Background states suspend frames. Verify the next rendered frame on resume.
+        staleAction();
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Handy an Ben.'), findsOneWidget);
+        expectConcealed(tester);
+        await tapVisible(tester, 'Geheimnis aufdecken');
+        expect(find.text(secret), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+        await tapVisible(tester, 'Weiterspielen');
+      }
+      expect(find.text('Person 2 von 3'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'back and edit conceal before dialog; cancellation never restores secrets',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+
+      await startTestRound(tester);
+      for (final edit in [false, true]) {
+        await tapVisible(tester, 'Geheimnis aufdecken');
+        if (edit) {
+          await tapVisible(tester, 'Gruppe bearbeiten');
+        } else {
+          await tester.binding.handlePopRoute();
+          await tester.pumpAndSettle();
+        }
+        expect(find.text('Runde verlassen?'), findsOneWidget);
+        expectConcealed(tester);
+        if (edit) {
+          // System back dismisses only the dialog, not the concealed round.
+          await tester.binding.handlePopRoute();
+          await tester.pumpAndSettle();
+        } else {
+          await tapVisible(tester, 'Weiterspielen');
+        }
+        expect(find.text('Handy an Anna.'), findsOneWidget);
+        expectConcealed(tester);
+      }
+      await tapVisible(tester, 'Geheimnis aufdecken');
+      await tapVisible(tester, 'Gruppe bearbeiten');
+      await tapVisible(tester, 'Runde verlassen');
+      expect(find.text('3 Personen'), findsOneWidget);
+      await showStart(tester);
+      await tapVisible(tester, 'Runde starten');
+      expect(find.text('Person 1 von 3'), findsOneWidget);
+      expectConcealed(tester);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('stale card actions cannot reveal or skip the next person', (
+    tester,
+  ) async {
+    await startTestRound(tester);
+    final reveal = tester
+        .widget<FilledButton>(find.byType(FilledButton))
+        .onPressed!;
+    reveal();
+    reveal();
+    await tester.pumpAndSettle();
+    final advance = tester
+        .widget<FilledButton>(find.byType(FilledButton))
+        .onPressed!;
+    advance();
+    advance();
+    reveal();
+    await tester.pumpAndSettle();
+    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expectConcealed(tester);
+    await tester.binding.handlePopRoute();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tapVisible(tester, 'Weiterspielen');
+    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'private cards, ready and leave dialog fit small screens at 200% text',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final catalog = WordCatalog(
+        languageCode: 'de',
+        pairs: [
+          WordPair(
+            id: 'long',
+            word: 'Donaudampfschifffahrtsgesellschaft',
+            hint: 'Eine besonders lange Fahrt auf dem Wasser',
+          ),
+        ],
+      );
+      await tester.pumpWidget(MyApp(catalogLoader: () async => catalog));
+      await addName(tester, 'AlexandramitbesonderslangemNamen');
+      await addName(tester, 'Ben');
+      await addName(tester, 'Cem');
+      await showStart(tester);
+      await tapVisible(tester, 'Runde starten');
+      for (var i = 0; i < 3; i++) {
+        await tapVisible(tester, 'Geheimnis aufdecken');
+        expect(tester.takeException(), isNull);
+        await tapVisible(
+          tester,
+          i == 2 ? 'Verbergen & weiter' : 'Verbergen & weitergeben',
+        );
+        expect(tester.takeException(), isNull);
+      }
+      await tapVisible(tester, 'Gruppe bearbeiten');
+      expect(tester.takeException(), isNull);
+      await tapVisible(tester, 'Weiterspielen');
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

@@ -44,6 +44,15 @@ final class GameSession {
     );
   }
 
+  void revealSecret() => _round = _requireRound().revealSecret();
+
+  void hideAndAdvance() => _round = _requireRound().hideAndAdvance();
+
+  void concealSecret() => _round = _round?.concealSecret();
+
+  GameRound _requireRound() =>
+      _round ?? (throw StateError('Start a round first.'));
+
   /// Editing the group discards the round, never the names.
   void returnToGroup() => _round = null;
 

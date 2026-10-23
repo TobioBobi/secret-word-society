@@ -93,4 +93,44 @@ void main() {
     session.startRound(catalog);
     expect(session.round!.players, hasLength(60));
   });
+
+  test('session actions preserve secrets on concealment and finish without a timer', () {
+    final session = group();
+    expect(session.revealSecret, throwsStateError);
+    expect(session.hideAndAdvance, throwsStateError);
+    session.concealSecret();
+    session.startRound(catalog);
+    var words = 0;
+    var hints = 0;
+    for (var i = 1; i <= 3; i++) {
+      expect(session.hideAndAdvance, throwsStateError);
+      session.revealSecret();
+      final secret = session.round!.currentSecret!;
+      session.concealSecret();
+      expect(session.round!.currentPlayerNumber, i);
+      expect(session.round!.currentSecret, isNull);
+      session.revealSecret();
+      expect(session.round!.currentSecret!.role, secret.role);
+      expect(session.round!.currentSecret!.text, secret.text);
+      if (secret.role == PlayerRole.imposter) {
+        hints++;
+        expect(secret.text, 'Kino');
+      } else {
+        words++;
+        expect(secret.text, 'Popcorn');
+      }
+      session.hideAndAdvance();
+      expect(session.round!.currentSecret, isNull);
+      expect(session.round!.discussionEndsAt, isNull);
+    }
+    expect(words, 2);
+    expect(hints, 1);
+    expect(session.round!.phase, GamePhase.ready);
+    session.concealSecret();
+    expect(session.round!.phase, GamePhase.ready);
+    expect(session.revealSecret, throwsStateError);
+    session.returnToGroup();
+    expect(session.players, hasLength(3));
+    expect(session.round, isNull);
+  });
 }
