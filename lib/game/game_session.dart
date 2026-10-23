@@ -50,6 +50,11 @@ final class GameSession {
 
   void concealSecret() => _round = _round?.concealSecret();
 
+  void startDiscussion(DateTime now) =>
+      _round = _requireRound().startDiscussion(now);
+
+  void advanceTime(DateTime now) => _round = _requireRound().advanceTime(now);
+
   GameRound _requireRound() =>
       _round ?? (throw StateError('Start a round first.'));
 

@@ -3,8 +3,10 @@
 Flutter-App für ein Offline-Partyspiel auf Android. Ihr könnt eure Gruppe anlegen,
 Namen hinzufügen/entfernen und ab drei Personen eine Runde starten. Jede Person
 deckt ihre private Karte bewusst auf und verbirgt sie vor der nächsten Übergabe.
-Nach der letzten Person erscheint die Bereit-Ansicht; Timer und Abstimmung folgen
-in Tickets 5–6.
+Nach der letzten Person startet ihr bewusst den Zwei-Minuten-Countdown. Die Zeit
+läuft auch bei App-Wechsel oder gesperrtem Bildschirm weiter; bei Ablauf erscheint
+die Aufforderung zur mündlichen Abstimmung. Namensauswahl, Auflösung und neue Runde
+folgen in Ticket 6.
 Der Spielkern und 16 deutsche Wort-Hinweis-Paare sind bereits enthalten.
 
 ## MVP-Entwurf
@@ -17,6 +19,8 @@ beschreibt die implementierte Logik und die Anbindung für die folgenden Tickets
 beschreibt die Spieleranlage.
 [Ticket 4: Geheime Karten](docs/mvp/ticket-4-geheime-karten.md) beschreibt
 die Verteilung, sichere Rücknavigation und den Android-Geheimnisschutz.
+[Ticket 5: Zwei-Minuten-Spielphase](docs/mvp/ticket-5-spielphase.md) beschreibt
+Countdown, Unterbrechungen und den Übergang zur Abstimmung.
 
 ## Starten
 
@@ -44,7 +48,7 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 ## Dateien und Checks
 
 - `lib/main.dart`: App-Einstieg, Party-Theme und deutsche Lokalisierung.
-- `lib/ui/`: Spieleranlage, Kartenverteilung, Bereit-Ansicht und Gestaltung.
+- `lib/ui/`: Spieleranlage, Kartenverteilung, Countdown und Abstimmungsübergang.
 - `lib/game/game_session.dart`: Gruppe und aktuelle Runde im Sitzungsspeicher.
 - `lib/game/`: Flutter-unabhängige Modelle und Phasenwechsel einer Runde.
 - `assets/words/de.json`: eigener deutscher Startwortbestand, offline gebündelt.

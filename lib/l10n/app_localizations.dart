@@ -298,6 +298,54 @@ abstract class AppLocalizations {
   /// **'Alle Geheimnisse sind verteilt.'**
   String get readyCard;
 
+  /// No description provided for @startDiscussion.
+  ///
+  /// In de, this message translates to:
+  /// **'2 Minuten starten'**
+  String get startDiscussion;
+
+  /// No description provided for @discussionPhase.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise & Bluff'**
+  String get discussionPhase;
+
+  /// No description provided for @discussionTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Jetzt wird geblufft.'**
+  String get discussionTitle;
+
+  /// No description provided for @discussionRemaining.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch {seconds, plural, =1{1 Sekunde} other{{seconds} Sekunden}}'**
+  String discussionRemaining(int seconds);
+
+  /// No description provided for @votingPhase.
+  ///
+  /// In de, this message translates to:
+  /// **'Eure Abstimmung'**
+  String get votingPhase;
+
+  /// No description provided for @votingTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Wem vertraut ihr nicht?'**
+  String get votingTitle;
+
+  /// No description provided for @votingIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Stimmt mündlich ab, wer der Imposter ist. Bei Gleichstand stimmt ihr erneut ab.'**
+  String get votingIntro;
+
+  /// No description provided for @votingCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Zeit ist um. Einigt euch auf eine Person.'**
+  String get votingCard;
+
   /// No description provided for @leaveRoundTitle.
   ///
   /// In de, this message translates to:

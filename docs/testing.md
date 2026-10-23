@@ -12,7 +12,10 @@ ersetzte Plattformkanäle.
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
    Genau zwei Personen müssen dasselbe Wort und genau eine Person den dazu
    passenden Hinweis erhalten. Jede Übergabe ist verdeckt; nach der letzten
-   Karte erscheint die Bereit-Ansicht.
+   Karte erscheint die Bereit-Ansicht. Anschließend die echten zwei Minuten
+   starten und bis zur Abstimmungsansicht warten. Wort und Hinweis bleiben
+   dabei verborgen. Dieser Test braucht durch die reguläre Spielzeit gut zwei
+   Minuten zusätzlich; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über „Gruppe bearbeiten“ verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
    aufdecken. Danach bei der zweiten Person die Runde tatsächlich verlassen:
@@ -23,6 +26,9 @@ Jeder Test beginnt mit einer neuen App-Widget-Instanz und leerem Sitzungsspeiche
 auch wenn beide Tests im selben Android-Prozess laufen. Die Tests setzen keine
 bestimmte zufällige Imposter-Person und kein bestimmtes Wort voraus. Stattdessen
 prüfen sie die beobachtete Verteilung gegen den mitgelieferten Katalog.
+Die Test-Bindung verwendet `fullyLive`, damit auch zwischen Testaktionen die
+automatisch angeforderten Countdown-Frames gezeichnet werden. Der erste Test
+prüft zusätzlich nach zwei Sekunden, dass die sichtbare Zeit abgenommen hat.
 
 ## Lokal ausführen
 
@@ -90,8 +96,9 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 - Layout, Animationen, echter Screenreader und herstellerspezifisches Verhalten
   brauchen weiterhin gezielte Sicht-/Geräteprüfungen. Ein Emulator ersetzt keine
   Prüfung auf einem physischen Android-Gerät.
-- Timer, Abstimmung, Ergebnis und Folgerunde werden nach ihrer UI-Implementierung
-  als vollständiger Spielablauf ergänzt. iOS ist hier noch kein Testziel.
+- Der Timer und der Übergang zur Abstimmung sind ab Ticket 5 enthalten.
+  Namensauswahl, Ergebnis und Folgerunde werden mit Ticket 6 ergänzt.
+  iOS ist hier noch kein Testziel.
 
 ## Lokale Erstprüfung am 23.10.2026
 
