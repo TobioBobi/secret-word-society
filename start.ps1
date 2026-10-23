@@ -37,7 +37,7 @@ try {
         Start-Sleep -Seconds 2
     } while ($true)
 
-    Write-Host "Starte Hello World auf $device ..."
+    Write-Host "Starte Secret Word Society auf $device ..."
     flutter run -d $device
     if ($LASTEXITCODE -ne 0) { throw 'Flutter konnte die App nicht starten. Siehe Fehlermeldung oben.' }
 }
