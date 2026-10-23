@@ -8,14 +8,20 @@ ersetzte Plattformkanäle.
 
 ## Abgedeckte Abläufe
 
-1. Leere Sitzung starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
+1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
+   starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
    Genau zwei Personen müssen dasselbe Wort und genau eine Person den dazu
    passenden Hinweis erhalten. Jede Übergabe ist verdeckt; nach der letzten
    Karte erscheint die Bereit-Ansicht. Anschließend die echten zwei Minuten
    starten und bis zur Abstimmungsansicht warten. Wort und Hinweis bleiben
-   dabei verborgen. Dieser Test braucht durch die reguläre Spielzeit gut zwei
-   Minuten zusätzlich; die Produktionsuhr wird nicht ersetzt.
+   dabei verborgen. Ohne Auswahl ist die Bestätigung deaktiviert. Danach den
+   tatsächlichen Imposter bzw. gezielt eine andere Person auswählen und
+   bestätigen; Gewinner, Verdacht, tatsächlichen Imposter und Wort prüfen.
+   „Noch eine Runde“ beginnt bei Person 1 mit verdeckter Karte; alle Karten
+   erneut verteilen und einen frischen Countdown bei 02:00 starten.
+   Beide Tests brauchen durch die reguläre Spielzeit jeweils gut zwei Minuten
+   zusätzlich; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über „Gruppe bearbeiten“ verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
    aufdecken. Danach bei der zweiten Person die Runde tatsächlich verlassen:
@@ -23,12 +29,13 @@ ersetzte Plattformkanäle.
    bei der ersten Person und lässt sich aufdecken.
 
 Jeder Test beginnt mit einer neuen App-Widget-Instanz und leerem Sitzungsspeicher,
-auch wenn beide Tests im selben Android-Prozess laufen. Die Tests setzen keine
+auch wenn die Tests im selben Android-Prozess laufen. Die Tests setzen keine
 bestimmte zufällige Imposter-Person und kein bestimmtes Wort voraus. Stattdessen
 prüfen sie die beobachtete Verteilung gegen den mitgelieferten Katalog.
 Die Test-Bindung verwendet `fullyLive`, damit auch zwischen Testaktionen die
-automatisch angeforderten Countdown-Frames gezeichnet werden. Der erste Test
-prüft zusätzlich nach zwei Sekunden, dass die sichtbare Zeit abgenommen hat.
+automatisch angeforderten Countdown-Frames gezeichnet werden. Die beiden
+vollständigen Abläufe prüfen zusätzlich nach zwei Sekunden, dass die sichtbare
+Zeit abgenommen hat.
 
 ## Lokal ausführen
 
@@ -96,8 +103,10 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 - Layout, Animationen, echter Screenreader und herstellerspezifisches Verhalten
   brauchen weiterhin gezielte Sicht-/Geräteprüfungen. Ein Emulator ersetzt keine
   Prüfung auf einem physischen Android-Gerät.
-- Der Timer und der Übergang zur Abstimmung sind ab Ticket 5 enthalten.
-  Namensauswahl, Ergebnis und Folgerunde werden mit Ticket 6 ergänzt.
+- Timer und Übergang zur Abstimmung sind ab Ticket 5 enthalten;
+  Namensauswahl, Ergebnis und Folgerundenstart ab Ticket 6. Die Folgerunde wird
+  bis zum frischen Countdown geprüft; eine zweite volle Spielzeit und deren
+  erneute Auswertung prüfen die Widget-Tests mit injizierter Uhr.
   iOS ist hier noch kein Testziel.
 
 ## Lokale Erstprüfung am 23.10.2026
@@ -108,6 +117,17 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
   eine einzelne lokale Messung und keine Vorhersage für GitHub Actions.
 - Alle 34 bestehenden Unit-/Widget-Tests bestanden; Flutter-Analyse ohne Befund.
   Formatprüfung und `git diff --check` erfolgreich.
+
+## Ticket-6-Prüfung am 24.10.2026
+
+- Drei Android-Integrationstests auf `Medium_Phone_API_36.1` (`emulator-5554`)
+  bestanden: beide Spielausgänge mit echten Zwei-Minuten-Runden, anschließend
+  neue Kartenverteilung und frischer Countdown; außerdem der Verlassensablauf.
+  Final ca. 4:29 Minuten Testausführung zusätzlich zu Build und Installation.
+- Alle 45 Unit-/Widget-Tests sowie Analyse, Formatprüfung und Release-Build
+  erfolgreich. Normale Release-App anschließend installiert und gestartet.
+- Umfang, lokale Protokolle und Sichtprüfung:
+  [Ticket 6](mvp/ticket-6-abstimmung.md).
 - Android-Release-APK mit dem endgültigen Buildbefehl erfolgreich gebaut.
   Die generierte Release-Pluginregistrierung enthält das Test-Plugin nicht.
   Der anfängliche Fehler mit `--no-pub` ist durch die oben beschriebene

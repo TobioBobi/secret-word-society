@@ -119,22 +119,13 @@ class _SessionScreenState extends State<SessionScreen>
 
   void _actOnCard(GameRound expected, {required bool reveal}) {
     // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
-    final lifecycle = WidgetsBinding.instance.lifecycleState;
-    if (!identical(_session.round, expected) ||
-        _leavingDialog ||
-        (lifecycle != null && lifecycle != AppLifecycleState.resumed)) {
-      return;
-    }
+    if (!_canAct(expected)) return;
     setState(reveal ? _session.revealSecret : _session.hideAndAdvance);
     _focusNewPhase();
   }
 
   void _startDiscussion(GameRound expected) {
-    final lifecycle = WidgetsBinding.instance.lifecycleState;
-    if (!identical(_session.round, expected) ||
-        expected.phase != GamePhase.ready ||
-        _leavingDialog ||
-        (lifecycle != null && lifecycle != AppLifecycleState.resumed)) {
+    if (!_canAct(expected) || expected.phase != GamePhase.ready) {
       return;
     }
     setState(() {
@@ -142,6 +133,43 @@ class _SessionScreenState extends State<SessionScreen>
       _remainingSeconds = GameRound.discussionDuration.inSeconds;
     });
     _startDiscussionTimer();
+    _focusNewPhase();
+  }
+
+  bool _canAct(GameRound expected) {
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    return mounted &&
+        identical(_session.round, expected) &&
+        !_leavingDialog &&
+        (lifecycle == null || lifecycle == AppLifecycleState.resumed);
+  }
+
+  void _selectSuspect(GameRound expected, String? playerId) {
+    if (!_canAct(expected) ||
+        expected.phase != GamePhase.voting ||
+        playerId == null) {
+      return;
+    }
+    setState(() => _session.selectSuspect(playerId));
+  }
+
+  void _confirmSuspect(GameRound expected) {
+    if (!_canAct(expected) ||
+        expected.phase != GamePhase.voting ||
+        expected.suspect == null) {
+      return;
+    }
+    setState(_session.confirmSuspect);
+    _focusNewPhase();
+  }
+
+  void _newRound(GameRound expected) {
+    if (!_canAct(expected) || expected.phase != GamePhase.result) return;
+    _stopDiscussionTimer();
+    setState(() {
+      _session.newRound();
+      _remainingSeconds = GameRound.discussionDuration.inSeconds;
+    });
     _focusNewPhase();
   }
 
@@ -182,6 +210,10 @@ class _SessionScreenState extends State<SessionScreen>
 
   Future<void> _confirmLeaveRound() async {
     if (_leavingDialog || _session.round == null) return;
+    if (_session.round!.phase == GamePhase.result) {
+      _returnToGroup();
+      return;
+    }
     _leavingDialog = true;
     _concealSecret();
     // Remove the secret from both rendering and semantics before opening a route.
@@ -227,6 +259,8 @@ class _SessionScreenState extends State<SessionScreen>
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final round = _session.round;
+    final result = round?.result;
+    final groupWon = result?.winner == Winner.group;
     final revealed = round?.phase == GamePhase.secret;
     final title = switch (round?.phase) {
       null => strings.groupTitle,
@@ -234,7 +268,9 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.secret => strings.privateTitle(round!.currentPlayer!.name),
       GamePhase.ready => strings.readyTitle,
       GamePhase.discussion => strings.discussionTitle,
-      GamePhase.voting || GamePhase.result => strings.votingTitle,
+      GamePhase.voting => strings.votingTitle,
+      GamePhase.result =>
+        groupWon ? strings.groupWinTitle : strings.imposterWinTitle,
     };
     final phaseLabel = switch (round?.phase) {
       null => strings.groupPhase,
@@ -244,14 +280,17 @@ class _SessionScreenState extends State<SessionScreen>
       ),
       GamePhase.ready => strings.readyPhase,
       GamePhase.discussion => strings.discussionPhase,
-      GamePhase.voting || GamePhase.result => strings.votingPhase,
+      GamePhase.voting => strings.votingPhase,
+      GamePhase.result => strings.resultPhase,
     };
     final intro = switch (round?.phase) {
       null => strings.groupIntro,
       GamePhase.handoff => strings.handoffIntro,
       GamePhase.secret => strings.privateIntro,
       GamePhase.ready || GamePhase.discussion => strings.readyIntro,
-      GamePhase.voting || GamePhase.result => strings.votingIntro,
+      GamePhase.voting => strings.votingIntro,
+      GamePhase.result =>
+        groupWon ? strings.groupWinIntro : strings.imposterWinIntro,
     };
     return PopScope(
       canPop: round == null,
@@ -266,7 +305,7 @@ class _SessionScreenState extends State<SessionScreen>
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final inset = constraints.maxWidth < 360 ? 16.0 : 24.0;
-                  return CustomScrollView(
+                  final scrollView = CustomScrollView(
                     controller: _scroll,
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
@@ -326,6 +365,8 @@ class _SessionScreenState extends State<SessionScreen>
                                   _buildCountdown(strings)
                                 else if (round.phase == GamePhase.voting)
                                   _buildVotingCard(strings)
+                                else if (result != null)
+                                  _buildResult(strings, result)
                                 else if (revealed)
                                   _buildSecretCard(
                                     strings,
@@ -338,6 +379,8 @@ class _SessionScreenState extends State<SessionScreen>
                         ),
                       ),
                       if (round == null) _buildPlayers(strings, inset),
+                      if (round?.phase == GamePhase.voting)
+                        _buildSuspects(round!, inset),
                       SliverPadding(
                         padding: EdgeInsets.fromLTRB(inset, 24, inset, 24),
                         sliver: round == null
@@ -356,6 +399,13 @@ class _SessionScreenState extends State<SessionScreen>
                       ),
                     ],
                   );
+                  return round?.phase == GamePhase.voting
+                      ? RadioGroup<String>(
+                          groupValue: round!.suspect?.id,
+                          onChanged: (id) => _selectSuspect(round, id),
+                          child: scrollView,
+                        )
+                      : scrollView;
                 },
               ),
             ),
@@ -448,6 +498,27 @@ class _SessionScreenState extends State<SessionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (round.phase == GamePhase.voting) ...[
+          FilledButton(
+            onPressed: round.suspect == null
+                ? null
+                : () => _confirmSuspect(round),
+            child: Text(
+              round.suspect == null
+                  ? strings.selectSuspect
+                  : strings.confirmSuspect(round.suspect!.name),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (round.phase == GamePhase.result) ...[
+          FilledButton(
+            onPressed: () => _newRound(round),
+            child: Text(strings.nextRound, textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: 12),
+        ],
         if (round.phase == GamePhase.ready) ...[
           FilledButton(
             onPressed: () => _startDiscussion(round),
@@ -474,6 +545,91 @@ class _SessionScreenState extends State<SessionScreen>
           onPressed: _confirmLeaveRound,
           child: Text(strings.editGroup, textAlign: TextAlign.center),
         ),
+      ],
+    );
+  }
+
+  Widget _buildSuspects(GameRound round, double inset) => SliverPadding(
+    padding: EdgeInsets.fromLTRB(inset, 16, inset, 0),
+    sliver: SliverList.builder(
+      itemCount: round.players.length,
+      itemBuilder: (context, index) {
+        final player = round.players[index];
+        final selected = round.suspect?.id == player.id;
+        return Padding(
+          key: ValueKey(player.id),
+          padding: const EdgeInsets.only(bottom: 8),
+          child: RadioListTile<String>(
+            value: player.id,
+            title: Text(player.name),
+            selected: selected,
+            activeColor: PartyColors.lime,
+            tileColor: PartyColors.surface,
+            selectedTileColor: PartyColors.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: selected ? PartyColors.lime : PartyColors.outline,
+                width: selected ? 2 : 1,
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+
+  Widget _buildResult(AppLocalizations strings, RoundResult result) {
+    final groupWon = result.winner == Winner.group;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: groupWon ? PartyColors.lime : PartyColors.purple,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Text(
+            groupWon ? strings.groupWins : strings.imposterWins,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: groupWon ? PartyColors.background : PartyColors.text,
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        for (final (label, value) in [
+          (strings.resultSuspect, result.suspect.name),
+          (strings.resultImposter, result.imposter.name),
+          (strings.resultWord, result.word),
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Semantics(
+              // Keep each label with its value when reading the result.
+              container: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(label, style: const TextStyle(color: PartyColors.muted)),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
