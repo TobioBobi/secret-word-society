@@ -54,3 +54,34 @@ flutter test
 Weitere Sprachen kommen später als eigene ARB-Dateien und Wortkataloge hinzu.
 Aktuell ist ausschließlich Deutsch verfügbar. Generierte `app_localizations*.dart`
 nicht von Hand bearbeiten; `flutter gen-l10n` erzeugt sie aus den ARB-Dateien neu.
+
+## Continuous Integration
+
+Der GitHub-Actions-Workflow [Flutter CI](.github/workflows/ci.yml) prüft Pull Requests
+gegen `main` und jeden Push auf `main`. Nach Übernahme des Workflows in `main`
+lässt er sich unter **Actions > Flutter CI > Run workflow** auch manuell starten.
+
+Er verwendet Flutter **3.47.7**, Java **17** und Ubuntu **24.04**. Abhängigkeiten
+werden anhand der eingecheckten `pubspec.lock` installiert. Danach folgen
+Lokalisierungsgenerierung, Formatprüfung, statische Analyse, alle Unit-/Widget-Tests
+und ein Android-Release-Build. Ein fehlgeschlagener Schritt stoppt den Job.
+
+Ergebnisse und Logs stehen am Pull Request und unter **Actions**. Der Release-Build
+nutzt derzeit die Debug-Signierung aus der Android-Konfiguration; für eine
+Store-Veröffentlichung ist später eine eigene Release-Signierung nötig.
+Der Workflow führt keine Emulator- oder Gerätetests aus.
+
+Dieselben Prüfungen lokal (Flutter 3.47.7):
+
+```powershell
+flutter pub get --enforce-lockfile
+flutter gen-l10n
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze --no-pub --fatal-infos
+flutter test --no-pub
+flutter build apk --release --no-pub
+```
+
+Bei Flutter-Upgrades die feste Version im Workflow und diese Anleitung gemeinsam
+aktualisieren. Der Workflow meldet seinen Status am Pull Request; eine verpflichtende
+Merge-Sperre muss separat über GitHub-Branch-Regeln eingerichtet werden.
