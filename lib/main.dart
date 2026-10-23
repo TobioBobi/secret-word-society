@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'l10n/app_localizations.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -9,11 +11,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Hello World',
-      home: Scaffold(
-        body: Center(child: Text('Hello, world!')),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      home: Builder(
+        builder: (context) => Scaffold(
+          body: Center(child: Text(AppLocalizations.of(context).greeting)),
+        ),
       ),
     );
   }

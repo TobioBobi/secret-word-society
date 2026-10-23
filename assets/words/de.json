@@ -1,0 +1,21 @@
+{
+  "languageCode": "de",
+  "pairs": [
+    { "id": "de-001", "word": "Pizza", "hint": "Gesellige Runde" },
+    { "id": "de-002", "word": "Zahnbürste", "hint": "Morgenroutine" },
+    { "id": "de-003", "word": "Regenschirm", "hint": "Wetterwechsel" },
+    { "id": "de-004", "word": "Kino", "hint": "Dunkler Raum" },
+    { "id": "de-005", "word": "Strand", "hint": "Barfuß" },
+    { "id": "de-006", "word": "Kühlschrank", "hint": "Mitternachtssnack" },
+    { "id": "de-007", "word": "Fahrrad", "hint": "Gleichgewicht" },
+    { "id": "de-008", "word": "Bibliothek", "hint": "Leise sein" },
+    { "id": "de-009", "word": "Kaffee", "hint": "Kurze Pause" },
+    { "id": "de-010", "word": "Schneemann", "hint": "Vergänglicher Gast" },
+    { "id": "de-011", "word": "Aufzug", "hint": "Kurze Begegnung" },
+    { "id": "de-012", "word": "Gitarre", "hint": "Lagerfeuer" },
+    { "id": "de-013", "word": "Flughafen", "hint": "Abschied" },
+    { "id": "de-014", "word": "Geburtstag", "hint": "Einmal im Jahr" },
+    { "id": "de-015", "word": "Waschmaschine", "hint": "Verlorene Socke" },
+    { "id": "de-016", "word": "Zelt", "hint": "Nachts draußen" }
+  ]
+}
