@@ -55,6 +55,13 @@ final class GameSession {
 
   void advanceTime(DateTime now) => _round = _requireRound().advanceTime(now);
 
+  void selectSuspect(String playerId) =>
+      _round = _requireRound().selectSuspect(playerId);
+
+  void confirmSuspect() => _round = _requireRound().confirmSuspect();
+
+  void newRound() => _round = _requireRound().newRound();
+
   GameRound _requireRound() =>
       _round ?? (throw StateError('Start a round first.'));
 

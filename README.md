@@ -5,8 +5,9 @@ Namen hinzufügen/entfernen und ab drei Personen eine Runde starten. Jede Person
 deckt ihre private Karte bewusst auf und verbirgt sie vor der nächsten Übergabe.
 Nach der letzten Person startet ihr bewusst den Zwei-Minuten-Countdown. Die Zeit
 läuft auch bei App-Wechsel oder gesperrtem Bildschirm weiter; bei Ablauf erscheint
-die Aufforderung zur mündlichen Abstimmung. Namensauswahl, Auflösung und neue Runde
-folgen in Ticket 6.
+die mündliche Abstimmung mit Namensauswahl. Nach Bestätigung seht ihr den
+tatsächlichen Imposter, das Wort und den Gewinner. „Noch eine Runde“ beginnt
+wieder verdeckt mit derselben Gruppe und neu ausgelosten Geheimnissen.
 Der Spielkern und 16 deutsche Wort-Hinweis-Paare sind bereits enthalten.
 
 ## MVP-Entwurf
@@ -21,6 +22,8 @@ beschreibt die Spieleranlage.
 die Verteilung, sichere Rücknavigation und den Android-Geheimnisschutz.
 [Ticket 5: Zwei-Minuten-Spielphase](docs/mvp/ticket-5-spielphase.md) beschreibt
 Countdown, Unterbrechungen und den Übergang zur Abstimmung.
+[Ticket 6: Abstimmung, Auflösung und neue Runde](docs/mvp/ticket-6-abstimmung.md)
+schließt den vollständigen Spielablauf ab.
 
 ## Starten
 
@@ -48,7 +51,7 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 ## Dateien und Checks
 
 - `lib/main.dart`: App-Einstieg, Party-Theme und deutsche Lokalisierung.
-- `lib/ui/`: Spieleranlage, Kartenverteilung, Countdown und Abstimmungsübergang.
+- `lib/ui/`: Spieleranlage, Kartenverteilung, Countdown, Abstimmung und Ergebnis.
 - `lib/game/game_session.dart`: Gruppe und aktuelle Runde im Sitzungsspeicher.
 - `lib/game/`: Flutter-unabhängige Modelle und Phasenwechsel einer Runde.
 - `assets/words/de.json`: eigener deutscher Startwortbestand, offline gebündelt.
@@ -84,7 +87,7 @@ Ergebnisse und Logs stehen am Pull Request und unter **Actions**. Der Release-Bu
 nutzt derzeit die Debug-Signierung aus der Android-Konfiguration; für eine
 Store-Veröffentlichung ist später eine eigene Release-Signierung nötig.
 Ein separater Job startet einen Android-Emulator mit API 35 (`google_apis`,
-`x86_64`, Pixel-7-Pro-Profil) und führt die beiden Integrationstests aus. Er läuft
+`x86_64`, Pixel-7-Pro-Profil) und führt die drei Integrationstests aus. Er läuft
 parallel zu Analyse, Unit-/Widget-Tests und Release-Build. Auch ein fehlgeschlagener
 Integrationstest meldet den Workflow als fehlgeschlagen. Es werden keine APKs
 oder Bildschirmaufnahmen hochgeladen.

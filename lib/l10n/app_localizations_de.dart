@@ -175,6 +175,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String get votingCard => 'Die Zeit ist um. Einigt euch auf eine Person.';
 
   @override
+  String get selectSuspect => 'Person auswählen';
+
+  @override
+  String confirmSuspect(String name) {
+    return '$name verdächtigen';
+  }
+
+  @override
+  String get resultPhase => 'Die Auflösung';
+
+  @override
+  String get groupWinTitle => 'Erwischt!';
+
+  @override
+  String get imposterWinTitle => 'Gut geblufft!';
+
+  @override
+  String get groupWinIntro => 'Ihr habt den Imposter entlarvt.';
+
+  @override
+  String get imposterWinIntro => 'Der Imposter hat euch ausgetrickst.';
+
+  @override
+  String get groupWins => 'Die Gruppe gewinnt.';
+
+  @override
+  String get imposterWins => 'Der Imposter gewinnt.';
+
+  @override
+  String get resultSuspect => 'Euer Verdacht';
+
+  @override
+  String get resultImposter => 'Der Imposter war';
+
+  @override
+  String get resultWord => 'Das geheime Wort';
+
+  @override
+  String get nextRound => 'Noch eine Runde';
+
+  @override
   String get leaveRoundTitle => 'Runde verlassen?';
 
   @override
