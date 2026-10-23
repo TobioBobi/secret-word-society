@@ -100,4 +100,57 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get editGroup => 'Gruppe bearbeiten';
+
+  @override
+  String get revealSecret => 'Geheimnis aufdecken';
+
+  @override
+  String privateTitle(String name) {
+    return 'Nur für $name.';
+  }
+
+  @override
+  String get privateIntro =>
+      'Merke dir deine Karte. Verbirg sie, bevor du das Handy weitergibst.';
+
+  @override
+  String get secretWord => 'Dein geheimes Wort';
+
+  @override
+  String get imposterRole => 'Du bist der Imposter';
+
+  @override
+  String get secretHint => 'Dein Hinweis';
+
+  @override
+  String get hideAndPass => 'Verbergen & weitergeben';
+
+  @override
+  String get hideAndFinish => 'Verbergen & weiter';
+
+  @override
+  String get readyPhase => 'Eure Runde';
+
+  @override
+  String get readyTitle => 'Alle eingeweiht?';
+
+  @override
+  String get readyIntro =>
+      'Gebt reihum einen Hinweis. Verratet das Wort nicht.';
+
+  @override
+  String get readyCard => 'Alle Geheimnisse sind verteilt.';
+
+  @override
+  String get leaveRoundTitle => 'Runde verlassen?';
+
+  @override
+  String get leaveRoundBody =>
+      'Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.';
+
+  @override
+  String get keepPlaying => 'Weiterspielen';
+
+  @override
+  String get leaveRound => 'Runde verlassen';
 }

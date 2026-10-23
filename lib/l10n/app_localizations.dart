@@ -225,6 +225,102 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Gruppe bearbeiten'**
   String get editGroup;
+
+  /// No description provided for @revealSecret.
+  ///
+  /// In de, this message translates to:
+  /// **'Geheimnis aufdecken'**
+  String get revealSecret;
+
+  /// No description provided for @privateTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur für {name}.'**
+  String privateTitle(String name);
+
+  /// No description provided for @privateIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Merke dir deine Karte. Verbirg sie, bevor du das Handy weitergibst.'**
+  String get privateIntro;
+
+  /// No description provided for @secretWord.
+  ///
+  /// In de, this message translates to:
+  /// **'Dein geheimes Wort'**
+  String get secretWord;
+
+  /// No description provided for @imposterRole.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist der Imposter'**
+  String get imposterRole;
+
+  /// No description provided for @secretHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Dein Hinweis'**
+  String get secretHint;
+
+  /// No description provided for @hideAndPass.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbergen & weitergeben'**
+  String get hideAndPass;
+
+  /// No description provided for @hideAndFinish.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbergen & weiter'**
+  String get hideAndFinish;
+
+  /// No description provided for @readyPhase.
+  ///
+  /// In de, this message translates to:
+  /// **'Eure Runde'**
+  String get readyPhase;
+
+  /// No description provided for @readyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle eingeweiht?'**
+  String get readyTitle;
+
+  /// No description provided for @readyIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Gebt reihum einen Hinweis. Verratet das Wort nicht.'**
+  String get readyIntro;
+
+  /// No description provided for @readyCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Geheimnisse sind verteilt.'**
+  String get readyCard;
+
+  /// No description provided for @leaveRoundTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Runde verlassen?'**
+  String get leaveRoundTitle;
+
+  /// No description provided for @leaveRoundBody.
+  ///
+  /// In de, this message translates to:
+  /// **'Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.'**
+  String get leaveRoundBody;
+
+  /// No description provided for @keepPlaying.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen'**
+  String get keepPlaying;
+
+  /// No description provided for @leaveRound.
+  ///
+  /// In de, this message translates to:
+  /// **'Runde verlassen'**
+  String get leaveRound;
 }
 
 class _AppLocalizationsDelegate

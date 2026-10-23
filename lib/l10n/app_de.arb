@@ -26,5 +26,22 @@
   "@handoffTitle": { "placeholders": { "name": { "type": "String" } } },
   "handoffIntro": "Nur du schaust auf den Bildschirm.",
   "secretConcealed": "Dein Geheimnis bleibt verdeckt.",
-  "editGroup": "Gruppe bearbeiten"
+  "editGroup": "Gruppe bearbeiten",
+  "revealSecret": "Geheimnis aufdecken",
+  "privateTitle": "Nur für {name}.",
+  "@privateTitle": { "placeholders": { "name": { "type": "String" } } },
+  "privateIntro": "Merke dir deine Karte. Verbirg sie, bevor du das Handy weitergibst.",
+  "secretWord": "Dein geheimes Wort",
+  "imposterRole": "Du bist der Imposter",
+  "secretHint": "Dein Hinweis",
+  "hideAndPass": "Verbergen & weitergeben",
+  "hideAndFinish": "Verbergen & weiter",
+  "readyPhase": "Eure Runde",
+  "readyTitle": "Alle eingeweiht?",
+  "readyIntro": "Gebt reihum einen Hinweis. Verratet das Wort nicht.",
+  "readyCard": "Alle Geheimnisse sind verteilt.",
+  "leaveRoundTitle": "Runde verlassen?",
+  "leaveRoundBody": "Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.",
+  "keepPlaying": "Weiterspielen",
+  "leaveRound": "Runde verlassen"
 }

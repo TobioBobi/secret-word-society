@@ -18,7 +18,8 @@ class SessionScreen extends StatefulWidget {
   State<SessionScreen> createState() => _SessionScreenState();
 }
 
-class _SessionScreenState extends State<SessionScreen> {
+class _SessionScreenState extends State<SessionScreen>
+    with WidgetsBindingObserver {
   final _session = GameSession();
   final _name = TextEditingController();
   final _nameFocus = FocusNode();
@@ -27,9 +28,22 @@ class _SessionScreenState extends State<SessionScreen> {
   NameProblem? _nameProblem;
   bool _starting = false;
   bool _catalogFailed = false;
+  bool _leavingDialog = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) _concealSecret();
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _name.dispose();
     _nameFocus.dispose();
     _headingFocus.dispose();
@@ -77,6 +91,59 @@ class _SessionScreenState extends State<SessionScreen> {
     _focusNewPhase();
   }
 
+  void _concealSecret() {
+    if (_session.round?.phase != GamePhase.secret) return;
+    setState(_session.concealSecret);
+    _focusNewPhase();
+  }
+
+  void _actOnCard(GameRound expected, {required bool reveal}) {
+    // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (!identical(_session.round, expected) ||
+        _leavingDialog ||
+        (lifecycle != null && lifecycle != AppLifecycleState.resumed)) {
+      return;
+    }
+    setState(reveal ? _session.revealSecret : _session.hideAndAdvance);
+    _focusNewPhase();
+  }
+
+  Future<void> _confirmLeaveRound() async {
+    if (_leavingDialog || _session.round == null) return;
+    _leavingDialog = true;
+    _concealSecret();
+    // Remove the secret from both rendering and semantics before opening a route.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final strings = AppLocalizations.of(context);
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(strings.leaveRoundTitle),
+        content: Text(strings.leaveRoundBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(strings.keepPlaying),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(strings.leaveRound),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    _leavingDialog = false;
+    if (leave == true) {
+      _returnToGroup();
+    } else {
+      _focusNewPhase();
+    }
+  }
+
   void _focusNewPhase() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -89,10 +156,19 @@ class _SessionScreenState extends State<SessionScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final round = _session.round;
+    final ready = round?.phase == GamePhase.ready;
+    final revealed = round?.phase == GamePhase.secret;
+    final title = round == null
+        ? strings.groupTitle
+        : ready
+        ? strings.readyTitle
+        : revealed
+        ? strings.privateTitle(round.currentPlayer!.name)
+        : strings.handoffTitle(round.currentPlayer!.name);
     return PopScope(
       canPop: round == null,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _session.round != null) _returnToGroup();
+        if (!didPop) _confirmLeaveRound();
       },
       child: Scaffold(
         body: SafeArea(
@@ -126,6 +202,8 @@ class _SessionScreenState extends State<SessionScreen> {
                               Text(
                                 round == null
                                     ? strings.groupPhase
+                                    : ready
+                                    ? strings.readyPhase
                                     : strings.handoffProgress(
                                         round.currentPlayerNumber!,
                                         round.players.length,
@@ -136,16 +214,15 @@ class _SessionScreenState extends State<SessionScreen> {
                               ),
                               const SizedBox(height: 12),
                               Focus(
+                                key: ValueKey(
+                                  '${round?.phase}-${round?.currentPlayerNumber}',
+                                ),
                                 focusNode: _headingFocus,
                                 skipTraversal: true,
                                 child: Semantics(
                                   header: true,
                                   child: Text(
-                                    round == null
-                                        ? strings.groupTitle
-                                        : strings.handoffTitle(
-                                            round.currentPlayer!.name,
-                                          ),
+                                    title,
                                     style: Theme.of(context)
                                         .textTheme
                                         .headlineLarge,
@@ -156,6 +233,10 @@ class _SessionScreenState extends State<SessionScreen> {
                               Text(
                                 round == null
                                     ? strings.groupIntro
+                                    : ready
+                                    ? strings.readyIntro
+                                    : revealed
+                                    ? strings.privateIntro
                                     : strings.handoffIntro,
                                 style: const TextStyle(
                                   color: PartyColors.muted,
@@ -163,7 +244,16 @@ class _SessionScreenState extends State<SessionScreen> {
                               ),
                               const SizedBox(height: 24),
                               if (round == null) _buildNameInput(strings),
-                              if (round != null) _buildConcealedCard(strings),
+                              if (round != null)
+                                if (ready)
+                                  _buildReadyCard(strings)
+                                else if (revealed)
+                                  _buildSecretCard(
+                                    strings,
+                                    round.currentSecret!,
+                                  )
+                                else
+                                  _buildConcealedCard(strings),
                             ],
                           ),
                         ),
@@ -171,24 +261,19 @@ class _SessionScreenState extends State<SessionScreen> {
                       if (round == null) _buildPlayers(strings, inset),
                       SliverPadding(
                         padding: EdgeInsets.fromLTRB(inset, 24, inset, 24),
-                        sliver: SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: round == null
-                                ? _buildStartActions(strings)
-                                : [
-                                    OutlinedButton(
-                                      onPressed: _returnToGroup,
-                                      child: Text(
-                                        strings.editGroup,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                          ),
-                        ),
+                        sliver: round == null
+                            ? SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: _buildStartActions(strings),
+                                ),
+                              )
+                            : SliverToBoxAdapter(
+                                child: _buildRoundActions(strings, round),
+                              ),
                       ),
                     ],
                   );
@@ -275,6 +360,34 @@ class _SessionScreenState extends State<SessionScreen> {
             strings.emptyGroup,
             style: const TextStyle(color: PartyColors.muted),
           ),
+      ],
+    );
+  }
+
+  Widget _buildRoundActions(AppLocalizations strings, GameRound round) {
+    final revealed = round.phase == GamePhase.secret;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (round.phase != GamePhase.ready) ...[
+          FilledButton(
+            key: ValueKey(round.phase),
+            onPressed: () => _actOnCard(round, reveal: !revealed),
+            child: Text(
+              !revealed
+                  ? strings.revealSecret
+                  : round.currentPlayerNumber == round.players.length
+                  ? strings.hideAndFinish
+                  : strings.hideAndPass,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        OutlinedButton(
+          onPressed: _confirmLeaveRound,
+          child: Text(strings.editGroup, textAlign: TextAlign.center),
+        ),
       ],
     );
   }
@@ -380,6 +493,62 @@ class _SessionScreenState extends State<SessionScreen> {
         ),
         const SizedBox(height: 20),
         Text(strings.secretConcealed, textAlign: TextAlign.center),
+      ],
+    ),
+  );
+
+  Widget _buildSecretCard(AppLocalizations strings, PlayerSecret secret) =>
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: PartyColors.purple,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (secret.role == PlayerRole.imposter) ...[
+              Text(
+                strings.imposterRole,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            Text(
+              secret.role == PlayerRole.imposter
+                  ? strings.secretHint
+                  : strings.secretWord,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              secret.text,
+              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildReadyCard(AppLocalizations strings) => Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: PartyColors.surface,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: PartyColors.outline, width: 2),
+    ),
+    child: Column(
+      children: [
+        const ExcludeSemantics(
+          child: Icon(
+            Icons.check_circle_outline,
+            size: 64,
+            color: PartyColors.lime,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(strings.readyCard, textAlign: TextAlign.center),
       ],
     ),
   );
