@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark">
   <title>Secret Word Society · Ablaufentwurf</title>
   <style>
-    :root { font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #fbf7ff; background: #100d16; --ink: #171321; --surface: #262033; --line: #63566f; --text: #fbf7ff; --muted: #c6bdd2; --purple: #6842d9; --lime: #d6f76b; --coral: #ffab91; }
+    :root { font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #fbf7ff; background: #100d16; --ink: #171321; --surface: #262033; --line: #857492; --text: #fbf7ff; --muted: #c6bdd2; --purple: #6842d9; --lime: #d6f76b; --coral: #ffab91; }
     * { box-sizing: border-box; }
     body { margin: 0; }
     button, input { font: inherit; }
@@ -75,7 +75,6 @@
     dialog::backdrop { background: #100d16d9; }
     dialog h2 { font-size: 28px; }
     dialog p { line-height: 1.5; }
-    .screen-reader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     @media (max-width: 760px) { .layout { grid-template-columns: minmax(0, 1fr); padding: 24px 16px; gap: 28px; } .intro h1 { font-size: 32px; } nav { display: flex; overflow-x: auto; padding-bottom: 8px; } .scene { flex: 0 0 auto; } .phone { width: 100%; max-width: 410px; margin: auto; min-height: 690px; padding: 24px 20px; border-radius: 28px; } .palette { display: none; } }
     @media (max-width: 360px) { .phone { padding: 24px 16px; } h2 { font-size: 30px; } .secret { font-size: 30px; } }
   </style>
@@ -111,7 +110,6 @@
       <noscript>Bitte JavaScript aktivieren, um den klickbaren Entwurf zu sehen. Ablauf und Gestaltung stehen auch in der verlinkten Spezifikation.</noscript>
     </section>
   </main>
-  <p id="announcement" class="screen-reader" role="status" aria-live="polite"></p>
   <dialog id="exit-dialog" aria-labelledby="exit-title">
     <h2 id="exit-title">Runde verlassen?</h2>
     <p>Die laufende Runde endet. Eure Gruppe bleibt erhalten.</p>
@@ -163,7 +161,6 @@
         }
         if (focus) {
           screen.querySelector('h2')?.focus({ preventScroll: true });
-          document.getElementById('announcement').textContent = screen.querySelector('h2')?.textContent || '';
         }
       }
       function updateClock() {

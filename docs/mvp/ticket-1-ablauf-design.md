@@ -70,7 +70,7 @@ Texte vermitteln Partygefühl; Geheimnisse bleiben trotzdem gut lesbar.
 | --- | --- | --- |
 | Hintergrund | `#171321` | App-Fläche |
 | Oberfläche | `#262033` | Namenszeilen, Felder, Nebenaktionen |
-| Kontur | `#63566F` | Felder und getrennte Flächen |
+| Kontur | `#857492` | Felder und getrennte Flächen; mindestens 3:1 zu Oberfläche und Hintergrund |
 | Text | `#FBF7FF` | Überschriften und Inhalt |
 | Sekundärtext | `#C6BDD2` | Bedienhinweise |
 | Violett | `#6842D9` | Geheime Karte, visuelle Identität |
@@ -90,7 +90,8 @@ Texte vermitteln Partygefühl; Geheimnisse bleiben trotzdem gut lesbar.
   Lesereihenfolge: Phase → Überschrift/Person → Inhalt → Hauptaktion.
 - Sichtbarer Fokus im Entwurf; in Flutter semantische Labels für Entfernen,
   ausgewählte Person und Geheimnis. Timer nicht sekündlich vorlesen lassen,
-  Phasenwechsel einmal ankündigen. Keine notwendige Animation, kein Blinken.
+  Phasenwechsel einmal durch Fokus auf die neue Überschrift ankündigen, ohne
+  zusätzliche Live-Region mit demselben Text. Keine notwendige Animation, kein Blinken.
 
 ## Bedien- und Randfallentscheidungen für die Umsetzung
 
@@ -159,10 +160,13 @@ Spielverteilung, Flutter-Tests und Android-Abnahme gehören zu den Folgetickets.
   Mindestzahl, Verbergen/Weiterreichen, App-Wechsel, Verlassen/Abbrechen,
   Timerablauf einschließlich Rückkehr, beide Spielausgänge und Folgerunde.
 - Statische IDs und lokale Links geprüft; keine externen Ressourcen.
-  Text-/Flächenkontraste der Palette rechnerisch mindestens 4,5:1.
-- Visuelle Browserprüfung und Prüfung mit vergrößerter Schrift stehen aus:
-  der lokale Vorschauzugriff war in dieser Umgebung gesperrt. Die oben
-  beschriebenen Layout-/Accessibility-Ziele sind daher noch keine bestätigte
-  Browser- oder Android-Abnahme.
+  Text-/Flächenkontraste der Palette rechnerisch mindestens 4,5:1;
+  Bedienelement-Konturen mindestens 3:1 zu den angrenzenden dunklen Flächen.
+- Reviewkorrekturen im lokalen Browser geprüft: In allen sieben Ansichten liegt
+  der Fokus nach dem Wechsel auf der Überschrift, ohne zusätzliche Phasen-Live-Region.
+  Die Statusmeldung zur Namensvalidierung bleibt erhalten.
+- Vollständige visuelle Prüfung mit vergrößerter Schrift, Prüfung mit echtem
+  Screenreader und Android-Abnahme stehen aus. Der zunächst gesperrte lokale
+  Vorschauzugriff funktioniert inzwischen über den lokalen HTTP-Server.
 - Kein Flutter-Produktcode geändert; Flutter-Analyse und Widget-Tests sind für
   dieses Entwurfsticket nicht erforderlich.
