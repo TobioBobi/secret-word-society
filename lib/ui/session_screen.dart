@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/word_catalog_loader.dart';
@@ -10,9 +12,15 @@ import 'party_theme.dart';
 typedef CatalogLoader = Future<WordCatalog> Function();
 
 class SessionScreen extends StatefulWidget {
-  const SessionScreen({super.key, this.catalogLoader = loadWordCatalog});
+  const SessionScreen({
+    super.key,
+    this.catalogLoader = loadWordCatalog,
+    this.now = DateTime.now,
+  });
 
   final CatalogLoader catalogLoader;
+  // The production clock also counts time when Flutter suspends frames.
+  final DateTime Function() now;
 
   @override
   State<SessionScreen> createState() => _SessionScreenState();
@@ -29,6 +37,8 @@ class _SessionScreenState extends State<SessionScreen>
   bool _starting = false;
   bool _catalogFailed = false;
   bool _leavingDialog = false;
+  Timer? _discussionTimer;
+  int _remainingSeconds = GameRound.discussionDuration.inSeconds;
 
   @override
   void initState() {
@@ -38,11 +48,20 @@ class _SessionScreenState extends State<SessionScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) _concealSecret();
+    // Android can make the window visible in `inactive` before `resumed`.
+    // Reconcile on every transition so that return frame is already current.
+    _updateDiscussion();
+    if (state != AppLifecycleState.resumed) {
+      _stopDiscussionTimer();
+      _concealSecret();
+    } else {
+      _startDiscussionTimer();
+    }
   }
 
   @override
   void dispose() {
+    _stopDiscussionTimer();
     WidgetsBinding.instance.removeObserver(this);
     _name.dispose();
     _nameFocus.dispose();
@@ -87,6 +106,7 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   void _returnToGroup() {
+    _stopDiscussionTimer();
     setState(_session.returnToGroup);
     _focusNewPhase();
   }
@@ -107,6 +127,57 @@ class _SessionScreenState extends State<SessionScreen>
     }
     setState(reveal ? _session.revealSecret : _session.hideAndAdvance);
     _focusNewPhase();
+  }
+
+  void _startDiscussion(GameRound expected) {
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (!identical(_session.round, expected) ||
+        expected.phase != GamePhase.ready ||
+        _leavingDialog ||
+        (lifecycle != null && lifecycle != AppLifecycleState.resumed)) {
+      return;
+    }
+    setState(() {
+      _session.startDiscussion(widget.now());
+      _remainingSeconds = GameRound.discussionDuration.inSeconds;
+    });
+    _startDiscussionTimer();
+    _focusNewPhase();
+  }
+
+  void _startDiscussionTimer() {
+    _stopDiscussionTimer();
+    if (_session.round?.phase != GamePhase.discussion) return;
+    _discussionTimer = Timer.periodic(
+      const Duration(milliseconds: 250),
+      (_) => _updateDiscussion(),
+    );
+  }
+
+  void _stopDiscussionTimer() {
+    _discussionTimer?.cancel();
+    _discussionTimer = null;
+  }
+
+  void _updateDiscussion() {
+    final round = _session.round;
+    if (round?.phase != GamePhase.discussion) return;
+    final now = widget.now();
+    final seconds =
+        (round!.remainingDiscussionTime(now).inMicroseconds /
+                Duration.microsecondsPerSecond)
+            .ceil();
+    if (seconds == _remainingSeconds && now.isBefore(round.discussionEndsAt!)) {
+      return;
+    }
+    setState(() {
+      _session.advanceTime(now);
+      _remainingSeconds = seconds;
+    });
+    if (_session.round!.phase == GamePhase.voting) {
+      _stopDiscussionTimer();
+      if (!_leavingDialog) _focusNewPhase();
+    }
   }
 
   Future<void> _confirmLeaveRound() async {
@@ -156,15 +227,32 @@ class _SessionScreenState extends State<SessionScreen>
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final round = _session.round;
-    final ready = round?.phase == GamePhase.ready;
     final revealed = round?.phase == GamePhase.secret;
-    final title = round == null
-        ? strings.groupTitle
-        : ready
-        ? strings.readyTitle
-        : revealed
-        ? strings.privateTitle(round.currentPlayer!.name)
-        : strings.handoffTitle(round.currentPlayer!.name);
+    final title = switch (round?.phase) {
+      null => strings.groupTitle,
+      GamePhase.handoff => strings.handoffTitle(round!.currentPlayer!.name),
+      GamePhase.secret => strings.privateTitle(round!.currentPlayer!.name),
+      GamePhase.ready => strings.readyTitle,
+      GamePhase.discussion => strings.discussionTitle,
+      GamePhase.voting || GamePhase.result => strings.votingTitle,
+    };
+    final phaseLabel = switch (round?.phase) {
+      null => strings.groupPhase,
+      GamePhase.handoff || GamePhase.secret => strings.handoffProgress(
+        round!.currentPlayerNumber!,
+        round.players.length,
+      ),
+      GamePhase.ready => strings.readyPhase,
+      GamePhase.discussion => strings.discussionPhase,
+      GamePhase.voting || GamePhase.result => strings.votingPhase,
+    };
+    final intro = switch (round?.phase) {
+      null => strings.groupIntro,
+      GamePhase.handoff => strings.handoffIntro,
+      GamePhase.secret => strings.privateIntro,
+      GamePhase.ready || GamePhase.discussion => strings.readyIntro,
+      GamePhase.voting || GamePhase.result => strings.votingIntro,
+    };
     return PopScope(
       canPop: round == null,
       onPopInvokedWithResult: (didPop, result) {
@@ -200,14 +288,7 @@ class _SessionScreenState extends State<SessionScreen>
                               ),
                               const SizedBox(height: 32),
                               Text(
-                                round == null
-                                    ? strings.groupPhase
-                                    : ready
-                                    ? strings.readyPhase
-                                    : strings.handoffProgress(
-                                        round.currentPlayerNumber!,
-                                        round.players.length,
-                                      ),
+                                phaseLabel,
                                 style: const TextStyle(
                                   color: PartyColors.muted,
                                 ),
@@ -231,13 +312,7 @@ class _SessionScreenState extends State<SessionScreen>
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                round == null
-                                    ? strings.groupIntro
-                                    : ready
-                                    ? strings.readyIntro
-                                    : revealed
-                                    ? strings.privateIntro
-                                    : strings.handoffIntro,
+                                intro,
                                 style: const TextStyle(
                                   color: PartyColors.muted,
                                 ),
@@ -245,8 +320,12 @@ class _SessionScreenState extends State<SessionScreen>
                               const SizedBox(height: 24),
                               if (round == null) _buildNameInput(strings),
                               if (round != null)
-                                if (ready)
+                                if (round.phase == GamePhase.ready)
                                   _buildReadyCard(strings)
+                                else if (round.phase == GamePhase.discussion)
+                                  _buildCountdown(strings)
+                                else if (round.phase == GamePhase.voting)
+                                  _buildVotingCard(strings)
                                 else if (revealed)
                                   _buildSecretCard(
                                     strings,
@@ -369,7 +448,14 @@ class _SessionScreenState extends State<SessionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (round.phase != GamePhase.ready) ...[
+        if (round.phase == GamePhase.ready) ...[
+          FilledButton(
+            onPressed: () => _startDiscussion(round),
+            child: Text(strings.startDiscussion, textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (round.phase == GamePhase.handoff || revealed) ...[
           FilledButton(
             key: ValueKey(round.phase),
             onPressed: () => _actOnCard(round, reveal: !revealed),
@@ -549,6 +635,56 @@ class _SessionScreenState extends State<SessionScreen>
         ),
         const SizedBox(height: 20),
         Text(strings.readyCard, textAlign: TextAlign.center),
+      ],
+    ),
+  );
+
+  Widget _buildCountdown(AppLocalizations strings) {
+    final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+      decoration: BoxDecoration(
+        color: PartyColors.purple,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Semantics(
+        // Available on exploration, without a live announcement every second.
+        label: strings.discussionRemaining(_remainingSeconds),
+        excludeSemantics: true,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '$minutes:$seconds',
+            style: const TextStyle(
+              fontSize: 80,
+              fontWeight: FontWeight.w800,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVotingCard(AppLocalizations strings) => Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: PartyColors.surface,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: PartyColors.outline, width: 2),
+    ),
+    child: Column(
+      children: [
+        const ExcludeSemantics(
+          child: Icon(
+            Icons.how_to_vote_outlined,
+            size: 64,
+            color: PartyColors.lime,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(strings.votingCard, textAlign: TextAlign.center),
       ],
     ),
   );

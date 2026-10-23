@@ -152,7 +152,7 @@ final class GameRound {
     return remaining > discussionDuration ? discussionDuration : remaining;
   }
 
-  /// UI timer ticks and lifecycle resumes will call this in ticket 5.
+  /// Called by UI timer ticks and when resuming the app.
   GameRound advanceTime(DateTime now) {
     _requirePhase(GamePhase.discussion);
     return now.isBefore(discussionEndsAt!)

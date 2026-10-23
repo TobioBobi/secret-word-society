@@ -142,6 +142,39 @@ class AppLocalizationsDe extends AppLocalizations {
   String get readyCard => 'Alle Geheimnisse sind verteilt.';
 
   @override
+  String get startDiscussion => '2 Minuten starten';
+
+  @override
+  String get discussionPhase => 'Hinweise & Bluff';
+
+  @override
+  String get discussionTitle => 'Jetzt wird geblufft.';
+
+  @override
+  String discussionRemaining(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds Sekunden',
+      one: '1 Sekunde',
+    );
+    return 'Noch $_temp0';
+  }
+
+  @override
+  String get votingPhase => 'Eure Abstimmung';
+
+  @override
+  String get votingTitle => 'Wem vertraut ihr nicht?';
+
+  @override
+  String get votingIntro =>
+      'Stimmt mündlich ab, wer der Imposter ist. Bei Gleichstand stimmt ihr erneut ab.';
+
+  @override
+  String get votingCard => 'Die Zeit ist um. Einigt euch auf eine Person.';
+
+  @override
   String get leaveRoundTitle => 'Runde verlassen?';
 
   @override

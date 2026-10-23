@@ -9,9 +9,10 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.catalogLoader});
+  const MyApp({super.key, this.catalogLoader, this.now = DateTime.now});
 
   final CatalogLoader? catalogLoader;
+  final DateTime Function() now;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +23,8 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       home: catalogLoader == null
-          ? const SessionScreen()
-          : SessionScreen(catalogLoader: catalogLoader!),
+          ? SessionScreen(now: now)
+          : SessionScreen(catalogLoader: catalogLoader!, now: now),
     );
   }
 }
