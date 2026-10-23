@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Secret Word Society · Ablaufentwurf</title>
+  <style>
+    :root { font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #fbf7ff; background: #100d16; --ink: #171321; --surface: #262033; --line: #63566f; --text: #fbf7ff; --muted: #c6bdd2; --purple: #6842d9; --lime: #d6f76b; --coral: #ffab91; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    button, input { font: inherit; }
+    button { cursor: pointer; color: inherit; }
+    button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--lime); outline-offset: 4px; }
+    button:disabled { cursor: default; opacity: .45; }
+    .layout { max-width: 1080px; margin: auto; padding: 48px 32px; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 410px); gap: 64px; align-items: start; }
+    .eyebrow { color: var(--lime); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .intro h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.05; letter-spacing: -.045em; margin: 20px 0; max-width: 420px; }
+    .intro > p { color: var(--muted); line-height: 1.6; max-width: 370px; }
+    nav { display: grid; gap: 6px; margin-top: 28px; }
+    .scene { background: transparent; border: 0; text-align: left; padding: 12px; border-radius: 12px; min-height: 48px; display: flex; gap: 16px; align-items: center; }
+    .scene span { color: var(--muted); font-size: 12px; }
+    .scene[aria-current="step"] { background: var(--surface); box-shadow: inset 3px 0 var(--lime); }
+    .palette { display: flex; gap: 8px; margin: 28px 0 12px; }
+    .swatch { width: 32px; height: 12px; border-radius: 8px; }
+    .preview-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .tool { border: 1px solid var(--line); background: transparent; border-radius: 10px; min-height: 48px; padding: 10px 14px; }
+    .note { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .phone { background: var(--ink); border: 1px solid var(--line); border-radius: 36px; padding: 28px 24px 24px; box-shadow: 0 30px 100px #0006; min-height: 740px; display: flex; flex-direction: column; overflow-wrap: anywhere; }
+    .app-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 32px; }
+    .brand { text-transform: uppercase; font-size: 11px; letter-spacing: .14em; font-weight: 700; line-height: 1.5; }
+    .exit { border: 1px solid var(--line); border-radius: 50%; background: transparent; min-width: 48px; min-height: 48px; font-size: 24px; }
+    #screen { flex: 1; display: flex; flex-direction: column; }
+    .phase { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+    h2 { font-size: 34px; line-height: 1.12; letter-spacing: -.04em; margin: 0 0 16px; }
+    .lead { color: var(--muted); line-height: 1.5; margin: 0 0 24px; }
+    .players { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }
+    .player { display: flex; align-items: center; gap: 12px; background: var(--surface); padding: 8px 12px; border-radius: 16px; }
+    .number { color: var(--muted); font-size: 12px; min-width: 20px; }
+    .player-name { flex: 1; font-weight: 600; min-width: 0; }
+    .remove { border: 0; background: transparent; min-width: 48px; min-height: 48px; font-size: 24px; }
+    label { font-size: 14px; display: block; margin-bottom: 8px; }
+    .add-row { display: flex; gap: 8px; }
+    input { min-width: 0; width: 100%; min-height: 56px; border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: var(--surface); color: var(--text); }
+    input::placeholder { color: var(--muted); }
+    .add { min-width: 56px; min-height: 56px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); font-size: 26px; }
+    .error { color: var(--coral); font-size: 14px; line-height: 1.4; margin: 8px 0; }
+    .actions { margin-top: auto; padding-top: 24px; display: grid; gap: 12px; }
+    .primary, .secondary { border: 0; border-radius: 18px; padding: 16px; min-height: 56px; width: 100%; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+    .primary { background: var(--lime); color: var(--ink); }
+    .secondary { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+    .secret-card { background: var(--purple); border-radius: 24px; padding: 28px 24px; margin: 12px 0 24px; min-height: 244px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+    .secret-card.closed { transform: rotate(-3deg); background: var(--surface); border: 2px dashed var(--line); }
+    .card-mark { font-size: 56px; font-weight: 800; color: var(--lime); margin-bottom: 12px; line-height: 1; }
+    .card-label { font-size: 14px; line-height: 1.5; margin: 0 0 12px; }
+    .secret { font-size: 36px; font-weight: 800; letter-spacing: -.035em; line-height: 1.15; margin: 0; }
+    .card-foot { font-size: 14px; margin: 20px 0 0; line-height: 1.5; }
+    .badge { align-self: flex-start; font-size: 12px; padding: 8px 12px; background: var(--surface); border-radius: 20px; margin-bottom: 16px; }
+    .timer { font-size: clamp(64px, 18vw, 84px); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.07em; line-height: 1.2; text-align: center; margin: 32px 0 20px; }
+    progress { appearance: none; width: 100%; height: 8px; border: 0; border-radius: 8px; background: var(--surface); accent-color: var(--lime); }
+    progress::-webkit-progress-bar { background: var(--surface); border-radius: 8px; }
+    progress::-webkit-progress-value { background: var(--lime); border-radius: 8px; }
+    progress::-moz-progress-bar { background: var(--lime); border-radius: 8px; }
+    .vote-list { display: grid; gap: 8px; }
+    .vote { text-align: left; background: var(--surface); border: 1px solid var(--line); padding: 16px; min-height: 56px; border-radius: 16px; display: flex; justify-content: space-between; gap: 12px; }
+    .vote[aria-pressed="true"] { color: var(--ink); background: var(--lime); border-color: var(--lime); font-weight: 700; }
+    .result-card { border-radius: 24px; background: var(--lime); color: var(--ink); padding: 24px; margin-bottom: 24px; }
+    .result-card.imposter { background: var(--coral); }
+    .result-card p { margin: 0 0 12px; }
+    .result-card strong { font-size: 28px; line-height: 1.2; display: block; }
+    .facts { margin: 0; display: grid; gap: 8px; }
+    .facts dt { color: var(--muted); font-size: 14px; }
+    .facts dd { margin: 0 0 12px; font-size: 20px; font-weight: 600; }
+    dialog { max-width: min(360px, calc(100% - 32px)); background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 24px; padding: 24px; }
+    dialog::backdrop { background: #100d16d9; }
+    dialog h2 { font-size: 28px; }
+    dialog p { line-height: 1.5; }
+    .screen-reader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    @media (max-width: 760px) { .layout { grid-template-columns: minmax(0, 1fr); padding: 24px 16px; gap: 28px; } .intro h1 { font-size: 32px; } nav { display: flex; overflow-x: auto; padding-bottom: 8px; } .scene { flex: 0 0 auto; } .phone { width: 100%; max-width: 410px; margin: auto; min-height: 690px; padding: 24px 20px; border-radius: 28px; } .palette { display: none; } }
+    @media (max-width: 360px) { .phone { padding: 24px 16px; } h2 { font-size: 30px; } .secret { font-size: 30px; } }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <aside class="intro" aria-label="Entwurfsnavigation">
+      <div class="eyebrow">Ticket 1 · Gestaltungsentwurf</div>
+      <h1>Ein Wort.<br>Ein Bluff.<br>Euer Verdacht.</h1>
+      <p>Eine Gruppe, ein Handy, ein Imposter. Klickt eine Beispielrunde durch – oder springt direkt zur gewünschten Ansicht.</p>
+      <nav aria-label="Ansichten im Ablauf">
+        <button class="scene" data-scene="setup"><span>01</span> Gruppe</button>
+        <button class="scene" data-scene="handoff"><span>02</span> Weiterreichen</button>
+        <button class="scene" data-scene="secret"><span>03</span> Geheime Karte</button>
+        <button class="scene" data-scene="ready"><span>04</span> Bereit</button>
+        <button class="scene" data-scene="timer"><span>05</span> Zwei Minuten</button>
+        <button class="scene" data-scene="vote"><span>06</span> Abstimmen</button>
+        <button class="scene" data-scene="result"><span>07</span> Auflösung</button>
+      </nav>
+      <div class="preview-tools" aria-label="Vorschauaktionen">
+        <button class="tool" id="skip-time" disabled>Zeit vorspulen</button>
+        <button class="tool" id="reset">Entwurf zurücksetzen</button>
+      </div>
+      <div class="palette" aria-label="Palette: Aubergine, Violett, Limette, Koralle">
+        <span class="swatch" style="background:var(--surface)"></span><span class="swatch" style="background:var(--purple)"></span><span class="swatch" style="background:var(--lime)"></span><span class="swatch" style="background:var(--coral)"></span>
+      </div>
+      <p class="note">Feste Beispieldaten: Wort „Popcorn“, Imposter an Position 2, Hinweis „Kino“. Noch keine zufällige Spielverteilung. Die Flutter-Umsetzung folgt in den nächsten Tickets.</p>
+      <p class="note"><a href="ticket-1-ablauf-design.md" style="color:var(--muted)">Ablauf und Gestaltungsgrundlage</a></p>
+    </aside>
+    <section class="phone" aria-label="Mobile App · Vorschau">
+      <header class="app-bar"><div class="brand">Secret Word<br>Society</div><button class="exit" id="exit" aria-label="Runde verlassen" hidden>×</button></header>
+      <div id="screen"></div>
+      <noscript>Bitte JavaScript aktivieren, um den klickbaren Entwurf zu sehen. Ablauf und Gestaltung stehen auch in der verlinkten Spezifikation.</noscript>
+    </section>
+  </main>
+  <p id="announcement" class="screen-reader" role="status" aria-live="polite"></p>
+  <dialog id="exit-dialog" aria-labelledby="exit-title">
+    <h2 id="exit-title">Runde verlassen?</h2>
+    <p>Die laufende Runde endet. Eure Gruppe bleibt erhalten.</p>
+    <div class="actions"><button class="primary" id="cancel-exit" autofocus>Weiterspielen</button><button class="secondary" id="confirm-exit">Runde verlassen</button></div>
+  </dialog>
+  <script>
+    (() => {
+      const screen = document.getElementById('screen');
+      const exitDialog = document.getElementById('exit-dialog');
+      const initialPlayers = ['Alex', 'Sam', 'Kim', 'Jona'];
+      let players = [...initialPlayers];
+      let phase = 'setup';
+      let person = 0;
+      let selected = null;
+      let deadline = null;
+      const escape = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+      const mainButton = (label, action, disabled = false) => `<button class="primary" data-action="${action}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+      const nextPhase = value => { phase = value; render(); };
+      function beginRound() { person = 0; selected = null; deadline = null; nextPhase('handoff'); }
+      function render(focus = true) {
+        document.querySelectorAll('[data-scene]').forEach(button => {
+          if (button.dataset.scene === phase) button.setAttribute('aria-current', 'step');
+          else button.removeAttribute('aria-current');
+        });
+        document.getElementById('exit').hidden = phase === 'setup' || phase === 'result';
+        document.getElementById('skip-time').disabled = phase !== 'timer';
+        const name = escape(players[person] || 'Alex');
+        const progress = `<p class="phase">Person ${person + 1} von ${players.length}</p>`;
+        if (phase === 'setup') {
+          screen.innerHTML = `<p class="phase">Eure Gruppe</p><h2 tabindex="-1">Wer ist dabei?</h2><p class="lead">Ab drei Personen wird geblufft. Tragt euch der Reihe nach ein.</p>
+            <ul class="players">${players.map((player, index) => `<li class="player"><span class="number">${String(index + 1).padStart(2, '0')}</span><span class="player-name">${escape(player)}</span><button class="remove" data-remove="${index}" aria-label="${escape(player)} entfernen">×</button></li>`).join('')}</ul>
+            <form id="add-form"><label for="name">Name</label><div class="add-row"><input id="name" placeholder="Wer spielt noch mit?" autocomplete="off" aria-describedby="name-error"><button class="add" aria-label="Name hinzufügen">+</button></div><p class="error" id="name-error" role="status"></p></form>
+            <div class="actions"><p class="note">${players.length} Personen · ${players.length < 3 ? 'Mindestens 3 Personen erforderlich' : '1 Imposter · 2 Minuten'}</p>${mainButton('Runde starten', 'start', players.length < 3)}</div>`;
+        } else if (phase === 'handoff') {
+          screen.innerHTML = `${progress}<h2 tabindex="-1">Handy an<br>${name}.</h2><p class="lead">Nur du schaust auf den Bildschirm.</p><div class="secret-card closed"><div class="card-mark" aria-hidden="true">?</div><p class="card-label">Dein Geheimnis bleibt verdeckt.</p></div><div class="actions">${mainButton('Geheimnis aufdecken', 'reveal')}</div>`;
+        } else if (phase === 'secret') {
+          const imposter = person === 1;
+          screen.innerHTML = `${progress}<h2 tabindex="-1">Psst, ${name}.</h2><p class="lead">Behalte das für dich.</p><div class="secret-card">${imposter ? '<p class="card-label">Du bist der Imposter</p><p class="card-label">Dein Hinweis</p><p class="secret">Kino</p><p class="card-foot">Bluff mit. Lass dir nichts anmerken.</p>' : '<p class="card-label">Dein geheimes Wort</p><p class="secret">Popcorn</p><p class="card-foot">Alle außer dem Imposter kennen es.</p>'}</div><div class="actions">${mainButton(person === players.length - 1 ? 'Verbergen & weiter' : 'Verbergen & weitergeben', 'hide')}</div>`;
+        } else if (phase === 'ready') {
+          screen.innerHTML = '<p class="phase">Alle Geheimnisse sind verteilt</p><h2 tabindex="-1">Alle eingeweiht?</h2><div class="secret-card closed"><div class="card-mark" aria-hidden="true">!</div><p class="card-label">Ein Wort. Eine Person ahnt nur etwas.</p></div><p class="lead">Gebt reihum einen Hinweis. Die erste Person eurer Liste beginnt. Verratet das Wort nicht!</p><div class="actions">' + mainButton('2 Minuten starten', 'timer') + '</div>';
+        } else if (phase === 'timer') {
+          screen.innerHTML = '<span class="badge">Die Hinweisrunde läuft</span><h2 tabindex="-1">Jetzt wird<br>geblufft.</h2><p class="lead">Gebt reihum einen Hinweis. Verratet das Wort nicht.</p><div class="timer" id="clock" role="timer" aria-label="Verbleibende Zeit">02:00</div><progress id="time-progress" max="120" value="120" aria-label="Verbleibende Sekunden"></progress><div class="actions"><p class="lead">Hört genau hin. Wer redet sich um Kopf und Kragen?</p></div>';
+          updateClock();
+        } else if (phase === 'vote') {
+          screen.innerHTML = `<p class="phase">Zeit für euren Verdacht</p><h2 tabindex="-1">Wem vertraut<br>ihr nicht?</h2><p class="lead">Stimmt mündlich ab und wählt gemeinsam eine Person. Bei Gleichstand: noch einmal abstimmen.</p><div class="vote-list">${players.map((player, index) => `<button class="vote" data-vote="${index}" aria-pressed="${selected === index}"><span>${escape(player)}</span><span aria-hidden="true">${selected === index ? '✓' : '○'}</span></button>`).join('')}</div><div class="actions">${mainButton(selected === null ? 'Erst eine Person wählen' : `${escape(players[selected])} verdächtigen`, 'result', selected === null)}</div>`;
+        } else if (phase === 'result') {
+          const caught = selected === 1;
+          screen.innerHTML = `<p class="phase">Die Auflösung</p><h2 tabindex="-1">${caught ? 'Erwischt!' : 'Gut geblufft!'}</h2><div class="result-card ${caught ? '' : 'imposter'}"><p>${caught ? 'Ihr habt den Imposter entlarvt.' : 'Der Imposter hat euch ausgetrickst.'}</p><strong>${caught ? 'Die Gruppe gewinnt.' : 'Der Imposter gewinnt.'}</strong></div><dl class="facts"><dt>Euer Verdacht</dt><dd>${escape(players[selected])}</dd><dt>Der Imposter war</dt><dd>${escape(players[1])}</dd><dt>Das geheime Wort</dt><dd>Popcorn</dd></dl><div class="actions">${mainButton('Noch eine Runde', 'start')}<button class="secondary" data-action="edit">Gruppe bearbeiten</button></div>`;
+        }
+        if (focus) {
+          screen.querySelector('h2')?.focus({ preventScroll: true });
+          document.getElementById('announcement').textContent = screen.querySelector('h2')?.textContent || '';
+        }
+      }
+      function updateClock() {
+        if (phase !== 'timer' || deadline === null) return;
+        const remaining = Math.max(0, Math.min(120, Math.ceil((deadline - Date.now()) / 1000)));
+        const clock = document.getElementById('clock');
+        if (clock) clock.textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
+        const bar = document.getElementById('time-progress');
+        if (bar) bar.value = remaining;
+        if (remaining === 0) nextPhase('vote');
+      }
+      screen.addEventListener('submit', event => {
+        event.preventDefault();
+        const input = document.getElementById('name');
+        const value = input.value.trim();
+        let error = '';
+        if (!value) error = 'Bitte gib einen Namen ein.';
+        else if (players.some(player => player.toLocaleLowerCase('de') === value.toLocaleLowerCase('de'))) error = 'Dieser Name ist schon dabei. Nutzt einen anderen Namen.';
+        if (error) { document.getElementById('name-error').textContent = error; input.setAttribute('aria-invalid', 'true'); input.focus(); return; }
+        players.push(value); render(false); document.getElementById('name').focus();
+      });
+      screen.addEventListener('click', event => {
+        const button = event.target.closest('button');
+        if (!button || button.disabled) return;
+        if (button.dataset.remove !== undefined) { players.splice(Number(button.dataset.remove), 1); render(false); (screen.querySelector(`[data-remove="${button.dataset.remove}"]`) || document.getElementById('name')).focus(); return; }
+        if (button.dataset.vote !== undefined) { selected = Number(button.dataset.vote); render(false); screen.querySelector(`[data-vote="${selected}"]`).focus(); return; }
+        const action = button.dataset.action;
+        if (action === 'start') beginRound();
+        if (action === 'reveal') nextPhase('secret');
+        if (action === 'hide') { if (person < players.length - 1) { person++; nextPhase('handoff'); } else nextPhase('ready'); }
+        if (action === 'timer') { deadline = Date.now() + 120000; nextPhase('timer'); }
+        if (action === 'result') nextPhase('result');
+        if (action === 'edit') nextPhase('setup');
+      });
+      document.querySelectorAll('[data-scene]').forEach(button => button.addEventListener('click', () => {
+        if (players.length < 3 && button.dataset.scene !== 'setup') players = [...initialPlayers];
+        person = 0; selected = button.dataset.scene === 'result' ? 1 : null;
+        deadline = button.dataset.scene === 'timer' ? Date.now() + 120000 : null;
+        nextPhase(button.dataset.scene);
+      }));
+      document.getElementById('skip-time').addEventListener('click', () => { deadline = Date.now(); updateClock(); });
+      document.getElementById('reset').addEventListener('click', () => { players = [...initialPlayers]; person = 0; selected = null; deadline = null; nextPhase('setup'); });
+      document.getElementById('exit').addEventListener('click', () => { if (phase === 'secret') nextPhase('handoff'); exitDialog.showModal(); });
+      document.getElementById('cancel-exit').addEventListener('click', () => exitDialog.close());
+      document.getElementById('confirm-exit').addEventListener('click', () => { exitDialog.close(); selected = null; deadline = null; nextPhase('setup'); });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && phase === 'secret') nextPhase('handoff');
+        if (!document.hidden) updateClock();
+      });
+      setInterval(updateClock, 250);
+      render(false);
+    })();
+  </script>
+</body>
+</html>

@@ -2,6 +2,12 @@
 
 Minimale Flutter-App: ein Bildschirm mit **Hello, world!**. Zielplattform ist Android.
 
+## MVP-Entwurf
+
+Ticket 1 dokumentiert [Ablauf, Regeln und Gestaltung](docs/mvp/ticket-1-ablauf-design.md).
+Der [klickbare Entwurf](docs/mvp/prototype.html) lässt sich lokal im Browser öffnen.
+Er zeigt eine Beispielrunde; die Flutter-Spielfunktionen folgen ab Ticket 2.
+
 ## Starten
 
 Im Projektordner in PowerShell:
