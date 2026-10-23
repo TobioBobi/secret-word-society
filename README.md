@@ -1,8 +1,9 @@
 # Secret Word Society
 
-Flutter-App für ein Offline-Partyspiel auf Android. Ticket 2 enthält den getesteten
-Spielkern und 16 deutsche Wort-Hinweis-Paare. Die Oberfläche zeigt vorerst
-**Hallo, Welt!**; die bedienbaren Spielansichten folgen ab Ticket 3.
+Flutter-App für ein Offline-Partyspiel auf Android. Ihr könnt eure Gruppe anlegen,
+Namen hinzufügen/entfernen und ab drei Personen eine Runde starten. Die erste
+Übergabe bleibt verdeckt; Aufdecken, Timer und Abstimmung folgen in Tickets 4–6.
+Der Spielkern und 16 deutsche Wort-Hinweis-Paare sind bereits enthalten.
 
 ## MVP-Entwurf
 
@@ -10,6 +11,8 @@ Ticket 1 dokumentiert [Ablauf, Regeln und Gestaltung](docs/mvp/ticket-1-ablauf-d
 Der [klickbare Entwurf](docs/mvp/prototype.html) lässt sich lokal im Browser öffnen.
 Er zeigt eine Beispielrunde. [Ticket 2: Spielkern und Wortbestand](docs/mvp/ticket-2-spielkern.md)
 beschreibt die implementierte Logik und die Anbindung für die folgenden Tickets.
+[Ticket 3: Spieleranlage und Rundenstart](docs/mvp/ticket-3-spieleranlage.md)
+beschreibt die bedienbare Oberfläche und ihren aktuellen Umfang.
 
 ## Starten
 
@@ -36,12 +39,14 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 
 ## Dateien und Checks
 
-- `lib/main.dart`: vorläufiger Startbildschirm mit deutscher Lokalisierung.
+- `lib/main.dart`: App-Einstieg, Party-Theme und deutsche Lokalisierung.
+- `lib/ui/`: Spieleranlage, erste verdeckte Übergabe und Gestaltung.
+- `lib/game/game_session.dart`: Gruppe und aktuelle Runde im Sitzungsspeicher.
 - `lib/game/`: Flutter-unabhängige Modelle und Phasenwechsel einer Runde.
 - `assets/words/de.json`: eigener deutscher Startwortbestand, offline gebündelt.
 - `lib/data/word_catalog_loader.dart`: Laden und Prüfen der gebündelten Inhalte.
 - `lib/l10n/app_de.arb`: deutsche UI-Texte; Dart-Lokalisierungen werden generiert.
-- `test/`: Spielregeln, Phasenwechsel, Inhalte, Asset-Laden und Startbildschirm.
+- `test/`: Spielregeln, Inhalte, Sitzungsverwaltung und Bedienung der Ansichten.
 - `android/`: von Flutter erzeugte Android-Anbindung.
 
 ```powershell
