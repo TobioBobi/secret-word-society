@@ -64,9 +64,9 @@ void main() {
             );
           }
           await _checkAndroidControls(tester);
-          await tapVisible(tester, '2 Minuten starten');
+          await tapVisible(tester, '10 Sekunden starten');
           await _checkAndroidControls(tester);
-          now = now.add(const Duration(minutes: 2));
+          now = now.add(const Duration(seconds: 10));
           await tester.pump(const Duration(milliseconds: 250));
           await tester.pumpAndSettle();
           await _checkAndroidControls(tester);

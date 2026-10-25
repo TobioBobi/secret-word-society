@@ -121,11 +121,11 @@ void main() {
         expect(find.text('Alle Geheimnisse sind verteilt.'), findsOneWidget);
         expect(find.text('Geheimnis aufdecken'), findsNothing);
 
-        await _tapText(tester, '2 Minuten starten');
+        await _tapText(tester, '10 Sekunden starten');
         expect(find.text('Jetzt wird geblufft.'), findsOneWidget);
         expect(find.byType(FilledButton), findsNothing);
         _expectConcealed(catalog);
-        // Use the real production clock on Android, without shortening the round.
+        // Use the real production clock on Android, with the configured round duration.
         // pump(Duration) waits real time with the integration-test binding.
         await tester.pump(const Duration(seconds: 2));
         final countdown = tester.widget<Text>(
@@ -136,8 +136,8 @@ void main() {
           ),
         );
         final digits = countdown.data!.split(':').map(int.parse).toList();
-        expect(digits[0] * 60 + digits[1], inInclusiveRange(115, 118));
-        await tester.pump(const Duration(seconds: 119));
+        expect(digits[0] * 60 + digits[1], inInclusiveRange(5, 8));
+        await tester.pump(const Duration(seconds: 9));
         await _settle(tester);
         expect(
           find.text('Wem vertraut ihr nicht?'),
@@ -214,8 +214,8 @@ void main() {
         );
         expect(find.text('Alle eingeweiht?'), findsOneWidget);
         _expectConcealed(catalog);
-        await _tapText(tester, '2 Minuten starten');
-        expect(find.text('02:00'), findsOneWidget);
+        await _tapText(tester, '10 Sekunden starten');
+        expect(find.text('00:10'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

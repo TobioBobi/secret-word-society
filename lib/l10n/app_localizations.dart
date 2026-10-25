@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// No description provided for @roundSummary.
   ///
   /// In de, this message translates to:
-  /// **'1 Imposter · 2 Minuten'**
+  /// **'1 Imposter · 10 Sekunden'**
   String get roundSummary;
 
   /// No description provided for @startRound.
@@ -301,7 +301,7 @@ abstract class AppLocalizations {
   /// No description provided for @startDiscussion.
   ///
   /// In de, this message translates to:
-  /// **'2 Minuten starten'**
+  /// **'10 Sekunden starten'**
   String get startDiscussion;
 
   /// No description provided for @discussionPhase.

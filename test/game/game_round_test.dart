@@ -184,20 +184,20 @@ void main() {
     'deadline starts only on ready and accounts for a long interruption',
     () {
       final ready = _ready(_start());
-      expect(ready.remainingDiscussionTime(_now), const Duration(minutes: 2));
+      expect(ready.remainingDiscussionTime(_now), const Duration(seconds: 10));
       expect(ready.discussionEndsAt, isNull);
       final running = ready.startDiscussion(_now);
-      expect(running.discussionEndsAt, _now.add(const Duration(minutes: 2)));
+      expect(running.discussionEndsAt, _now.add(const Duration(seconds: 10)));
       expect(
-        running.remainingDiscussionTime(_now.add(const Duration(seconds: 37))),
-        const Duration(seconds: 83),
+        running.remainingDiscussionTime(_now.add(const Duration(seconds: 3))),
+        const Duration(seconds: 7),
       );
       expect(
-        running.advanceTime(_now.add(const Duration(seconds: 119))),
+        running.advanceTime(_now.add(const Duration(seconds: 9))),
         same(running),
       );
       expect(
-        running.advanceTime(_now.add(const Duration(seconds: 120))).phase,
+        running.advanceTime(_now.add(const Duration(seconds: 10))).phase,
         GamePhase.voting,
       );
       final resumed = running.advanceTime(_now.add(const Duration(hours: 1)));
