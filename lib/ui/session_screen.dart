@@ -497,7 +497,8 @@ class _SessionScreenState extends State<SessionScreen>
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.done,
                 autocorrect: false,
-                enableSuggestions: false,
+                // Android keyboards need suggestions for gesture typing.
+                enableSuggestions: true,
                 decoration: InputDecoration(
                   labelText: strings.nameLabel,
                   hintText: strings.nameHint,
