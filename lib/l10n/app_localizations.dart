@@ -346,6 +346,84 @@ abstract class AppLocalizations {
   /// **'Die Zeit ist um. Einigt euch auf eine Person.'**
   String get votingCard;
 
+  /// No description provided for @selectSuspect.
+  ///
+  /// In de, this message translates to:
+  /// **'Person auswählen'**
+  String get selectSuspect;
+
+  /// No description provided for @confirmSuspect.
+  ///
+  /// In de, this message translates to:
+  /// **'{name} verdächtigen'**
+  String confirmSuspect(String name);
+
+  /// No description provided for @resultPhase.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Auflösung'**
+  String get resultPhase;
+
+  /// No description provided for @groupWinTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Erwischt!'**
+  String get groupWinTitle;
+
+  /// No description provided for @imposterWinTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Gut geblufft!'**
+  String get imposterWinTitle;
+
+  /// No description provided for @groupWinIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Ihr habt den Imposter entlarvt.'**
+  String get groupWinIntro;
+
+  /// No description provided for @imposterWinIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Imposter hat euch ausgetrickst.'**
+  String get imposterWinIntro;
+
+  /// No description provided for @groupWins.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Gruppe gewinnt.'**
+  String get groupWins;
+
+  /// No description provided for @imposterWins.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Imposter gewinnt.'**
+  String get imposterWins;
+
+  /// No description provided for @resultSuspect.
+  ///
+  /// In de, this message translates to:
+  /// **'Euer Verdacht'**
+  String get resultSuspect;
+
+  /// No description provided for @resultImposter.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Imposter war'**
+  String get resultImposter;
+
+  /// No description provided for @resultWord.
+  ///
+  /// In de, this message translates to:
+  /// **'Das geheime Wort'**
+  String get resultWord;
+
+  /// No description provided for @nextRound.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch eine Runde'**
+  String get nextRound;
+
   /// No description provided for @leaveRoundTitle.
   ///
   /// In de, this message translates to:
