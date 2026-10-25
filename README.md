@@ -29,6 +29,8 @@ Countdown, Unterbrechungen und den Übergang zur Abstimmung.
 schließt den vollständigen Spielablauf ab.
 [Ticket 7: Deutsche Inhalte und Probespiel](docs/mvp/ticket-7-inhalte.md)
 beschreibt den erweiterten Katalog, die Wortfolge und die Prüfliste für echte Runden.
+[Ticket 8: Party-Look und Android-Abnahme](docs/mvp/ticket-8-android-mvp.md)
+beschreibt den visuellen Feinschliff und die abschließende MVP-Prüfung.
 
 ## Starten
 
