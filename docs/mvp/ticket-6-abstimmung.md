@@ -3,6 +3,10 @@
 Stand: 24.10.2026. Branch `codex/ticket-6-abstimmung`, ausgehend vom aktuellen
 `origin/main` (`ea5e458`, einschließlich Ticket 5 aus PR #7).
 
+Fortschreibung vom 25.10.2026: Die unten dokumentierten erlaubten
+Wortwiederholungen werden durch [Ticket 7](ticket-7-inhalte.md) ersetzt.
+Imposter-Wiederholungen bleiben möglich.
+
 ## Verhalten
 
 - Nach Ablauf der zwei Minuten wählt eine Person den gemeinsam mündlich

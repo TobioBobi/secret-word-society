@@ -16,6 +16,104 @@ void main() {
     ..addPlayer('Ben')
     ..addPlayer('Cem');
 
+  String finish(GameSession session) {
+    final words = <String>{};
+    while (session.round!.phase == GamePhase.handoff) {
+      session.revealSecret();
+      if (session.round!.currentSecret!.role == PlayerRole.group) {
+        words.add(session.round!.currentSecret!.text);
+      }
+      session.hideAndAdvance();
+    }
+    final now = DateTime.utc(2026, 10, 25);
+    session.startDiscussion(now);
+    session.advanceTime(now.add(GameRound.discussionDuration));
+    session.selectSuspect(session.players.first.id);
+    session.confirmSuspect();
+    expect(session.round!.result!.word, words.single);
+    return words.single;
+  }
+
+  const source =
+      '{"languageCode":"de","pairs":['
+      '{"id":"1","word":"Pizza","hint":"Gesellige Runde"},'
+      '{"id":"2","word":"Kino","hint":"Dunkler Raum"},'
+      '{"id":"3","word":"Zelt","hint":"Nachts draußen"}]}';
+
+  test('word history survives follow-ups, group edits and reloaded assets', () {
+    final session = group();
+    session.startRound(WordCatalog.fromJson(source), random: Random(42));
+    String? previous;
+    for (var cycle = 0; cycle < 3; cycle++) {
+      final seen = <String>{};
+      for (var draw = 0; draw < 3; draw++) {
+        final word = finish(session);
+        expect(word, isNot(previous));
+        expect(seen.add(word), isTrue);
+        previous = word;
+        if (draw.isEven) {
+          session.newRound();
+        } else {
+          session.returnToGroup();
+          final player = session.players.last;
+          session.removePlayer(player.id);
+          session.addPlayer(player.name);
+          session.startRound(
+            WordCatalog.fromJson(source),
+            random: Random(cycle),
+          );
+        }
+        expect(session.round!.currentSecret, isNull);
+        expect(session.round!.phase, GamePhase.handoff);
+      }
+      expect(seen, {'Pizza', 'Kino', 'Zelt'});
+    }
+  });
+
+  test('abandoned rounds consume a word; invalid starts consume none', () {
+    final session = GameSession()
+      ..addPlayer('Anna')
+      ..addPlayer('Ben');
+    expect(
+      () =>
+          session.startRound(WordCatalog.fromJson(source), random: Random(42)),
+      throwsArgumentError,
+    );
+    session.addPlayer('Cem');
+    session.startRound(WordCatalog.fromJson(source), random: Random(42));
+    final first = session.round!;
+    expect(
+      () => session.startRound(WordCatalog.fromJson(source)),
+      throwsStateError,
+    );
+    session.returnToGroup(); // Not a single card needs to have been revealed.
+    session.startRound(WordCatalog.fromJson(source), random: Random(42));
+    final second = finish(session);
+    // Read the abandoned snapshot only for this assertion, never in the UI.
+    var abandoned = first;
+    final groupWords = <String>{};
+    while (abandoned.phase == GamePhase.handoff) {
+      abandoned = abandoned.revealSecret();
+      if (abandoned.currentSecret!.role == PlayerRole.group) {
+        groupWords.add(abandoned.currentSecret!.text);
+      }
+      abandoned = abandoned.hideAndAdvance();
+    }
+    expect(second, isNot(groupWords.single));
+    final fresh = group();
+    fresh.startRound(WordCatalog.fromJson(source), random: Random(42));
+    expect(finish(fresh), groupWords.single);
+  });
+
+  test('a changed catalog starts its own word supply', () {
+    final session = group();
+    session.startRound(WordCatalog.fromJson(source), random: Random(1));
+    finish(session);
+    session.returnToGroup();
+    session.startRound(catalog);
+    expect(finish(session), 'Popcorn');
+  });
+
   test('trims names and rejects blank and case-insensitive duplicates', () {
     final session = GameSession();
     expect(session.addPlayer(' \n\t '), NameProblem.empty);

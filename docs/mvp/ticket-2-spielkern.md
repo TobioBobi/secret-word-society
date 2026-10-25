@@ -1,6 +1,9 @@
 # Ticket 2 · Spielkern und deutscher Startwortbestand
 
 Stand: 23.10.2026. Grundlage ist der [Ablauf aus Ticket 1](ticket-1-ablauf-design.md).
+Fortschreibung vom 25.10.2026: [Ticket 7](ticket-7-inhalte.md) erweitert den
+damaligen Startbestand auf 100 Paare, validiert auch eindeutige Wörter und ersetzt
+die hier beschriebenen erlaubten Wortwiederholungen durch einen Sitzungsvorrat.
 Dieses Paket implementiert die Spiellogik. Spielbare Flutter-Ansichten folgen
 in Tickets 3–6; der Startbildschirm bleibt ein nun deutscher Platzhalter.
 

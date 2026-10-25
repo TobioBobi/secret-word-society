@@ -8,7 +8,10 @@ läuft auch bei App-Wechsel oder gesperrtem Bildschirm weiter; bei Ablauf ersche
 die mündliche Abstimmung mit Namensauswahl. Nach Bestätigung seht ihr den
 tatsächlichen Imposter, das Wort und den Gewinner. „Noch eine Runde“ beginnt
 wieder verdeckt mit derselben Gruppe und neu ausgelosten Geheimnissen.
-Der Spielkern und 16 deutsche Wort-Hinweis-Paare sind bereits enthalten.
+Die App enthält 100 eigene deutsche Wort-Hinweis-Paare. In einer Sitzung wird
+jedes Wort einmal zufällig gezogen, bevor der Vorrat erneut beginnt; auch am
+Übergang wiederholt sich kein Wort direkt. Die Wortfolge bleibt beim Bearbeiten
+der Gruppe erhalten und wird bei einem App-Neustart zurückgesetzt.
 
 ## MVP-Entwurf
 
@@ -24,6 +27,8 @@ die Verteilung, sichere Rücknavigation und den Android-Geheimnisschutz.
 Countdown, Unterbrechungen und den Übergang zur Abstimmung.
 [Ticket 6: Abstimmung, Auflösung und neue Runde](docs/mvp/ticket-6-abstimmung.md)
 schließt den vollständigen Spielablauf ab.
+[Ticket 7: Deutsche Inhalte und Probespiel](docs/mvp/ticket-7-inhalte.md)
+beschreibt den erweiterten Katalog, die Wortfolge und die Prüfliste für echte Runden.
 
 ## Starten
 
@@ -54,6 +59,7 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 - `lib/ui/`: Spieleranlage, Kartenverteilung, Countdown, Abstimmung und Ergebnis.
 - `lib/game/game_session.dart`: Gruppe und aktuelle Runde im Sitzungsspeicher.
 - `lib/game/`: Flutter-unabhängige Modelle und Phasenwechsel einer Runde.
+- `lib/game/word_deck.dart`: Wortvorrat ohne Wiederholung innerhalb einer Sitzung.
 - `assets/words/de.json`: eigener deutscher Startwortbestand, offline gebündelt.
 - `lib/data/word_catalog_loader.dart`: Laden und Prüfen der gebündelten Inhalte.
 - `lib/l10n/app_de.arb`: deutsche UI-Texte; Dart-Lokalisierungen werden generiert.
