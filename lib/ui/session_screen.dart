@@ -7,6 +7,7 @@ import '../game/game_round.dart';
 import '../game/game_session.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
+import 'party_card.dart';
 import 'party_theme.dart';
 
 typedef CatalogLoader = Future<WordCatalog> Function();
@@ -233,6 +234,7 @@ class _SessionScreenState extends State<SessionScreen>
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: PartyColors.coral),
             child: Text(strings.leaveRound),
           ),
         ],
@@ -283,6 +285,14 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.voting => strings.votingPhase,
       GamePhase.result => strings.resultPhase,
     };
+    final phaseIcon = switch (round?.phase) {
+      null => Icons.groups_outlined,
+      GamePhase.handoff || GamePhase.secret => Icons.phone_android_outlined,
+      GamePhase.ready => Icons.check_circle_outline,
+      GamePhase.discussion => Icons.timer_outlined,
+      GamePhase.voting => Icons.how_to_vote_outlined,
+      GamePhase.result => Icons.celebration_outlined,
+    };
     final intro = switch (round?.phase) {
       null => strings.groupIntro,
       GamePhase.handoff => strings.handoffIntro,
@@ -316,22 +326,45 @@ class _SessionScreenState extends State<SessionScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                strings.appTitle.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 2,
-                                  color: PartyColors.lime,
-                                ),
+                              Row(
+                                children: [
+                                  const ExcludeSemantics(
+                                    child: Icon(
+                                      Icons.auto_awesome_outlined,
+                                      size: 24,
+                                      color: PartyColors.lime,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      strings.appTitle.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 2,
+                                        color: PartyColors.lime,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 32),
-                              Text(
-                                phaseLabel,
-                                style: const TextStyle(
-                                  color: PartyColors.muted,
+                              const SizedBox(height: 24),
+                              _buildPhaseLabel(phaseLabel, phaseIcon),
+                              if (round?.currentPlayerNumber != null) ...[
+                                const SizedBox(height: 12),
+                                ExcludeSemantics(
+                                  child: LinearProgressIndicator(
+                                    value:
+                                        (round!.currentPlayerNumber! - 1) /
+                                        round.players.length,
+                                    minHeight: 4,
+                                    borderRadius: BorderRadius.circular(4),
+                                    color: PartyColors.lime,
+                                    backgroundColor: PartyColors.surface,
+                                  ),
                                 ),
-                              ),
+                              ],
                               const SizedBox(height: 12),
                               Focus(
                                 key: ValueKey(
@@ -414,6 +447,35 @@ class _SessionScreenState extends State<SessionScreen>
       ),
     );
   }
+
+  Widget _buildPhaseLabel(String label, IconData icon) => Align(
+    alignment: Alignment.centerLeft,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: PartyColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ExcludeSemantics(
+            child: Icon(icon, size: 20, color: PartyColors.lime),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: PartyColors.muted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _buildNameInput(AppLocalizations strings) {
     final error = switch (_nameProblem) {
@@ -588,48 +650,72 @@ class _SessionScreenState extends State<SessionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: groupWon ? PartyColors.lime : PartyColors.purple,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Text(
-            groupWon ? strings.groupWins : strings.imposterWins,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: groupWon ? PartyColors.background : PartyColors.text,
-            ),
+        PartyCard(
+          color: groupWon ? PartyColors.lime : PartyColors.coral,
+          foregroundColor: PartyColors.background,
+          outlined: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ExcludeSemantics(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    groupWon
+                        ? Icons.emoji_events_outlined
+                        : Icons.theater_comedy_outlined,
+                    size: 40,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                groupWon ? strings.groupWins : strings.imposterWins,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 24),
-        for (final (label, value) in [
-          (strings.resultSuspect, result.suspect.name),
-          (strings.resultImposter, result.imposter.name),
-          (strings.resultWord, result.word),
-        ])
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Semantics(
-              // Keep each label with its value when reading the result.
-              container: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(label, style: const TextStyle(color: PartyColors.muted)),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+        const SizedBox(height: 16),
+        PartyCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (index, (label, value)) in [
+                (strings.resultSuspect, result.suspect.name),
+                (strings.resultImposter, result.imposter.name),
+                (strings.resultWord, result.word),
+              ].indexed)
+                Padding(
+                  padding: EdgeInsets.only(top: index == 0 ? 0 : 20),
+                  child: Semantics(
+                    // Keep each label with its value when reading the result.
+                    container: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          label,
+                          style: const TextStyle(color: PartyColors.muted),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          value,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -721,18 +807,11 @@ class _SessionScreenState extends State<SessionScreen>
     ),
   ];
 
-  Widget _buildConcealedCard(AppLocalizations strings) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-    decoration: BoxDecoration(
-      color: PartyColors.surface,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: PartyColors.outline, width: 2),
-    ),
+  Widget _buildConcealedCard(AppLocalizations strings) => PartyCard(
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
     child: Column(
       children: [
-        const ExcludeSemantics(
-          child: Icon(Icons.lock_outline, size: 64, color: PartyColors.lime),
-        ),
+        _buildCardIcon(Icons.lock_outline),
         const SizedBox(height: 20),
         Text(strings.secretConcealed, textAlign: TextAlign.center),
       ],
@@ -740,12 +819,9 @@ class _SessionScreenState extends State<SessionScreen>
   );
 
   Widget _buildSecretCard(AppLocalizations strings, PlayerSecret secret) =>
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: PartyColors.purple,
-          borderRadius: BorderRadius.circular(24),
-        ),
+      PartyCard(
+        color: PartyColors.purple,
+        outlined: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -773,37 +849,16 @@ class _SessionScreenState extends State<SessionScreen>
         ),
       );
 
-  Widget _buildReadyCard(AppLocalizations strings) => Container(
-    padding: const EdgeInsets.all(24),
-    decoration: BoxDecoration(
-      color: PartyColors.surface,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: PartyColors.outline, width: 2),
-    ),
-    child: Column(
-      children: [
-        const ExcludeSemantics(
-          child: Icon(
-            Icons.check_circle_outline,
-            size: 64,
-            color: PartyColors.lime,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(strings.readyCard, textAlign: TextAlign.center),
-      ],
-    ),
-  );
+  Widget _buildReadyCard(AppLocalizations strings) =>
+      _buildStatusCard(strings.readyCard, Icons.check_circle_outline);
 
   Widget _buildCountdown(AppLocalizations strings) {
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
-    return Container(
+    return PartyCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-      decoration: BoxDecoration(
-        color: PartyColors.purple,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      color: PartyColors.purple,
+      outlined: false,
       child: Semantics(
         // Available on exploration, without a live announcement every second.
         label: strings.discussionRemaining(_remainingSeconds),
@@ -823,24 +878,28 @@ class _SessionScreenState extends State<SessionScreen>
     );
   }
 
-  Widget _buildVotingCard(AppLocalizations strings) => Container(
-    padding: const EdgeInsets.all(24),
-    decoration: BoxDecoration(
-      color: PartyColors.surface,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: PartyColors.outline, width: 2),
+  Widget _buildVotingCard(AppLocalizations strings) =>
+      _buildStatusCard(strings.votingCard, Icons.how_to_vote_outlined);
+
+  Widget _buildCardIcon(IconData icon) => ExcludeSemantics(
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: PartyColors.background,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 40, color: PartyColors.lime),
     ),
-    child: Column(
+  );
+
+  Widget _buildStatusCard(String label, IconData icon) => PartyCard(
+    padding: const EdgeInsets.all(20),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ExcludeSemantics(
-          child: Icon(
-            Icons.how_to_vote_outlined,
-            size: 64,
-            color: PartyColors.lime,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(strings.votingCard, textAlign: TextAlign.center),
+        ExcludeSemantics(child: Icon(icon, size: 32, color: PartyColors.lime)),
+        const SizedBox(width: 16),
+        Expanded(child: Text(label)),
       ],
     ),
   );

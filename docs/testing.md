@@ -155,6 +155,21 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 - Details, lokale Protokolle und noch offene echte Gruppen-Proberunden:
   [Ticket 7](mvp/ticket-7-inhalte.md).
 
+## Ticket-8-Prüfung am 25.10.2026
+
+- Alle 55 Unit-/Widget-Tests bestanden. Drei neue Prüfungen ergänzen
+  Android-Touchflächen, beschriftete Aktionen, Textkontraste und vollständige
+  Runden bei normaler bzw. 200 % Schrift; zusätzlich Dialogaktionen im Querformat.
+- Alle drei regulären Android-Integrationstests mit Produktionsuhr bestanden
+  (4:39 Minuten Testausführung zuzüglich Build und Installation).
+- Ergänzend echte Android-Tastatureingaben, Home/App-Rückkehr,
+  Sperren/Entsperren, System-Zurück und Timerablauf im Hintergrund mit lokalem
+  ADB-Treiber geprüft. Dieser temporäre Gerätetest ist unter `build/qa/ticket8/`
+  archiviert und nicht Bestandteil des CI-Jobs.
+- Release-Build, Installation/Kaltstart, aktiver Fensterschutz und Prozesslogs
+  geprüft. Layout-Sichtprüfung mit Roboto auch auf 320 × 568 bei 200 %.
+- Details und Grenzen: [Ticket 8](mvp/ticket-8-android-mvp.md).
+
 Grundlagen: [Flutter-Integrationstests](https://docs.flutter.dev/testing/integration-tests),
 [Flutter-Testarten und native Grenzen](https://docs.flutter.dev/testing/overview),
 [Android Emulator Runner](https://github.com/ReactiveCircus/android-emulator-runner).

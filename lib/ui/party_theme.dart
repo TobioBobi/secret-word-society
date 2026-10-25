@@ -68,12 +68,46 @@ ThemeData buildPartyTheme() {
         foregroundColor: PartyColors.text,
         minimumSize: const Size(56, 56),
         padding: const EdgeInsets.all(16),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         side: const BorderSide(color: PartyColors.outline),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: PartyColors.surface,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: PartyColors.outline),
+      ),
+      titleTextStyle: const TextStyle(
+        color: PartyColors.text,
+        fontSize: 26,
+        fontWeight: FontWeight.w800,
+      ),
+      contentTextStyle: const TextStyle(
+        color: PartyColors.muted,
+        fontSize: 16,
+        height: 1.45,
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: PartyColors.lime,
+      selectionColor: PartyColors.lime.withValues(alpha: 0.3),
+      selectionHandleColor: PartyColors.lime,
     ),
   );
 }
