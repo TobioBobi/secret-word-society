@@ -70,7 +70,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get roundSummary => '1 Imposter · 2 Minuten';
+  String get roundSummary => '1 Imposter · 10 Sekunden';
 
   @override
   String get startRound => 'Runde starten';
@@ -142,7 +142,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get readyCard => 'Alle Geheimnisse sind verteilt.';
 
   @override
-  String get startDiscussion => '2 Minuten starten';
+  String get startDiscussion => '10 Sekunden starten';
 
   @override
   String get discussionPhase => 'Hinweise & Bluff';

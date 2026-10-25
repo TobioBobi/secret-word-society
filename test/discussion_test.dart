@@ -45,9 +45,9 @@ void main() {
     clock.advance(const Duration(minutes: 3));
     await tester.pump(const Duration(minutes: 3));
     expect(find.text('Alle eingeweiht?'), findsOneWidget);
-    expect(find.text('02:00'), findsNothing);
+    expect(find.text('00:10'), findsNothing);
 
-    await tester.ensureVisible(find.text('2 Minuten starten'));
+    await tester.ensureVisible(find.text('10 Sekunden starten'));
     final start = tester
         .widget<FilledButton>(find.byType(FilledButton))
         .onPressed!;
@@ -55,28 +55,28 @@ void main() {
     start();
     await tester.pumpAndSettle();
     expect(find.text('Jetzt wird geblufft.'), findsOneWidget);
-    expect(find.text('02:00'), findsOneWidget);
+    expect(find.text('00:10'), findsOneWidget);
     expectConcealed(tester);
     expect(find.byType(FilledButton), findsNothing);
     expect(
-      tester.getSemantics(find.bySemanticsLabel('Noch 120 Sekunden')).label,
-      'Noch 120 Sekunden',
+      tester.getSemantics(find.bySemanticsLabel('Noch 10 Sekunden')).label,
+      'Noch 10 Sekunden',
     );
     final timerSemantics = tester.widget<Semantics>(
       find
-          .ancestor(of: find.text('02:00'), matching: find.byType(Semantics))
+          .ancestor(of: find.text('00:10'), matching: find.byType(Semantics))
           .first,
     );
     expect(timerSemantics.properties.liveRegion, isNot(true));
 
     clock.advance(const Duration(milliseconds: 500));
     await _tick(tester);
-    expect(find.text('02:00'), findsOneWidget);
+    expect(find.text('00:10'), findsOneWidget);
     clock.advance(const Duration(milliseconds: 500));
     await _tick(tester);
-    expect(find.text('01:59'), findsOneWidget);
+    expect(find.text('00:09'), findsOneWidget);
     // A single UI tick must account for all elapsed time, not decrement by one.
-    clock.advance(const Duration(seconds: 118, microseconds: 999999));
+    clock.advance(const Duration(seconds: 8, microseconds: 999999));
     await _tick(tester);
     expect(find.text('00:01'), findsOneWidget);
     start(); // The old ready callback must not reset the deadline.
@@ -105,7 +105,7 @@ void main() {
   ) async {
     final clock = _Clock();
     await _ready(tester, clock);
-    await tapVisible(tester, '2 Minuten starten');
+    await tapVisible(tester, '10 Sekunden starten');
     var elapsed = 0;
     for (final state in [
       AppLifecycleState.inactive,
@@ -114,12 +114,12 @@ void main() {
       AppLifecycleState.detached,
     ]) {
       tester.binding.handleAppLifecycleStateChanged(state);
-      clock.advance(const Duration(seconds: 20));
-      elapsed += 20;
+      clock.advance(const Duration(seconds: 1));
+      elapsed += 1;
       // No background pump: Flutter may not produce frames while suspended.
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
-      final remaining = 120 - elapsed;
+      final remaining = 10 - elapsed;
       expect(
         find.text(
           '${remaining ~/ 60}:${(remaining % 60).toString().padLeft(2, '0')}'
@@ -148,11 +148,11 @@ void main() {
     (tester) async {
       final clock = _Clock();
       await _ready(tester, clock);
-      await tapVisible(tester, '2 Minuten starten');
+      await tapVisible(tester, '10 Sekunden starten');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsOneWidget);
-      clock.advance(const Duration(minutes: 2));
+      clock.advance(const Duration(seconds: 10));
       await _tick(tester);
       expect(find.byType(AlertDialog), findsOneWidget);
       await tapVisible(tester, 'Weiterspielen');
@@ -170,8 +170,8 @@ void main() {
       final oldStart = tester
           .widget<FilledButton>(find.byType(FilledButton))
           .onPressed!;
-      await tapVisible(tester, '2 Minuten starten');
-      clock.advance(const Duration(seconds: 30));
+      await tapVisible(tester, '10 Sekunden starten');
+      clock.advance(const Duration(seconds: 3));
       await _tick(tester);
       await tapVisible(tester, 'Gruppe bearbeiten');
       await tapVisible(tester, 'Runde verlassen');
@@ -185,8 +185,8 @@ void main() {
       oldStart();
       await tester.pumpAndSettle();
       expect(find.text('Alle eingeweiht?'), findsOneWidget);
-      await tapVisible(tester, '2 Minuten starten');
-      expect(find.text('02:00'), findsOneWidget);
+      await tapVisible(tester, '10 Sekunden starten');
+      expect(find.text('00:10'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       clock.advance(const Duration(minutes: 3));
       await tester.pump(const Duration(minutes: 3));
@@ -228,12 +228,12 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     final clock = _Clock();
     await _ready(tester, clock);
-    await tapVisible(tester, '2 Minuten starten');
-    expect(find.text('02:00'), findsOneWidget);
+    await tapVisible(tester, '10 Sekunden starten');
+    expect(find.text('00:10'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tapVisible(tester, 'Gruppe bearbeiten');
     await tapVisible(tester, 'Weiterspielen');
-    clock.advance(const Duration(minutes: 2));
+    clock.advance(const Duration(seconds: 10));
     await _tick(tester);
     await tester.pumpAndSettle();
     expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);

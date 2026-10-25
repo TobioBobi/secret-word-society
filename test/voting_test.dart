@@ -38,9 +38,9 @@ Future<String> _distribute(WidgetTester tester, List<String> names) async {
 }
 
 Future<void> _reachVoting(WidgetTester tester, _Clock clock) async {
-  await tapVisible(tester, '2 Minuten starten');
-  expect(find.text('02:00'), findsOneWidget);
-  clock.value = clock.value.add(const Duration(minutes: 2));
+  await tapVisible(tester, '10 Sekunden starten');
+  expect(find.text('00:10'), findsOneWidget);
+  clock.value = clock.value.add(const Duration(seconds: 10));
   await tester.pump(const Duration(milliseconds: 250));
   await tester.pumpAndSettle();
   expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);

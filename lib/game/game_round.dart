@@ -86,7 +86,8 @@ final class GameRound {
   }
 
   static const minimumPlayers = 3;
-  static const discussionDuration = Duration(minutes: 2);
+  // Temporary manual-test duration. Restore two minutes in local Ticket 19.
+  static const discussionDuration = Duration(seconds: 10);
 
   final List<Player> players;
   final GamePhase phase;

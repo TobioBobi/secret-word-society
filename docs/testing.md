@@ -6,6 +6,11 @@ bedienen die Flutter-Oberfläche in einer laufenden Android-App. Der Wortkatalog
 wird aus den tatsächlich gebündelten Assets geladen, ohne Testkatalog oder
 ersetzte Plattformkanäle.
 
+Seit 25.10.2026 ist die Rundendauer für manuelle Handytests vorübergehend auf
+10 Sekunden verkürzt. Die Tests verwenden diese echte App-Dauer; die MVP-Regel
+bleibt zwei Minuten. Die Rückstellung ist in der lokalen Ticketliste als
+Ticket 19 vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
+
 ## Abgedeckte Abläufe
 
 1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
@@ -13,15 +18,15 @@ ersetzte Plattformkanäle.
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
    Genau zwei Personen müssen dasselbe Wort und genau eine Person den dazu
    passenden Hinweis erhalten. Jede Übergabe ist verdeckt; nach der letzten
-   Karte erscheint die Bereit-Ansicht. Anschließend die echten zwei Minuten
+   Karte erscheint die Bereit-Ansicht. Anschließend die echten 10 Sekunden
    starten und bis zur Abstimmungsansicht warten. Wort und Hinweis bleiben
    dabei verborgen. Ohne Auswahl ist die Bestätigung deaktiviert. Danach den
    tatsächlichen Imposter bzw. gezielt eine andere Person auswählen und
    bestätigen; Gewinner, Verdacht, tatsächlichen Imposter und Wort prüfen.
    „Noch eine Runde“ beginnt bei Person 1 mit verdeckter Karte; alle Karten
-   erneut verteilen und einen frischen Countdown bei 02:00 starten. Seit
+   erneut verteilen und einen frischen Countdown bei 00:10 starten. Seit
    Ticket 7 muss die Folgerunde ein anderes Wort mit zugehörigem Hinweis haben.
-   Beide Tests brauchen durch die reguläre Spielzeit jeweils gut zwei Minuten
+   Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 10 Sekunden
    zusätzlich; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über „Gruppe bearbeiten“ verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
