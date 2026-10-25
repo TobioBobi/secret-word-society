@@ -29,7 +29,8 @@ void main() {
     session.startDiscussion(now);
     session.advanceTime(now.add(GameRound.discussionDuration));
     session.selectSuspect(session.players.first.id);
-    session.confirmSuspect();
+    session.confirmSuspect(now);
+    session.advanceTime(now.add(GameRound.revealDuration));
     expect(session.round!.result!.word, words.single);
     return words.single;
   }

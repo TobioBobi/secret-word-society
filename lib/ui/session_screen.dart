@@ -38,8 +38,9 @@ class _SessionScreenState extends State<SessionScreen>
   bool _starting = false;
   bool _catalogFailed = false;
   bool _leavingDialog = false;
-  Timer? _discussionTimer;
+  Timer? _phaseTimer;
   int _remainingSeconds = GameRound.discussionDuration.inSeconds;
+  int _revealSeconds = GameRound.revealDuration.inSeconds;
 
   @override
   void initState() {
@@ -51,18 +52,23 @@ class _SessionScreenState extends State<SessionScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Android can make the window visible in `inactive` before `resumed`.
     // Reconcile on every transition so that return frame is already current.
-    _updateDiscussion();
     if (state != AppLifecycleState.resumed) {
-      _stopDiscussionTimer();
+      setState(() => _session.pauseReveal(widget.now()));
+      _updateTimedPhase();
+      _stopPhaseTimer();
       _concealSecret();
     } else {
-      _startDiscussionTimer();
+      if (!_leavingDialog) {
+        setState(() => _session.resumeReveal(widget.now()));
+      }
+      _updateTimedPhase();
+      _startPhaseTimer();
     }
   }
 
   @override
   void dispose() {
-    _stopDiscussionTimer();
+    _stopPhaseTimer();
     WidgetsBinding.instance.removeObserver(this);
     _name.dispose();
     _nameFocus.dispose();
@@ -107,7 +113,7 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   void _returnToGroup() {
-    _stopDiscussionTimer();
+    _stopPhaseTimer();
     setState(_session.returnToGroup);
     _focusNewPhase();
   }
@@ -133,7 +139,7 @@ class _SessionScreenState extends State<SessionScreen>
       _session.startDiscussion(widget.now());
       _remainingSeconds = GameRound.discussionDuration.inSeconds;
     });
-    _startDiscussionTimer();
+    _startPhaseTimer();
     _focusNewPhase();
   }
 
@@ -160,13 +166,17 @@ class _SessionScreenState extends State<SessionScreen>
         expected.suspect == null) {
       return;
     }
-    setState(_session.confirmSuspect);
+    setState(() {
+      _session.confirmSuspect(widget.now());
+      _revealSeconds = GameRound.revealDuration.inSeconds;
+    });
+    _startPhaseTimer();
     _focusNewPhase();
   }
 
   void _newRound(GameRound expected) {
     if (!_canAct(expected) || expected.phase != GamePhase.result) return;
-    _stopDiscussionTimer();
+    _stopPhaseTimer();
     setState(() {
       _session.newRound();
       _remainingSeconds = GameRound.discussionDuration.inSeconds;
@@ -174,22 +184,44 @@ class _SessionScreenState extends State<SessionScreen>
     _focusNewPhase();
   }
 
-  void _startDiscussionTimer() {
-    _stopDiscussionTimer();
-    if (_session.round?.phase != GamePhase.discussion) return;
-    _discussionTimer = Timer.periodic(
+  void _startPhaseTimer() {
+    _stopPhaseTimer();
+    final phase = _session.round?.phase;
+    if (phase != GamePhase.discussion && phase != GamePhase.reveal) return;
+    if (phase == GamePhase.reveal && _session.round!.revealEndsAt == null) {
+      return;
+    }
+    _phaseTimer = Timer.periodic(
       const Duration(milliseconds: 250),
-      (_) => _updateDiscussion(),
+      (_) => _updateTimedPhase(),
     );
   }
 
-  void _stopDiscussionTimer() {
-    _discussionTimer?.cancel();
-    _discussionTimer = null;
+  void _stopPhaseTimer() {
+    _phaseTimer?.cancel();
+    _phaseTimer = null;
   }
 
-  void _updateDiscussion() {
+  void _updateTimedPhase() {
     final round = _session.round;
+    if (round?.phase == GamePhase.reveal) {
+      if (round!.revealEndsAt == null) return;
+      final now = widget.now();
+      final seconds =
+          (round.remainingRevealTime(now).inMicroseconds /
+                  Duration.microsecondsPerSecond)
+              .ceil();
+      if (seconds == _revealSeconds && seconds > 0) return;
+      setState(() {
+        _session.advanceTime(now);
+        _revealSeconds = seconds;
+      });
+      if (_session.round!.phase == GamePhase.result) {
+        _stopPhaseTimer();
+        _focusNewPhase();
+      }
+      return;
+    }
     if (round?.phase != GamePhase.discussion) return;
     final now = widget.now();
     final seconds =
@@ -204,7 +236,7 @@ class _SessionScreenState extends State<SessionScreen>
       _remainingSeconds = seconds;
     });
     if (_session.round!.phase == GamePhase.voting) {
-      _stopDiscussionTimer();
+      _stopPhaseTimer();
       if (!_leavingDialog) _focusNewPhase();
     }
   }
@@ -216,6 +248,8 @@ class _SessionScreenState extends State<SessionScreen>
       return;
     }
     _leavingDialog = true;
+    setState(() => _session.pauseReveal(widget.now()));
+    if (_session.round!.phase == GamePhase.reveal) _stopPhaseTimer();
     _concealSecret();
     // Remove the secret from both rendering and semantics before opening a route.
     await WidgetsBinding.instance.endOfFrame;
@@ -245,6 +279,11 @@ class _SessionScreenState extends State<SessionScreen>
     if (leave == true) {
       _returnToGroup();
     } else {
+      final lifecycle = WidgetsBinding.instance.lifecycleState;
+      if (lifecycle == null || lifecycle == AppLifecycleState.resumed) {
+        setState(() => _session.resumeReveal(widget.now()));
+        _startPhaseTimer();
+      }
       _focusNewPhase();
     }
   }
@@ -262,6 +301,10 @@ class _SessionScreenState extends State<SessionScreen>
     final strings = AppLocalizations.of(context);
     final round = _session.round;
     final result = round?.result;
+    final compactReveal =
+        round?.phase == GamePhase.reveal &&
+        (MediaQuery.sizeOf(context).height < 650 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.3);
     final groupWon = result?.winner == Winner.group;
     final revealed = round?.phase == GamePhase.secret;
     final title = switch (round?.phase) {
@@ -271,6 +314,7 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.ready => strings.readyTitle,
       GamePhase.discussion => strings.discussionTitle,
       GamePhase.voting => strings.votingTitle,
+      GamePhase.reveal => strings.revealTitle,
       GamePhase.result =>
         groupWon ? strings.groupWinTitle : strings.imposterWinTitle,
     };
@@ -283,6 +327,7 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.ready => strings.readyPhase,
       GamePhase.discussion => strings.discussionPhase,
       GamePhase.voting => strings.votingPhase,
+      GamePhase.reveal => strings.revealPhase,
       GamePhase.result => strings.resultPhase,
     };
     final phaseIcon = switch (round?.phase) {
@@ -291,6 +336,7 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.ready => Icons.check_circle_outline,
       GamePhase.discussion => Icons.timer_outlined,
       GamePhase.voting => Icons.how_to_vote_outlined,
+      GamePhase.reveal => Icons.hourglass_bottom_outlined,
       GamePhase.result => Icons.celebration_outlined,
     };
     final intro = switch (round?.phase) {
@@ -299,6 +345,7 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.secret => strings.privateIntro,
       GamePhase.ready || GamePhase.discussion => strings.readyIntro,
       GamePhase.voting => strings.votingIntro,
+      GamePhase.reveal => strings.revealIntro,
       GamePhase.result =>
         groupWon ? strings.groupWinIntro : strings.imposterWinIntro,
     };
@@ -326,31 +373,33 @@ class _SessionScreenState extends State<SessionScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Row(
-                                children: [
-                                  const ExcludeSemantics(
-                                    child: Icon(
-                                      Icons.auto_awesome_outlined,
-                                      size: 24,
-                                      color: PartyColors.lime,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      strings.appTitle.toUpperCase(),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 2,
+                              if (!compactReveal) ...[
+                                Row(
+                                  children: [
+                                    const ExcludeSemantics(
+                                      child: Icon(
+                                        Icons.auto_awesome_outlined,
+                                        size: 24,
                                         color: PartyColors.lime,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              _buildPhaseLabel(phaseLabel, phaseIcon),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        strings.appTitle.toUpperCase(),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 2,
+                                          color: PartyColors.lime,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                _buildPhaseLabel(phaseLabel, phaseIcon),
+                              ],
                               if (round?.currentPlayerNumber != null) ...[
                                 const SizedBox(height: 12),
                                 ExcludeSemantics(
@@ -376,19 +425,26 @@ class _SessionScreenState extends State<SessionScreen>
                                   header: true,
                                   child: Text(
                                     title,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge,
+                                    style: compactReveal
+                                        ? const TextStyle(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.w800,
+                                          )
+                                        : Theme.of(context)
+                                              .textTheme
+                                              .headlineLarge,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                intro,
-                                style: const TextStyle(
-                                  color: PartyColors.muted,
+                              if (!compactReveal) ...[
+                                const SizedBox(height: 16),
+                                Text(
+                                  intro,
+                                  style: const TextStyle(
+                                    color: PartyColors.muted,
+                                  ),
                                 ),
-                              ),
+                              ],
                               const SizedBox(height: 24),
                               if (round == null) _buildNameInput(strings),
                               if (round != null)
@@ -398,6 +454,8 @@ class _SessionScreenState extends State<SessionScreen>
                                   _buildCountdown(strings)
                                 else if (round.phase == GamePhase.voting)
                                   _buildVotingCard(strings)
+                                else if (round.phase == GamePhase.reveal)
+                                  _buildRevealCountdown(strings)
                                 else if (result != null)
                                   _buildResult(strings, result)
                                 else if (revealed)
@@ -881,6 +939,27 @@ class _SessionScreenState extends State<SessionScreen>
 
   Widget _buildVotingCard(AppLocalizations strings) =>
       _buildStatusCard(strings.votingCard, Icons.how_to_vote_outlined);
+
+  Widget _buildRevealCountdown(AppLocalizations strings) => PartyCard(
+    color: PartyColors.purple,
+    outlined: false,
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+    child: Semantics(
+      liveRegion: true,
+      label: strings.revealRemaining(_revealSeconds),
+      excludeSemantics: true,
+      child: SizedBox(
+        height: (MediaQuery.sizeOf(context).height * 0.25).clamp(80.0, 200.0),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '$_revealSeconds',
+            style: const TextStyle(fontSize: 112, fontWeight: FontWeight.w800),
+          ),
+        ),
+      ),
+    ),
+  );
 
   Widget _buildCardIcon(IconData icon) => ExcludeSemantics(
     child: Container(

@@ -95,7 +95,8 @@ void main() {
             .startDiscussion(now)
             .advanceTime(now.add(GameRound.discussionDuration))
             .selectSuspect(suspect)
-            .confirmSuspect();
+            .confirmSuspect(now)
+            .advanceTime(now.add(GameRound.revealDuration));
         expect(round.result!.word, word);
         expect(round.result!.winner, correct ? Winner.group : Winner.imposter);
         round = round.newRound();

@@ -165,6 +165,14 @@ void main() {
         await _tapText(tester, suspect);
         _expectConcealed(catalog);
         await _tapText(tester, '$suspect verdächtigen');
+        expect(find.text('Wer hat geblufft?'), findsOneWidget);
+        _expectConcealed(catalog);
+        expect(find.text('Die Auflösung'), findsNothing);
+        await tester.pump(const Duration(seconds: 1));
+        _expectConcealed(catalog);
+        expect(find.text('Die Auflösung'), findsNothing);
+        await tester.pump(const Duration(seconds: 3));
+        await _settle(tester);
         expect(
           find.text(correct ? 'Erwischt!' : 'Gut geblufft!'),
           findsOneWidget,
