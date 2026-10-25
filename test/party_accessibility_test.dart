@@ -78,6 +78,17 @@ void main() {
           await tester.pumpAndSettle();
           await _checkAndroidControls(tester);
           await tapVisible(tester, '$suspect verdächtigen');
+          expectConcealed(tester);
+          final countdown = tester.getRect(find.text('3'));
+          expect(countdown.top, greaterThanOrEqualTo(0));
+          expect(
+            countdown.bottom,
+            lessThanOrEqualTo(tester.view.physicalSize.height),
+          );
+          await _checkAndroidControls(tester);
+          now = now.add(const Duration(seconds: 3));
+          await tester.pump(const Duration(seconds: 3));
+          await tester.pumpAndSettle();
           await _checkAndroidControls(tester);
           await tester.scrollUntilVisible(
             find.text('Noch eine Runde'),

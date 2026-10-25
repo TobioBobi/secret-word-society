@@ -4,7 +4,7 @@ import 'player.dart';
 import 'word_catalog.dart';
 import 'word_deck.dart';
 
-enum GamePhase { handoff, secret, ready, discussion, voting, result }
+enum GamePhase { handoff, secret, ready, discussion, voting, reveal, result }
 
 enum PlayerRole { group, imposter }
 
@@ -48,6 +48,8 @@ final class GameRound {
     this._handoffIndex = 0,
     this.discussionEndsAt,
     this.suspect,
+    this.revealEndsAt,
+    this.revealRemaining = revealDuration,
   });
 
   factory GameRound.start({
@@ -88,11 +90,14 @@ final class GameRound {
   static const minimumPlayers = 3;
   // Temporary manual-test duration. Restore two minutes in local Ticket 19.
   static const discussionDuration = Duration(seconds: 10);
+  static const revealDuration = Duration(seconds: 3);
 
   final List<Player> players;
   final GamePhase phase;
   final DateTime? discussionEndsAt;
   final Player? suspect;
+  final DateTime? revealEndsAt;
+  final Duration revealRemaining;
   final WordDeck _deck;
   final Random _random;
   final WordPair _pair;
@@ -156,7 +161,9 @@ final class GameRound {
 
   /// Derives remaining time from a deadline, including time spent off screen.
   Duration remainingDiscussionTime(DateTime now) {
-    if (phase == GamePhase.voting || phase == GamePhase.result) {
+    if (phase == GamePhase.voting ||
+        phase == GamePhase.reveal ||
+        phase == GamePhase.result) {
       return Duration.zero;
     }
     if (discussionEndsAt == null) return discussionDuration;
@@ -167,6 +174,11 @@ final class GameRound {
 
   /// Called by UI timer ticks and when resuming the app.
   GameRound advanceTime(DateTime now) {
+    if (phase == GamePhase.reveal) {
+      return revealEndsAt != null && remainingRevealTime(now) == Duration.zero
+          ? _copy(phase: GamePhase.result)
+          : this;
+    }
     _requirePhase(GamePhase.discussion);
     return now.isBefore(discussionEndsAt!)
         ? this
@@ -180,11 +192,36 @@ final class GameRound {
     return _copy(phase: phase, suspect: players[index]);
   }
 
-  GameRound confirmSuspect() {
+  GameRound confirmSuspect(DateTime now) {
     _requirePhase(GamePhase.voting);
     if (suspect == null) throw StateError('Select a suspect first.');
-    return _copy(phase: GamePhase.result);
+    return _copy(
+      phase: GamePhase.reveal,
+      revealEndsAt: now.add(revealDuration),
+    );
   }
+
+  Duration remainingRevealTime(DateTime now) {
+    if (phase == GamePhase.result) return Duration.zero;
+    if (revealEndsAt == null) return revealRemaining;
+    final remaining = revealEndsAt!.difference(now);
+    if (remaining.isNegative) return Duration.zero;
+    return remaining > revealRemaining ? revealRemaining : remaining;
+  }
+
+  /// Freeze suspense while the app or a confirmation dialog covers the round.
+  GameRound pauseReveal(DateTime now) => phase != GamePhase.reveal
+      ? this
+      : _copy(
+          phase: phase,
+          pauseReveal: true,
+          revealRemaining: remainingRevealTime(now),
+        );
+
+  GameRound resumeReveal(DateTime now) =>
+      phase != GamePhase.reveal || revealEndsAt != null
+      ? this
+      : _copy(phase: phase, revealEndsAt: now.add(revealRemaining));
 
   /// Retains the group and word deck; the imposter is drawn independently anew.
   GameRound newRound() {
@@ -203,6 +240,9 @@ final class GameRound {
     int? handoffIndex,
     DateTime? discussionEndsAt,
     Player? suspect,
+    DateTime? revealEndsAt,
+    Duration? revealRemaining,
+    bool pauseReveal = false,
   }) => GameRound._(
     players: players,
     deck: _deck,
@@ -213,5 +253,7 @@ final class GameRound {
     handoffIndex: handoffIndex ?? _handoffIndex,
     discussionEndsAt: discussionEndsAt ?? this.discussionEndsAt,
     suspect: suspect ?? this.suspect,
+    revealEndsAt: pauseReveal ? null : revealEndsAt ?? this.revealEndsAt,
+    revealRemaining: revealRemaining ?? this.revealRemaining,
   );
 }

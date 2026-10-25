@@ -52,6 +52,56 @@ String _imposterId(GameRound round) {
 }
 
 void main() {
+  test('reveal hides the result until the deadline and freezes exact remaining time', () {
+    final reveal = _voting(_start()).selectSuspect('a').confirmSuspect(_now);
+    expect(reveal.phase, GamePhase.reveal);
+    expect(reveal.result, isNull);
+    expect(reveal.currentSecret, isNull);
+    expect(reveal.currentPlayer, isNull);
+    expect(reveal.remainingDiscussionTime(_now), Duration.zero);
+    expect(
+      reveal.remainingRevealTime(_now.subtract(const Duration(seconds: 1))),
+      GameRound.revealDuration,
+    );
+    expect(
+      reveal.advanceTime(_now.add(const Duration(milliseconds: 2999))),
+      same(reveal),
+    );
+    expect(() => reveal.confirmSuspect(_now), throwsStateError);
+    expect(() => reveal.selectSuspect('b'), throwsStateError);
+    expect(reveal.newRound, throwsStateError);
+    final paused = reveal.pauseReveal(
+      _now.add(const Duration(milliseconds: 1250)),
+    );
+    final later = _now.add(const Duration(hours: 1));
+    expect(paused.revealEndsAt, isNull);
+    expect(
+      paused.remainingRevealTime(later),
+      const Duration(milliseconds: 1750),
+    );
+    expect(paused.advanceTime(later), same(paused));
+    expect(
+      paused.pauseReveal(later).remainingRevealTime(later),
+      const Duration(milliseconds: 1750),
+    );
+    final resumed = paused.resumeReveal(later);
+    expect(
+      resumed.resumeReveal(later.add(const Duration(seconds: 1))),
+      same(resumed),
+    );
+    expect(
+      resumed.advanceTime(later.add(const Duration(milliseconds: 1749))).result,
+      isNull,
+    );
+    final result = resumed.advanceTime(
+      later.add(const Duration(milliseconds: 1750)),
+    );
+    expect(result.phase, GamePhase.result);
+    expect(result.result!.suspect.id, 'a');
+    expect(result.newRound().revealRemaining, GameRound.revealDuration);
+    expect(result.newRound().revealEndsAt, isNull);
+  });
+
   test('requires three players, unique IDs and case-insensitive names', () {
     for (var count = 0; count < 3; count++) {
       expect(
@@ -221,12 +271,19 @@ void main() {
   test('only a round member can be selected; selection can change before confirmation', () {
     final voting = _voting(_start());
     expect(voting.suspect, isNull);
-    expect(voting.confirmSuspect, throwsStateError);
+    expect(() => voting.confirmSuspect(_now), throwsStateError);
     expect(() => voting.selectSuspect('outsider'), throwsArgumentError);
     final selected = voting.selectSuspect('a').selectSuspect('b');
     expect(selected.suspect, same(_players[1]));
     expect(selected.result, isNull);
-    expect(selected.confirmSuspect().result!.suspect, same(_players[1]));
+    expect(
+      selected
+          .confirmSuspect(_now)
+          .advanceTime(_now.add(GameRound.revealDuration))
+          .result!
+          .suspect,
+      same(_players[1]),
+    );
   });
 
   test('correct suspicion wins for the group; every wrong suspicion wins for the imposter', () {
@@ -234,7 +291,10 @@ void main() {
     final imposterId = _imposterId(initial);
     final voting = _voting(initial);
     for (final suspect in _players) {
-      final finished = voting.selectSuspect(suspect.id).confirmSuspect();
+      final finished = voting
+          .selectSuspect(suspect.id)
+          .confirmSuspect(_now)
+          .advanceTime(_now.add(GameRound.revealDuration));
       expect(finished.phase, GamePhase.result);
       expect(finished.result!.imposter.id, imposterId);
       expect(
@@ -260,7 +320,10 @@ void main() {
         catalog: _catalog,
         random: random,
       );
-      final finished = _voting(first).selectSuspect('a').confirmSuspect();
+      final finished = _voting(first)
+          .selectSuspect('a')
+          .confirmSuspect(_now)
+          .advanceTime(_now.add(GameRound.revealDuration));
       expect(finished.result!.word, 'Pizza');
       expect(finished.result!.imposter.id, 'a');
       final next = finished.newRound();
@@ -285,11 +348,15 @@ void main() {
       catalog: _catalog,
       random: _SequenceRandom([0, 0, 0, 0]),
     );
-    final finished = _voting(first).selectSuspect('a').confirmSuspect();
+    final finished = _voting(first)
+        .selectSuspect('a')
+        .confirmSuspect(_now)
+        .advanceTime(_now.add(GameRound.revealDuration));
     final next = finished.newRound();
     final nextResult = _voting(next)
         .selectSuspect('a')
-        .confirmSuspect()
+        .confirmSuspect(_now)
+        .advanceTime(_now.add(GameRound.revealDuration))
         .result!;
     expect(nextResult.imposter.id, finished.result!.imposter.id);
     expect(nextResult.word, isNot(finished.result!.word));
@@ -301,16 +368,29 @@ void main() {
     final ready = _ready(handoff);
     final discussion = ready.startDiscussion(_now);
     final voting = discussion.advanceTime(_now.add(const Duration(minutes: 2)));
-    final result = voting.selectSuspect('a').confirmSuspect();
-    for (final round in [handoff, secret, ready, discussion, voting, result]) {
+    final reveal = voting.selectSuspect('a').confirmSuspect(_now);
+    final result = reveal.advanceTime(_now.add(GameRound.revealDuration));
+    for (final round in [
+      handoff,
+      secret,
+      ready,
+      discussion,
+      voting,
+      reveal,
+      result,
+    ]) {
+      if (round.phase != GamePhase.discussion &&
+          round.phase != GamePhase.reveal) {
+        expect(() => round.advanceTime(_now), throwsStateError);
+      }
       final actions = <GamePhase, List<void Function()>>{
         GamePhase.handoff: [round.revealSecret],
         GamePhase.secret: [round.hideAndAdvance],
         GamePhase.ready: [() => round.startDiscussion(_now)],
-        GamePhase.discussion: [() => round.advanceTime(_now)],
+
         GamePhase.voting: [
           () => round.selectSuspect('a'),
-          round.confirmSuspect,
+          () => round.confirmSuspect(_now),
         ],
         GamePhase.result: [round.newRound],
       };

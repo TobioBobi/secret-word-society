@@ -11,6 +11,7 @@ import 'widget_test.dart'
         showStart,
         tapVisible,
         expectConcealed,
+        semanticsTree,
         testCatalog;
 
 const _names = ['Anna', 'Ben', 'Cem'];
@@ -71,7 +72,110 @@ Future<FilledButton> _action(WidgetTester tester) async {
   return tester.widget<FilledButton>(find.byType(FilledButton));
 }
 
+Future<void> _finishReveal(WidgetTester tester, _Clock clock) async {
+  expect(find.text('Wer hat geblufft?'), findsOneWidget);
+  expect(find.text('3'), findsOneWidget);
+  expectConcealed(tester);
+  expect(find.text('Erwischt!'), findsNothing);
+  expect(find.text('Gut geblufft!'), findsNothing);
+  for (final label in [
+    'Der Imposter war',
+    'Das geheime Wort',
+    'Die Gruppe gewinnt.',
+    'Der Imposter gewinnt.',
+  ]) {
+    expect(semanticsTree(tester), isNot(contains(label)));
+  }
+  for (final seconds in [2, 1]) {
+    clock.value = clock.value.add(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('$seconds'), findsOneWidget);
+    expectConcealed(tester);
+    expect(find.text('Die Auflösung'), findsNothing);
+  }
+  clock.value = clock.value.add(const Duration(seconds: 1));
+  await tester.pump(const Duration(seconds: 1));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets(
+    'countdown freezes across background and leave dialog without restarting',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final clock = _Clock();
+      await _voting(tester, clock);
+      await tapVisible(tester, 'Anna');
+      await tapVisible(tester, 'Anna verdächtigen');
+      clock.value = clock.value.add(const Duration(milliseconds: 1250));
+      await tester.pump(const Duration(milliseconds: 1250));
+      expect(find.text('2'), findsOneWidget);
+      expect(find.bySemanticsLabel('Enthüllung in 2 Sekunden'), findsOneWidget);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      clock.value = clock.value.add(const Duration(minutes: 5));
+      await tester.pump(const Duration(minutes: 5));
+      expectConcealed(tester);
+      expect(find.text('2'), findsOneWidget);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(find.text('2'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      clock.value = clock.value.add(const Duration(minutes: 5));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump(const Duration(minutes: 5));
+      expectConcealed(tester);
+      await tapVisible(tester, 'Weiterspielen');
+      expect(find.text('2'), findsOneWidget);
+      clock.value = clock.value.add(const Duration(milliseconds: 750));
+      await tester.pump(const Duration(milliseconds: 750));
+      expect(find.text('1'), findsOneWidget);
+      expectConcealed(tester);
+      clock.value = clock.value.add(const Duration(milliseconds: 999));
+      await tester.pump(const Duration(milliseconds: 999));
+      expectConcealed(tester);
+      clock.value = clock.value.add(const Duration(milliseconds: 1));
+      await tester.pump(const Duration(milliseconds: 251));
+      await tester.pumpAndSettle();
+      expect(find.text('Die Auflösung'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('abandoning or disposing a countdown cannot reveal later', (
+    tester,
+  ) async {
+    final clock = _Clock();
+    await _voting(tester, clock);
+    await tapVisible(tester, 'Ben');
+    final confirm = (await _action(tester)).onPressed!;
+    confirm();
+    await tester.pumpAndSettle();
+    await tapVisible(tester, 'Gruppe bearbeiten');
+    await tapVisible(tester, 'Runde verlassen');
+    clock.value = clock.value.add(const Duration(minutes: 1));
+    await tester.pump(const Duration(minutes: 1));
+    confirm();
+    await showStart(tester);
+    await tapVisible(tester, 'Runde starten');
+    await _distribute(tester, _names);
+    await _reachVoting(tester, clock);
+    await tapVisible(tester, 'Cem');
+    await tapVisible(tester, 'Cem verdächtigen');
+    expect(find.text('3'), findsOneWidget);
+    expectConcealed(tester);
+    await tester.pumpWidget(const SizedBox.shrink());
+    clock.value = clock.value.add(const Duration(minutes: 1));
+    await tester.pump(const Duration(minutes: 1));
+    expect(tester.takeException(), isNull);
+  });
+
   for (final correct in [true, false]) {
     testWidgets('vote, reveal and fresh complete round: correct=$correct', (
       tester,
@@ -101,6 +205,7 @@ void main() {
       confirm();
       confirm(); // The same frame must not confirm twice.
       await tester.pumpAndSettle();
+      await _finishReveal(tester, clock);
       expect(
         find.text(correct ? 'Erwischt!' : 'Gut geblufft!'),
         findsOneWidget,
@@ -146,6 +251,7 @@ void main() {
       );
       await tapVisible(tester, secondImposter);
       await tapVisible(tester, '$secondImposter verdächtigen');
+      await _finishReveal(tester, clock);
       expect(find.text('Erwischt!'), findsOneWidget);
       await tapVisible(tester, 'Gruppe bearbeiten');
       expect(find.byType(AlertDialog), findsNothing);
@@ -192,6 +298,7 @@ void main() {
       expect(find.text('Ben verdächtigen'), findsOneWidget);
       expectConcealed(tester);
       await tapVisible(tester, 'Ben verdächtigen');
+      await _finishReveal(tester, clock);
       expect(find.text('Die Auflösung'), findsOneWidget);
       final next = (await _action(tester)).onPressed!;
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
@@ -253,6 +360,7 @@ void main() {
     await _reachVoting(tester, clock);
     await tapVisible(tester, longName);
     await tapVisible(tester, '$longName verdächtigen');
+    await _finishReveal(tester, clock);
     await tapVisible(tester, 'Noch eine Runde');
     expect(find.text('Handy an Person 1.'), findsOneWidget);
     expect(find.text('Person 1 von 12'), findsOneWidget);

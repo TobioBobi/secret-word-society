@@ -183,6 +183,27 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get revealPhase => 'Gleich wird enthüllt';
+
+  @override
+  String get revealTitle => 'Wer hat geblufft?';
+
+  @override
+  String get revealIntro =>
+      'Euer Verdacht steht fest. Gleich erfahrt ihr die Wahrheit.';
+
+  @override
+  String revealRemaining(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$seconds Sekunden',
+      one: '1 Sekunde',
+    );
+    return 'Enthüllung in $_temp0';
+  }
+
+  @override
   String get resultPhase => 'Die Auflösung';
 
   @override

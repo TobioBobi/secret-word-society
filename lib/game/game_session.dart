@@ -58,7 +58,12 @@ final class GameSession {
   void selectSuspect(String playerId) =>
       _round = _requireRound().selectSuspect(playerId);
 
-  void confirmSuspect() => _round = _requireRound().confirmSuspect();
+  void confirmSuspect(DateTime now) =>
+      _round = _requireRound().confirmSuspect(now);
+
+  void pauseReveal(DateTime now) => _round = _round?.pauseReveal(now);
+
+  void resumeReveal(DateTime now) => _round = _round?.resumeReveal(now);
 
   void newRound() => _round = _requireRound().newRound();
 

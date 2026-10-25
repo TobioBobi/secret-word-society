@@ -47,6 +47,13 @@ Zeit abgenommen hat.
 
 ## Lokal ausführen
 
+Seit Ticket 18 folgt auf die bestätigte Abstimmung ein eigener dreisekündiger
+Enthüllungs-Countdown. Beide vollständigen Gerätetests prüfen vor Ablauf die
+verdeckten Geheimnisse und warten mit der Produktionsuhr auf die Auflösung.
+Pausieren bei App-Unterbrechungen und im Verlassensdialog, Screenreader-Schutz,
+Doppeltippen und Countdown-Folgerunden werden zusätzlich in Modell-/Widget-Tests
+geprüft. Details: [Ticket 18](mvp/ticket-18-enthuellungs-countdown.md).
+
 Voraussetzungen: Flutter 3.47.7, eingerichtetes Android-SDK und ein gestarteter
 Emulator oder ein per ADB erreichbares Android-Testgerät. Für den lokalen
 Emulator kann der Android Studio Device Manager verwendet werden.

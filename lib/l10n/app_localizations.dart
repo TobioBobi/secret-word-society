@@ -358,6 +358,30 @@ abstract class AppLocalizations {
   /// **'{name} verdächtigen'**
   String confirmSuspect(String name);
 
+  /// No description provided for @revealPhase.
+  ///
+  /// In de, this message translates to:
+  /// **'Gleich wird enthüllt'**
+  String get revealPhase;
+
+  /// No description provided for @revealTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer hat geblufft?'**
+  String get revealTitle;
+
+  /// No description provided for @revealIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Euer Verdacht steht fest. Gleich erfahrt ihr die Wahrheit.'**
+  String get revealIntro;
+
+  /// No description provided for @revealRemaining.
+  ///
+  /// In de, this message translates to:
+  /// **'Enthüllung in {seconds, plural, =1{1 Sekunde} other{{seconds} Sekunden}}'**
+  String revealRemaining(int seconds);
+
   /// No description provided for @resultPhase.
   ///
   /// In de, this message translates to:
