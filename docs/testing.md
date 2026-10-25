@@ -19,14 +19,17 @@ ersetzte Plattformkanäle.
    tatsächlichen Imposter bzw. gezielt eine andere Person auswählen und
    bestätigen; Gewinner, Verdacht, tatsächlichen Imposter und Wort prüfen.
    „Noch eine Runde“ beginnt bei Person 1 mit verdeckter Karte; alle Karten
-   erneut verteilen und einen frischen Countdown bei 02:00 starten.
+   erneut verteilen und einen frischen Countdown bei 02:00 starten. Seit
+   Ticket 7 muss die Folgerunde ein anderes Wort mit zugehörigem Hinweis haben.
    Beide Tests brauchen durch die reguläre Spielzeit jeweils gut zwei Minuten
    zusätzlich; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über „Gruppe bearbeiten“ verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
    aufdecken. Danach bei der zweiten Person die Runde tatsächlich verlassen:
    Alle drei Namen bleiben erhalten. Eine neue Runde beginnt wieder verdeckt
-   bei der ersten Person und lässt sich aufdecken.
+   bei der ersten Person. Seit Ticket 7 werden auch hier alle Karten verteilt
+   und ein anderes Wort als in der abgebrochenen Runde geprüft. Dabei lädt die
+   App den Katalog erneut; die Sitzung muss ihren Wortvorrat dennoch behalten.
 
 Jeder Test beginnt mit einer neuen App-Widget-Instanz und leerem Sitzungsspeicher,
 auch wenn die Tests im selben Android-Prozess laufen. Die Tests setzen keine
@@ -136,6 +139,21 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 - Workflow mit `actionlint` 1.7.12 ohne Befund geprüft. Der neue GitHub-Job ist
   lokal vorbereitet; sein erster echter Lauf auf Ubuntu mit Android API 35 steht
   nach dem Push noch aus.
+
+## Ticket-7-Prüfung am 25.10.2026
+
+- Alle drei Android-Integrationstests bestanden (4:42 Minuten Testausführung,
+  zusätzlich 74 Sekunden Debug-Build und vier Sekunden Installation). Beide
+  Gewinner und der Abbruchablauf prüfen nun ausdrücklich ein neues Wort;
+  Folgerunden prüfen auch den dazugehörigen Hinweis.
+- Alle 52 Unit-/Widget-Tests, Analyse, Formatprüfung und Release-Build erfolgreich.
+  Alle 100 echten Paare werden in Modellrunden geprüft; zusätzliche Vorratstests
+  sichern mehrere vollständige Durchläufe und deren Übergänge ab.
+- Normale Release-APK mit exakt dem aktuellen 100er-Katalog installiert und kalt
+  gestartet. Prozess/Fenster aktiv, `SECURE` gesetzt und keine Flutter-Fehler oder
+  App-Absturzmeldungen in den geprüften Prozesslogs. Testemulator danach beendet.
+- Details, lokale Protokolle und noch offene echte Gruppen-Proberunden:
+  [Ticket 7](mvp/ticket-7-inhalte.md).
 
 Grundlagen: [Flutter-Integrationstests](https://docs.flutter.dev/testing/integration-tests),
 [Flutter-Testarten und native Grenzen](https://docs.flutter.dev/testing/overview),

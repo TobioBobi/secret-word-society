@@ -107,8 +107,9 @@ vom Nutzer gewählten Regeln. Sie halten die nächsten Tickets eindeutig.
   mit den gesprochenen Hinweisen; keine automatische Sprechersteuerung.
 - Neue Runde: neue zufällige Rollenverteilung und Wortauswahl, Übergabeindex 0,
   verdeckte Karte, keine Auswahl, Timer wieder 120 Sekunden und noch nicht gestartet.
-  Derselbe Imposter oder dasselbe Wort kann zufällig erneut auftreten;
-  Wiederholungsvermeidung gehört gegebenenfalls zu Ticket 7.
+  Derselbe Imposter kann zufällig erneut auftreten. Seit [Ticket 7](ticket-7-inhalte.md)
+  wiederholt sich ein Wort erst nach dem vollständigen Katalogdurchlauf;
+  auch am Übergang gibt es keine direkte Wortwiederholung.
 - Kein dauerhaftes Speichern von Namen oder laufenden Runden; keine Konten,
   Server, Fotos, Kategorien, Einstellungen oder Punkteverwaltung im MVP.
 

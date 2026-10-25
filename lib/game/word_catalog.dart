@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 final class WordPair {
   WordPair({required String id, required String word, required String hint})
@@ -29,6 +28,10 @@ final class WordCatalog {
     }
     if (this.pairs.map((pair) => pair.id).toSet().length != this.pairs.length) {
       throw ArgumentError('Word pair IDs must be unique within a catalog.');
+    }
+    if (this.pairs.map((pair) => pair.word.toLowerCase()).toSet().length !=
+        this.pairs.length) {
+      throw ArgumentError('Words must be unique within a catalog.');
     }
   }
 
@@ -63,6 +66,4 @@ final class WordCatalog {
 
   final String languageCode;
   final List<WordPair> pairs;
-
-  WordPair choose(Random random) => pairs[random.nextInt(pairs.length)];
 }

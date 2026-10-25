@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'player.dart';
 import 'word_catalog.dart';
+import 'word_deck.dart';
 
 enum GamePhase { handoff, secret, ready, discussion, voting, result }
 
@@ -39,7 +40,7 @@ final class RoundResult {
 final class GameRound {
   GameRound._({
     required this.players,
-    required this._catalog,
+    required this._deck,
     required this._random,
     required this._pair,
     required this._imposterIndex,
@@ -52,6 +53,17 @@ final class GameRound {
   factory GameRound.start({
     required Iterable<Player> players,
     required WordCatalog catalog,
+    Random? random,
+  }) => GameRound.fromDeck(
+    players: players,
+    deck: WordDeck(catalog),
+    random: random,
+  );
+
+  /// Reuses a session's draw source; only starting a round consumes a word.
+  factory GameRound.fromDeck({
+    required Iterable<Player> players,
+    required WordDeck deck,
     Random? random,
   }) {
     final group = List<Player>.unmodifiable(players);
@@ -66,9 +78,9 @@ final class GameRound {
     final source = random ?? Random();
     return GameRound._(
       players: group,
-      catalog: catalog,
+      deck: deck,
       random: source,
-      pair: catalog.choose(source),
+      pair: deck.draw(source),
       imposterIndex: source.nextInt(group.length),
     );
   }
@@ -80,13 +92,13 @@ final class GameRound {
   final GamePhase phase;
   final DateTime? discussionEndsAt;
   final Player? suspect;
-  final WordCatalog _catalog;
+  final WordDeck _deck;
   final Random _random;
   final WordPair _pair;
   final int _imposterIndex;
   final int _handoffIndex;
 
-  String get languageCode => _catalog.languageCode;
+  String get languageCode => _deck.catalog.languageCode;
 
   Player? get currentPlayer =>
       phase == GamePhase.handoff || phase == GamePhase.secret
@@ -173,15 +185,10 @@ final class GameRound {
     return _copy(phase: GamePhase.result);
   }
 
-  /// Retains the group; every round draws a word and an imposter anew.
-  /// Random repeats are allowed. No persistence or repeat avoidance yet.
+  /// Retains the group and word deck; the imposter is drawn independently anew.
   GameRound newRound() {
     _requirePhase(GamePhase.result);
-    return GameRound.start(
-      players: players,
-      catalog: _catalog,
-      random: _random,
-    );
+    return GameRound.fromDeck(players: players, deck: _deck, random: _random);
   }
 
   void _requirePhase(GamePhase expected) {
@@ -197,7 +204,7 @@ final class GameRound {
     Player? suspect,
   }) => GameRound._(
     players: players,
-    catalog: _catalog,
+    deck: _deck,
     random: _random,
     pair: _pair,
     imposterIndex: _imposterIndex,

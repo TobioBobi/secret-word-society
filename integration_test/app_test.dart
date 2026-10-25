@@ -186,9 +186,16 @@ void main() {
         expect(find.text('Handy an Anna.'), findsOneWidget);
         expect(find.text('Person 1 von 3'), findsOneWidget);
         _expectConcealed(catalog);
+        final nextWords = <String>{};
+        final nextHints = <String>[];
         for (var index = 0; index < _players.length; index++) {
           await _tapText(tester, 'Geheimnis aufdecken');
-          _visibleSecret(catalog);
+          final secret = _visibleSecret(catalog);
+          if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
+            nextHints.add(secret);
+          } else {
+            nextWords.add(secret);
+          }
           await _tapText(
             tester,
             index == _players.length - 1
@@ -196,6 +203,15 @@ void main() {
                 : 'Verbergen & weitergeben',
           );
         }
+        expect(nextWords, hasLength(1));
+        expect(nextWords.single, isNot(words.first));
+        expect(nextHints, hasLength(1));
+        expect(
+          catalog.pairs
+              .singleWhere((pair) => pair.word == nextWords.single)
+              .hint,
+          nextHints.single,
+        );
         expect(find.text('Alle eingeweiht?'), findsOneWidget);
         _expectConcealed(catalog);
         await _tapText(tester, '2 Minuten starten');
@@ -225,7 +241,13 @@ void main() {
     await _tapText(tester, 'Verbergen & weitergeben');
     expect(find.text('Handy an Ben.'), findsOneWidget);
     await _tapText(tester, 'Geheimnis aufdecken');
-    _visibleSecret(catalog);
+    final secondSecret = _visibleSecret(catalog);
+    // At least one of the first two people belongs to the group.
+    final previousWord = catalog.pairs
+        .singleWhere(
+          (pair) => pair.word == firstSecret || pair.word == secondSecret,
+        )
+        .word;
     await _tapText(tester, 'Gruppe bearbeiten');
     expect(find.text('Runde verlassen?'), findsOneWidget);
     _expectConcealed(catalog);
@@ -247,7 +269,22 @@ void main() {
     expect(find.text('Person 1 von 3'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Geheimnis aufdecken');
-    _visibleSecret(catalog);
+    final restartedWords = <String>{};
+    for (var index = 0; index < _players.length; index++) {
+      if (index > 0) await _tapText(tester, 'Geheimnis aufdecken');
+      final secret = _visibleSecret(catalog);
+      if (find.text('Du bist der Imposter').evaluate().isEmpty) {
+        restartedWords.add(secret);
+      }
+      await _tapText(
+        tester,
+        index == _players.length - 1
+            ? 'Verbergen & weiter'
+            : 'Verbergen & weitergeben',
+      );
+    }
+    expect(restartedWords, hasLength(1));
+    expect(restartedWords.single, isNot(previousWord));
     expect(tester.takeException(), isNull);
   });
 }

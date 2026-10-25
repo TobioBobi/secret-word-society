@@ -251,10 +251,10 @@ void main() {
   });
 
   test(
-    'new rounds retain only the group and catalog, resetting all round state',
+    'new rounds retain the group and word history, resetting round state',
     () {
-      // Draw sequence: pair 0 / imposter 0, then pair 1 / imposter 3.
-      final random = _SequenceRandom([0, 0, 1, 3]);
+      // Draw sequence: first remaining pair / imposter 0, then sole pair / 3.
+      final random = _SequenceRandom([0, 0, 0, 3]);
       final first = GameRound.start(
         players: _players,
         catalog: _catalog,
@@ -279,7 +279,7 @@ void main() {
     },
   );
 
-  test('random repeats across rounds are permitted', () {
+  test('imposter repeats remain possible while word repeats are avoided', () {
     final first = GameRound.start(
       players: _players,
       catalog: _catalog,
@@ -292,7 +292,7 @@ void main() {
         .confirmSuspect()
         .result!;
     expect(nextResult.imposter.id, finished.result!.imposter.id);
-    expect(nextResult.word, finished.result!.word);
+    expect(nextResult.word, isNot(finished.result!.word));
   });
 
   test('out-of-order actions are rejected in every phase', () {

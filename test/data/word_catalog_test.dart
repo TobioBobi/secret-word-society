@@ -12,27 +12,32 @@ import 'package:secret_word_society/game/word_catalog.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('bundled German starter catalog loads offline and has distinct useful fields', () async {
-    final catalog = await loadWordCatalog();
-    expect(catalog.languageCode, 'de');
-    expect(catalog.pairs.length, inInclusiveRange(10, 20));
-    expect(
-      catalog.pairs.map((pair) => pair.id).toSet(),
-      hasLength(catalog.pairs.length),
-    );
-    expect(
-      catalog.pairs.map((pair) => pair.word.toLowerCase()).toSet(),
-      hasLength(catalog.pairs.length),
-    );
-    for (final pair in catalog.pairs) {
-      expect(pair.word, isNotEmpty);
-      expect(pair.hint, isNotEmpty);
-      expect(pair.hint.toLowerCase(), isNot(contains(pair.word.toLowerCase())));
-    }
-    expect(catalog.pairs.map((pair) => pair.word), contains('Zahnbürste'));
-    expect(catalog.pairs, contains(same(catalog.choose(Random(42)))));
-    expect(() => catalog.pairs.clear(), throwsUnsupportedError);
-  });
+  test(
+    'bundled German catalog has 100 distinct offline word/hint pairs',
+    () async {
+      final catalog = await loadWordCatalog();
+      expect(catalog.languageCode, 'de');
+      expect(catalog.pairs, hasLength(100));
+      expect(
+        catalog.pairs.map((pair) => pair.id).toSet(),
+        hasLength(catalog.pairs.length),
+      );
+      expect(
+        catalog.pairs.map((pair) => pair.word.toLowerCase()).toSet(),
+        hasLength(catalog.pairs.length),
+      );
+      for (final pair in catalog.pairs) {
+        expect(pair.word, isNotEmpty);
+        expect(pair.hint, isNotEmpty);
+        expect(
+          pair.hint.toLowerCase(),
+          isNot(contains(pair.word.toLowerCase())),
+        );
+      }
+      expect(catalog.pairs.map((pair) => pair.word), contains('Zahnbürste'));
+      expect(() => catalog.pairs.clear(), throwsUnsupportedError);
+    },
+  );
 
   test(
     'catalog copies input and preserves language independently of game rules',
@@ -47,7 +52,7 @@ void main() {
   );
 
   test(
-    'a bundled word supports a complete round and a fresh follow-up',
+    'every bundled pair supports a complete round with consistent secrets',
     () async {
       final catalog = await loadWordCatalog();
       var round = GameRound.start(
@@ -55,31 +60,53 @@ void main() {
         catalog: catalog,
         random: Random(42),
       );
-      String? imposterId;
-      final words = <String>{};
-      String? hint;
-      while (round.phase == GamePhase.handoff) {
-        round = round.revealSecret();
-        final secret = round.currentSecret!;
-        if (secret.role == PlayerRole.imposter) {
-          imposterId = round.currentPlayer!.id;
-          hint = secret.text;
-        } else {
-          words.add(secret.text);
+      final seen = <String>{};
+      for (var index = 0; index < catalog.pairs.length; index++) {
+        String? imposterId;
+        final words = <String>[];
+        final hints = <String>[];
+        while (round.phase == GamePhase.handoff) {
+          expect(round.currentSecret, isNull);
+          expect(round.result, isNull);
+          round = round.revealSecret();
+          final secret = round.currentSecret!;
+          if (secret.role == PlayerRole.imposter) {
+            imposterId = round.currentPlayer!.id;
+            hints.add(secret.text);
+          } else {
+            words.add(secret.text);
+          }
+          round = round.hideAndAdvance();
         }
-        round = round.hideAndAdvance();
+        expect(hints, hasLength(1));
+        expect(words, hasLength(2));
+        final word = words.toSet().single;
+        expect(seen.add(word), isTrue);
+        expect(
+          catalog.pairs.singleWhere((pair) => pair.word == word).hint,
+          hints.single,
+        );
+        final now = DateTime.utc(2026, 10, 25);
+        final correct = index.isEven;
+        final suspect = correct
+            ? imposterId!
+            : round.players.firstWhere((player) => player.id != imposterId).id;
+        round = round
+            .startDiscussion(now)
+            .advanceTime(now.add(GameRound.discussionDuration))
+            .selectSuspect(suspect)
+            .confirmSuspect();
+        expect(round.result!.word, word);
+        expect(round.result!.winner, correct ? Winner.group : Winner.imposter);
+        round = round.newRound();
+        expect(round.currentSecret, isNull);
+        expect(round.discussionEndsAt, isNull);
+        expect(
+          round.remainingDiscussionTime(now),
+          GameRound.discussionDuration,
+        );
       }
-      final word = words.single;
-      expect(catalog.pairs.singleWhere((pair) => pair.word == word).hint, hint);
-      final now = DateTime.utc(2026, 10, 23);
-      round = round
-          .startDiscussion(now)
-          .advanceTime(now.add(const Duration(minutes: 2)))
-          .selectSuspect(imposterId!)
-          .confirmSuspect();
-      expect(round.result!.word, word);
-      expect(round.result!.winner, Winner.group);
-      expect(round.newRound().currentSecret, isNull);
+      expect(seen, catalog.pairs.map((pair) => pair.word).toSet());
     },
   );
 
@@ -157,6 +184,13 @@ void main() {
         'pairs': [
           {'id': '1', 'word': 'Wort', 'hint': 'Hinweis'},
           {'id': '1', 'word': 'Anderes', 'hint': 'Weiteres'},
+        ],
+      },
+      {
+        'languageCode': 'de',
+        'pairs': [
+          {'id': '1', 'word': 'Wort', 'hint': 'Hinweis'},
+          {'id': '2', 'word': ' WORT ', 'hint': 'Weiteres'},
         ],
       },
     ];

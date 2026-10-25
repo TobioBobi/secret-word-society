@@ -3,6 +3,7 @@ import 'dart:math';
 import 'game_round.dart';
 import 'player.dart';
 import 'word_catalog.dart';
+import 'word_deck.dart';
 
 enum NameProblem { empty, duplicate }
 
@@ -11,6 +12,7 @@ final class GameSession {
   final List<Player> _players = [];
   int _nextPlayerId = 0;
   GameRound? _round;
+  WordDeck? _deck;
 
   List<Player> get players => List.unmodifiable(_players);
   GameRound? get round => _round;
@@ -37,11 +39,9 @@ final class GameSession {
 
   void startRound(WordCatalog catalog, {Random? random}) {
     _requireSetup();
-    _round = GameRound.start(
-      players: _players,
-      catalog: catalog,
-      random: random,
-    );
+    final deck = _deck?.matches(catalog) == true ? _deck! : WordDeck(catalog);
+    _round = GameRound.fromDeck(players: _players, deck: deck, random: random);
+    _deck = deck;
   }
 
   void revealSecret() => _round = _requireRound().revealSecret();
