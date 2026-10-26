@@ -8,6 +8,24 @@ import 'widget_test.dart'
     show startTestRound, tapVisible, expectConcealed, semanticsTree;
 
 Finder get _curtain => find.byKey(const ValueKey('secret-curtain-gesture'));
+Finder get _opening => find.byKey(const ValueKey('secret-curtain-opening'));
+
+void expectPreview(WidgetTester tester) {
+  expect(_opening, findsOneWidget);
+  expect(
+    find.text('Popcorn').evaluate().isNotEmpty ||
+        find.text('Kino').evaluate().isNotEmpty,
+    isTrue,
+  );
+  for (final secret in ['Popcorn', 'Kino', 'Du bist der Imposter']) {
+    expect(semanticsTree(tester), isNot(contains(secret)));
+  }
+}
+
+Rect openingClip(WidgetTester tester) => tester
+    .widget<ClipRect>(_opening)
+    .clipper!
+    .getClip(tester.getSize(_opening));
 
 Future<TestGesture> _hold(WidgetTester tester) async {
   await tester.ensureVisible(_curtain);
@@ -27,6 +45,7 @@ void main() {
   testWidgets(
     'cover follows the finger without acceleration and keeps its grip',
     (tester) async {
+      final semantics = tester.ensureSemantics();
       await startTestRound(tester);
       await tester.ensureVisible(_curtain);
       await tester.pumpAndSettle();
@@ -38,7 +57,7 @@ void main() {
       await gesture.moveBy(const Offset(0, -60));
       await tester.pump();
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
-      expectConcealed(tester);
+      expectPreview(tester);
       await tester.pump(const Duration(seconds: 1));
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
       await gesture.moveBy(const Offset(0, 20));
@@ -58,7 +77,7 @@ void main() {
       await gesture.moveBy(const Offset(0, 30));
       await tester.pump();
       expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 62, 0.1));
-      expectConcealed(tester);
+      expectPreview(tester);
       await gesture.up();
       await tester.pumpAndSettle();
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy, 0.1));
@@ -72,6 +91,68 @@ void main() {
       expectConcealed(tester);
       await tester.pumpAndSettle();
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy, 0.1));
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
+    'text is progressively uncovered before the stop for word and hint',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await startTestRound(tester);
+      var hints = 0;
+      for (var person = 0; person < 3; person++) {
+        await tester.ensureVisible(_curtain);
+        await tester.pumpAndSettle();
+        final gesture = await tester.startGesture(tester.getCenter(_curtain));
+        await gesture.moveBy(const Offset(0, -60));
+        await tester.pump();
+        expectPreview(tester);
+        if (find.text('Du bist der Imposter').evaluate().isNotEmpty) hints++;
+        final before = openingClip(tester);
+        expect(before.top, greaterThan(0));
+        expect(before.height, greaterThan(0));
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNull,
+        );
+        final secret = find.text('Popcorn').evaluate().isNotEmpty
+            ? 'Popcorn'
+            : 'Kino';
+        final textRect = tester.getRect(find.text(secret));
+        await gesture.moveBy(const Offset(0, -40));
+        await tester.pump();
+        expectPreview(tester);
+        expect(openingClip(tester).top, closeTo(before.top - 40, 0.1));
+        expect(tester.getRect(find.text(secret)), textRect);
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNull,
+        );
+        final full = await _hold(tester);
+        expect(semanticsTree(tester), contains(secret));
+        await full.up();
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+        final again = await tester.startGesture(tester.getCenter(_curtain));
+        await again.moveBy(const Offset(0, -60));
+        await tester.pump();
+        expectPreview(tester);
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNotNull,
+        );
+        await again.up();
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+        await tapVisible(tester, 'Weiter');
+      }
+      expect(hints, 1);
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      semantics.dispose();
     },
   );
 

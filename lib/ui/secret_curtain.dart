@@ -23,7 +23,8 @@ class SecretCurtain extends StatefulWidget {
 
   final bool revealed;
   final int concealRevision;
-  final VoidCallback onReveal;
+  // False prepares a visual preview; true confirms a complete viewing.
+  final ValueChanged<bool> onReveal;
   final VoidCallback onConceal;
   final WidgetBuilder secretBuilder;
 
@@ -38,12 +39,12 @@ class _SecretCurtainState extends State<SecretCurtain>
     duration: const Duration(milliseconds: 280),
   );
   static const _handleHeight = 64.0;
-  static const _revealAt = 0.95;
+  static const _fullyOpenAt = 0.95;
 
   Timer? _accessibleTimer;
   double? _lastDragY;
   bool _dragging = false;
-  bool _requestedReveal = false;
+  bool _requestedViewed = false;
 
   @override
   void didUpdateWidget(SecretCurtain oldWidget) {
@@ -52,7 +53,7 @@ class _SecretCurtainState extends State<SecretCurtain>
       _accessibleTimer?.cancel();
       _dragging = false;
       _lastDragY = null;
-      _requestedReveal = false;
+      _requestedViewed = false;
       _cover.value = 0;
     }
   }
@@ -68,7 +69,7 @@ class _SecretCurtainState extends State<SecretCurtain>
     _accessibleTimer?.cancel();
     _dragging = false;
     _lastDragY = null;
-    _requestedReveal = false;
+    _requestedViewed = false;
     widget.onConceal();
     if (MediaQuery.disableAnimationsOf(context)) {
       _cover.value = 0;
@@ -78,8 +79,8 @@ class _SecretCurtainState extends State<SecretCurtain>
   }
 
   void _accessiblePeek() {
-    _requestedReveal = true;
-    widget.onReveal();
+    _requestedViewed = true;
+    widget.onReveal(true);
     _cover.value = 1;
     _accessibleTimer?.cancel();
     // Allows the role and even a long word to be read, without latching open.
@@ -94,6 +95,7 @@ class _SecretCurtainState extends State<SecretCurtain>
       math.max(160.0, MediaQuery.sizeOf(context).height / 2),
     );
     final travel = height - _handleHeight;
+    final contentTop = height - travel * _fullyOpenAt + 8;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -129,27 +131,35 @@ class _SecretCurtainState extends State<SecretCurtain>
                     PartyCard(
                       color: PartyColors.purple,
                       outlined: false,
-                      padding: EdgeInsets.fromLTRB(
-                        24,
-                        height - travel * _revealAt + 8,
-                        24,
-                        16,
-                      ),
-                      child: widget.revealed
-                          ? LayoutBuilder(
-                              builder: (context, constraints) => Semantics(
-                                liveRegion: true,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: SizedBox(
-                                    width: constraints.maxWidth,
-                                    child: widget.secretBuilder(context),
+                      padding: EdgeInsets.fromLTRB(24, contentTop, 24, 16),
+                      child: AnimatedBuilder(
+                        animation: _cover,
+                        builder: (context, _) =>
+                            widget.revealed && _cover.value > 0
+                            ? LayoutBuilder(
+                                builder: (context, constraints) => ClipRect(
+                                  key: const ValueKey('secret-curtain-opening'),
+                                  clipper: _OpeningClipper(
+                                    height - travel * _cover.value - contentTop,
+                                  ),
+                                  child: ExcludeSemantics(
+                                    excluding: _cover.value < _fullyOpenAt,
+                                    child: Semantics(
+                                      liveRegion: true,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: SizedBox(
+                                          width: constraints.maxWidth,
+                                          child: widget.secretBuilder(context),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          : const SizedBox.expand(),
+                              )
+                            : const SizedBox.expand(),
+                      ),
                     ),
                     AnimatedBuilder(
                       animation: _cover,
@@ -223,6 +233,8 @@ class _SecretCurtainState extends State<SecretCurtain>
                                 _cover.stop();
                                 _dragging = true;
                                 _lastDragY = details.globalPosition.dy;
+                                _requestedViewed = false;
+                                widget.onReveal(false);
                               },
                               onVerticalDragUpdate: (details) {
                                 if (!_dragging) return;
@@ -236,14 +248,10 @@ class _SecretCurtainState extends State<SecretCurtain>
                                       0.0,
                                       1.0,
                                     );
-                                if (_cover.value >= _revealAt &&
-                                    !_requestedReveal) {
-                                  _requestedReveal = true;
-                                  widget.onReveal();
-                                } else if (_cover.value < _revealAt &&
-                                    _requestedReveal) {
-                                  _requestedReveal = false;
-                                  widget.onConceal();
+                                if (_cover.value >= _fullyOpenAt &&
+                                    !_requestedViewed) {
+                                  _requestedViewed = true;
+                                  widget.onReveal(true);
                                 }
                               },
                               onVerticalDragEnd: (_) => _close(),
@@ -269,4 +277,19 @@ class _SecretCurtainState extends State<SecretCurtain>
       ],
     );
   }
+}
+
+/// Paint only the portion below the moving cover; fully covered previews are
+/// also excluded from semantics independently of their paint clipping.
+class _OpeningClipper extends CustomClipper<Rect> {
+  const _OpeningClipper(this.top);
+
+  final double top;
+
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTRB(0, top.clamp(0.0, size.height), size.width, size.height);
+
+  @override
+  bool shouldReclip(_OpeningClipper oldClipper) => top != oldClipper.top;
 }

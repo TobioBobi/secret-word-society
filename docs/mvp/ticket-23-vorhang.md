@@ -5,17 +5,19 @@ GitHub: [Issue #26](https://github.com/TobioBobi/secret-word-society/issues/26).
 ## Bedienung
 
 - Den limettenfarbenen Griff am unteren Kartenrand nach oben ziehen und halten.
-  Wort bzw. Imposter-Rolle mit Hinweis erscheinen erst bei ausreichend weit
-  geöffnetem Vorhang. Die Abdeckung folgt dem Finger im Verhältnis 1:1;
+  Wort bzw. Imposter-Rolle mit Hinweis liegen fest unter der Abdeckung und
+  werden während des Schiebens Stück für Stück sichtbar. Sie werden nicht
+  erst am oberen Anschlag eingeblendet. Die Abdeckung folgt dem Finger 1:1;
   der mitbewegte Griff bleibt am oberen Anschlag sichtbar. Der Weg ergibt
   sich aus Kartenhöhe minus 64 logischen Pixeln für den Griff (bei normaler
   Schrift 176 Pixel). Ein schneller Swipe beschleunigt die Abdeckung nicht.
-- Loslassen, Abbrechen und Zurückziehen verdecken den Inhalt sofort. Nur die
+- Loslassen und Abbrechen verdecken den Inhalt sofort. Nur die
   Abdeckung gleitet beim normalen Loslassen in bis zu 280 Millisekunden
   ruhig zurück, ohne über den Anschlag hinauszulaufen.
   Bei reduzierten Animationen schließt sie sofort.
+  Beim Zurückschieben wird der Text entlang der Abdeckung wieder verdeckt.
 - Dieselbe Person kann vor der Übergabe beliebig oft nachsehen.
-- „Weiter“ wird nach dem ersten Ansehen freigegeben und übergibt verdeckt an
+- „Weiter“ wird nach dem ersten vollständigen Ansehen freigegeben und übergibt verdeckt an
   die nächste Person. Nach der letzten Person folgt die unveränderte Bereit-Phase.
 - Die Karte passt ihre Höhe an Schriftgröße und Bildschirm an. Sehr lange
   Inhalte werden bei Platzmangel innerhalb der Lesefläche eingepasst. Außerhalb
@@ -35,6 +37,13 @@ Darstellung und Semantikbaum. Sie setzen auch teilweise geöffnete Vorhänge und
 laufende Gesten zurück. Eine nach der Rückkehr noch gehaltene alte Geste kann
 nichts erneut aufdecken. Die bestehende Android-Screenshotsperre bleibt aktiv.
 Private Inhalte werden nicht für die Animation aufbewahrt.
+
+Eine Teilöffnung zeichnet den Text ausschließlich unterhalb der wandernden
+Abdeckung. Seine Position bleibt dabei gleich. Verdeckte und teilweise
+aufgedeckte Inhalte bleiben vom Screenreader ausgeschlossen; die Live-Region
+wird erst bei vollständiger Öffnung zugänglich. Im ganz geschlossenen Zustand,
+nach Loslassen sowie bei Unterbrechungen werden die privaten Text-Widgets
+entfernt. Eine kurze Teilöffnung allein gilt noch nicht als vollständig angesehen.
 
 Die Spielzustände trennen Ansehen, Verbergen und Weitergeben. Ein bereits
 angesehenes Geheimnis kann im verdeckten Zustand weitergegeben werden; die
@@ -86,3 +95,14 @@ unterhalb des verbleibenden Griffstreifens, sodass Wort und Imposter-Rolle
 weiter lesbar bleiben. Ein zusätzlicher Gestentest prüft diese Eigenschaften.
 Alle 66 Unit-/Widget-Tests und die Roboto-Sichtprüfung bei normaler sowie
 200 Prozent Schrift bestanden mit dieser Anpassung.
+
+## Text während des Schiebens
+
+Nach positiver Rückmeldung zur 1:1-Bewegung wurde das späte Einblenden am
+Anschlag ersetzt. Die Vorschau wird bei Beginn der Geste vorbereitet und der
+wachsende Ausschnitt legt den bereits darunter liegenden Text frei. Nur die
+Freigabe für „Weiter“ und Screenreader bleibt an das vollständige Öffnen
+gebunden. Gestentests prüfen Teilöffnungen für Wort und Hinweis, gleichbleibende
+Textposition, schrumpfende und wachsende Ausschnitte sowie sofortiges Verbergen.
+Alle 68 Unit-/Widget-Tests, die drei Android-Abläufe mit Produktionsinhalten
+und Teilöffnungen, Analyse/Format/Diff sowie die Roboto-Sichtprüfung bestanden.

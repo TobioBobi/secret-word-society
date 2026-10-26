@@ -378,6 +378,24 @@ void main() {
     expect(round.canAdvanceCard, isFalse);
   });
 
+  test('partial preview alone does not unlock the next handoff', () {
+    var round = _start();
+    expect(round.markSecretViewed, throwsStateError);
+    round = round.revealSecret(markAsViewed: false);
+    expect(round.currentSecret, isNotNull);
+    expect(round.canAdvanceCard, isFalse);
+    expect(round.hideAndAdvance, throwsStateError);
+    round = round.concealSecret();
+    expect(round.currentSecret, isNull);
+    expect(round.canAdvanceCard, isFalse);
+    round = round.revealSecret(markAsViewed: false).markSecretViewed();
+    expect(round.canAdvanceCard, isTrue);
+    round = round.concealSecret();
+    expect(round.canAdvanceCard, isTrue);
+    round = round.hideAndAdvance();
+    expect(round.canAdvanceCard, isFalse);
+  });
+
   test('out-of-order actions are rejected in every phase', () {
     final handoff = _start();
     final secret = handoff.revealSecret();

@@ -44,7 +44,10 @@ final class GameSession {
     _deck = deck;
   }
 
-  void revealSecret() => _round = _requireRound().revealSecret();
+  void revealSecret({bool markAsViewed = true}) =>
+      _round = _requireRound().revealSecret(markAsViewed: markAsViewed);
+
+  void markSecretViewed() => _round = _requireRound().markSecretViewed();
 
   void hideAndAdvance() => _round = _requireRound().hideAndAdvance();
 

@@ -127,24 +127,32 @@ class _SessionScreenState extends State<SessionScreen>
     });
   }
 
-  void _peekCard(GameRound expected, bool reveal, int expectedRevision) {
+  void _peekCard(
+    GameRound expected,
+    bool reveal,
+    int expectedRevision, {
+    bool fullyOpen = false,
+  }) {
     if (expectedRevision != _concealRevision) return;
     final current = _session.round;
-    // Release may arrive before the frame that rebuilds the opened card.
-    // It must still hide that person's secret, while old handoffs cannot act.
-    if (!reveal &&
-        current != null &&
+    // Preparing, fully opening and releasing can all precede the next frame.
+    // Completion and concealment must still apply only to the same person.
+    if (current != null &&
         identical(current.players, expected.players) &&
         identical(current.currentPlayer, expected.currentPlayer) &&
         _canAct(current)) {
-      setState(_session.concealSecret);
-      return;
+      if (!reveal) {
+        setState(_session.concealSecret);
+        return;
+      }
+      if (fullyOpen && current.phase == GamePhase.secret) {
+        setState(_session.markSecretViewed);
+        return;
+      }
     }
     if (!_canAct(expected)) return;
     if (reveal && expected.phase == GamePhase.handoff) {
-      setState(_session.revealSecret);
-    } else if (!reveal && expected.phase == GamePhase.secret) {
-      setState(_session.concealSecret);
+      setState(() => _session.revealSecret(markAsViewed: fullyOpen));
     }
   }
 
@@ -488,8 +496,12 @@ class _SessionScreenState extends State<SessionScreen>
                                     key: ValueKey(round.currentPlayer!.id),
                                     revealed: revealed,
                                     concealRevision: _concealRevision,
-                                    onReveal: () =>
-                                        _peekCard(round, true, concealRevision),
+                                    onReveal: (fullyOpen) => _peekCard(
+                                      round,
+                                      true,
+                                      concealRevision,
+                                      fullyOpen: fullyOpen,
+                                    ),
                                     onConceal: () => _peekCard(
                                       round,
                                       false,

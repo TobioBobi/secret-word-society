@@ -46,6 +46,20 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     );
     await _peekGesture!.moveBy(const Offset(0, -30));
     await tester.pump();
+    final preview = find.byKey(const ValueKey('secret-curtain-opening'));
+    expect(preview, findsOneWidget);
+    expect(
+      find.descendant(of: preview, matching: find.byType(Text)),
+      findsWidgets,
+    );
+    await _peekGesture!.moveBy(const Offset(0, -60));
+    await tester.pump();
+    final clip = tester
+        .widget<ClipRect>(preview)
+        .clipper!
+        .getClip(tester.getSize(preview));
+    expect(clip.top, greaterThan(0));
+    expect(clip.height, greaterThan(0));
     await _peekGesture!.moveTo(Offset(panel.center.dx, panel.top + 32));
     await _settle(tester);
     return;

@@ -138,9 +138,18 @@ final class GameRound {
         )
       : null;
 
-  GameRound revealSecret() {
+  GameRound revealSecret({bool markAsViewed = true}) {
     _requirePhase(GamePhase.handoff);
-    return _copy(phase: GamePhase.secret, hasViewedSecret: true);
+    return _copy(
+      phase: GamePhase.secret,
+      hasViewedSecret: hasViewedSecret || markAsViewed,
+    );
+  }
+
+  /// A partial visual preview does not yet permit passing the phone.
+  GameRound markSecretViewed() {
+    _requirePhase(GamePhase.secret);
+    return hasViewedSecret ? this : _copy(phase: phase, hasViewedSecret: true);
   }
 
   /// Conceals on interruption without advancing to another person.
