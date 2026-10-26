@@ -8,8 +8,9 @@ läuft auch bei App-Wechsel oder gesperrtem Bildschirm weiter; bei Ablauf ersche
 die mündliche Abstimmung mit Namensauswahl. Nach Bestätigung seht ihr den
 tatsächlichen Imposter, das Wort und den Gewinner. „Noch eine Runde“ beginnt
 wieder verdeckt mit derselben Gruppe und neu ausgelosten Geheimnissen.
-Die App enthält 100 eigene deutsche Wort-Hinweis-Paare. In einer Sitzung wird
-jedes Wort einmal zufällig gezogen, bevor der Vorrat erneut beginnt; auch am
+Die App enthält 100 eigene deutsche Wort-Hinweis-Paare mit Hinweisen aus ein bis
+zwei Wörtern. In einer Sitzung wird jedes Wort einmal zufällig gezogen,
+bevor der Vorrat erneut beginnt; auch am
 Übergang wiederholt sich kein Wort direkt. Die Wortfolge bleibt beim Bearbeiten
 der Gruppe erhalten und wird bei einem App-Neustart zurückgesetzt.
 
@@ -31,6 +32,8 @@ schließt den vollständigen Spielablauf ab.
 beschreibt den erweiterten Katalog, die Wortfolge und die Prüfliste für echte Runden.
 [Ticket 8: Party-Look und Android-Abnahme](docs/mvp/ticket-8-android-mvp.md)
 beschreibt den visuellen Feinschliff und die abschließende MVP-Prüfung.
+[Ticket 20: Kurze Hinweise](docs/mvp/ticket-20-kurze-hinweise.md)
+beschreibt die Überarbeitung auf ein bis zwei Wörter und den Katalogtest.
 
 ## Starten
 

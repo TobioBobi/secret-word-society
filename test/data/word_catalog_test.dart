@@ -12,6 +12,17 @@ import 'package:secret_word_society/game/word_catalog.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('every bundled German hint contains one or two words', () async {
+    final catalog = await loadWordCatalog();
+    for (final pair in catalog.pairs) {
+      expect(
+        pair.hint.split(RegExp(r'\s+')).length,
+        inInclusiveRange(1, 2),
+        reason: '${pair.id} (${pair.word}): "${pair.hint}"',
+      );
+    }
+  });
+
   test(
     'bundled German catalog has 100 distinct offline word/hint pairs',
     () async {
