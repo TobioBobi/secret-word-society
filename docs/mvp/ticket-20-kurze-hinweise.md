@@ -34,6 +34,13 @@ Folgerunden sowie Verlassen/Abbrechen/Neustart und verdeckte Übergaben.
 Die lokale Testausführung dauerte eine Minute zuzüglich Build und Installation.
 Protokolle liegen unter `build/qa/ticket20/`.
 
+Im ersten GitHub-Lauf bestand der Build mit Analyse und Unit-/Widget-Tests.
+Der Android-Test verlor beim zweiten Gruppenaufbau nach dem Scrollen den
+Startbutton. Die Testhilfe schließt jetzt die native Tastatur gezielt und
+wartet auf den vollständigen sichtbaren Bereich statt nur auf Flutter-Frames.
+Danach bestanden lokal erneut alle drei Integrationstests. Einzelheiten zur
+Synchronisation stehen in [der Testdokumentation](../testing.md).
+
 Tests auf einem physischen Handy und Rückmeldungen aus echten Gruppenrunden
 stehen aus. Die Release-APK und der aktuelle GitHub-CI-Status sind im
 zugehörigen Pull Request dokumentiert.

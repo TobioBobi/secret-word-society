@@ -45,6 +45,12 @@ automatisch angeforderten Countdown-Frames gezeichnet werden. Die beiden
 vollständigen Abläufe prüfen zusätzlich nach zwei Sekunden, dass die sichtbare
 Zeit abgenommen hat.
 
+Nach der Namenseingabe schließen die Gerätetests die native Android-Tastatur
+gezielt und warten bis zu 15 Sekunden auf `viewInsets.bottom == 0`, bevor sie
+zum Startbutton scrollen. `pumpAndSettle` allein wartet nicht zuverlässig auf
+nachgelieferte Tastaturmetriken. Damit verschiebt sich der sichtbare Bereich
+nicht mehr durch eine noch schließende Tastatur zwischen Scrollen und Tippen.
+
 ## Lokal ausführen
 
 Seit Ticket 18 folgt auf die bestätigte Abstimmung ein eigener dreisekündiger
