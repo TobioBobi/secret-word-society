@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:secret_word_society/ui/secret_curtain.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
@@ -41,12 +42,32 @@ Future<void> showStart(WidgetTester tester) async {
 }
 
 Future<void> tapVisible(WidgetTester tester, String label) async {
-  if (find.text(label).evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      find.text(label),
-      180,
-      scrollable: find.byType(Scrollable).first,
+  if (label == 'Geheimnis kurz ansehen') {
+    final curtain = find.byType(SecretCurtain);
+    await tester.ensureVisible(curtain);
+    await tester.pumpAndSettle();
+    final action = find.descendant(
+      of: curtain,
+      matching: find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.onTap != null,
+      ),
     );
+    tester.widget<Semantics>(action).properties.onTap!();
+    await tester.pumpAndSettle();
+    return;
+  }
+  for (
+    var attempt = 0;
+    find.text(label).evaluate().isEmpty && attempt < 40;
+    attempt++
+  ) {
+    // Scroll beside the curtain's grip, as a user can on a short viewport.
+    final viewport = tester.getRect(find.byType(CustomScrollView));
+    await tester.dragFrom(
+      Offset(viewport.left + 8, viewport.center.dy),
+      const Offset(0, -180),
+    );
+    await tester.pumpAndSettle();
   }
   await tester.ensureVisible(find.text(label));
   await tester.pumpAndSettle();
@@ -146,7 +167,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Handy an Anna.'), findsOneWidget);
     expect(find.text('Person 1 von 3'), findsOneWidget);
-    expect(find.text('Dein Geheimnis bleibt verdeckt.'), findsOneWidget);
+    expect(find.bySemanticsLabel('Geheimnis kurz ansehen'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     final tree = StringBuffer();
     tester.binding.rootPipelineOwner.visitChildren((owner) {
@@ -170,6 +191,7 @@ void main() {
     await tester.tap(find.text('Runde starten'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Gruppe bearbeiten'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Gruppe bearbeiten'));
     await tester.pumpAndSettle();
     await tapVisible(tester, 'Runde verlassen');
@@ -294,7 +316,7 @@ void main() {
         expect(find.text('Handy an $name.'), findsOneWidget);
         expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
         expectConcealed(tester);
-        await tapVisible(tester, 'Geheimnis aufdecken');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
         expect(find.text('Nur für $name.'), findsOneWidget);
         if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
           hints++;
@@ -308,10 +330,7 @@ void main() {
           expect(find.text('Popcorn'), findsOneWidget);
           expect(find.text('Kino'), findsNothing);
         }
-        await tapVisible(
-          tester,
-          index == 2 ? 'Verbergen & weiter' : 'Verbergen & weitergeben',
-        );
+        await tapVisible(tester, 'Weiter');
         expectConcealed(tester);
         expect(find.text('Nur für $name.'), findsNothing);
       }
@@ -319,7 +338,7 @@ void main() {
       expect(hints, 1);
       expect(find.text('Alle eingeweiht?'), findsOneWidget);
       expect(find.text('Alle Geheimnisse sind verteilt.'), findsOneWidget);
-      expect(find.text('Geheimnis aufdecken'), findsNothing);
+      expect(find.text('Geheimnis kurz ansehen'), findsNothing);
       await tester.pump(const Duration(minutes: 3));
       expect(find.text('Alle eingeweiht?'), findsOneWidget);
       await tester.binding.handlePopRoute();
@@ -338,15 +357,15 @@ void main() {
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await startTestRound(tester);
-      await tapVisible(tester, 'Geheimnis aufdecken');
-      await tapVisible(tester, 'Verbergen & weitergeben');
+      await tapVisible(tester, 'Geheimnis kurz ansehen');
+      await tapVisible(tester, 'Weiter');
       for (final state in [
         AppLifecycleState.inactive,
         AppLifecycleState.hidden,
         AppLifecycleState.paused,
         AppLifecycleState.detached,
       ]) {
-        await tapVisible(tester, 'Geheimnis aufdecken');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
         final secret = find.text('Popcorn').evaluate().isNotEmpty
             ? 'Popcorn'
             : 'Kino';
@@ -362,7 +381,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Handy an Ben.'), findsOneWidget);
         expectConcealed(tester);
-        await tapVisible(tester, 'Geheimnis aufdecken');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
         expect(find.text(secret), findsOneWidget);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
@@ -382,7 +401,7 @@ void main() {
 
       await startTestRound(tester);
       for (final edit in [false, true]) {
-        await tapVisible(tester, 'Geheimnis aufdecken');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
         if (edit) {
           await tapVisible(tester, 'Gruppe bearbeiten');
         } else {
@@ -401,7 +420,7 @@ void main() {
         expect(find.text('Handy an Anna.'), findsOneWidget);
         expectConcealed(tester);
       }
-      await tapVisible(tester, 'Geheimnis aufdecken');
+      await tapVisible(tester, 'Geheimnis kurz ansehen');
       await tapVisible(tester, 'Gruppe bearbeiten');
       await tapVisible(tester, 'Runde verlassen');
       expect(find.text('3 Personen'), findsOneWidget);
@@ -418,18 +437,12 @@ void main() {
     tester,
   ) async {
     await startTestRound(tester);
-    final reveal = tester
-        .widget<FilledButton>(find.byType(FilledButton))
-        .onPressed!;
-    reveal();
-    reveal();
-    await tester.pumpAndSettle();
+    await tapVisible(tester, 'Geheimnis kurz ansehen');
     final advance = tester
         .widget<FilledButton>(find.byType(FilledButton))
         .onPressed!;
     advance();
     advance();
-    reveal();
     await tester.pumpAndSettle();
     expect(find.text('Handy an Ben.'), findsOneWidget);
     expectConcealed(tester);
@@ -468,12 +481,9 @@ void main() {
       await showStart(tester);
       await tapVisible(tester, 'Runde starten');
       for (var i = 0; i < 3; i++) {
-        await tapVisible(tester, 'Geheimnis aufdecken');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
         expect(tester.takeException(), isNull);
-        await tapVisible(
-          tester,
-          i == 2 ? 'Verbergen & weiter' : 'Verbergen & weitergeben',
-        );
+        await tapVisible(tester, 'Weiter');
         expect(tester.takeException(), isNull);
       }
       await tapVisible(tester, 'Gruppe bearbeiten');

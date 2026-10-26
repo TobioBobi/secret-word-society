@@ -226,11 +226,35 @@ abstract class AppLocalizations {
   /// **'Gruppe bearbeiten'**
   String get editGroup;
 
-  /// No description provided for @revealSecret.
+  /// No description provided for @peekSecret.
   ///
   /// In de, this message translates to:
-  /// **'Geheimnis aufdecken'**
-  String get revealSecret;
+  /// **'Geheimnis kurz ansehen'**
+  String get peekSecret;
+
+  /// No description provided for @peekAccessibilityHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktivieren zum Ansehen und Vorlesen. Wird nach acht Sekunden automatisch verdeckt.'**
+  String get peekAccessibilityHint;
+
+  /// No description provided for @curtainInstruction.
+  ///
+  /// In de, this message translates to:
+  /// **'Hochziehen und halten'**
+  String get curtainInstruction;
+
+  /// No description provided for @curtainRelease.
+  ///
+  /// In de, this message translates to:
+  /// **'Loslassen verdeckt'**
+  String get curtainRelease;
+
+  /// No description provided for @nextPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get nextPlayer;
 
   /// No description provided for @privateTitle.
   ///
@@ -241,7 +265,7 @@ abstract class AppLocalizations {
   /// No description provided for @privateIntro.
   ///
   /// In de, this message translates to:
-  /// **'Merke dir deine Karte. Verbirg sie, bevor du das Handy weitergibst.'**
+  /// **'Nur du schaust auf den Bildschirm.'**
   String get privateIntro;
 
   /// No description provided for @secretWord.
@@ -261,18 +285,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Dein Hinweis'**
   String get secretHint;
-
-  /// No description provided for @hideAndPass.
-  ///
-  /// In de, this message translates to:
-  /// **'Verbergen & weitergeben'**
-  String get hideAndPass;
-
-  /// No description provided for @hideAndFinish.
-  ///
-  /// In de, this message translates to:
-  /// **'Verbergen & weiter'**
-  String get hideAndFinish;
 
   /// No description provided for @readyPhase.
   ///

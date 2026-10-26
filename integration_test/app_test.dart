@@ -28,8 +28,27 @@ Future<void> _tap(WidgetTester tester, Finder target) async {
   await _settle(tester);
 }
 
-Future<void> _tapText(WidgetTester tester, String text) =>
-    _tap(tester, find.text(text));
+TestGesture? _peekGesture;
+
+Future<void> _tapText(WidgetTester tester, String text) async {
+  if (_peekGesture != null) {
+    await _peekGesture!.up();
+    _peekGesture = null;
+    await _settle(tester);
+  }
+  if (text == 'Geheimnis kurz ansehen') {
+    final target = find.byKey(const ValueKey('secret-curtain-gesture'));
+    await tester.ensureVisible(target);
+    await _settle(tester);
+    _peekGesture = await tester.startGesture(tester.getCenter(target));
+    await _peekGesture!.moveBy(const Offset(0, -30));
+    await tester.pump();
+    await _peekGesture!.moveBy(const Offset(0, -120));
+    await _settle(tester);
+    return;
+  }
+  await _tap(tester, find.text(text));
+}
 
 Future<void> _launchAndCreateGroup(WidgetTester tester) async {
   // Remove the previous app's State even when tests run in one process.
@@ -100,7 +119,7 @@ void main() {
           expect(find.text('Handy an $name.'), findsOneWidget);
           expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
           _expectConcealed(catalog);
-          await _tapText(tester, 'Geheimnis aufdecken');
+          await _tapText(tester, 'Geheimnis kurz ansehen');
           expect(find.text('Nur für $name.'), findsOneWidget);
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
@@ -113,12 +132,7 @@ void main() {
             expect(find.text('Dein Hinweis'), findsNothing);
             words.add(secret);
           }
-          await _tapText(
-            tester,
-            index == _players.length - 1
-                ? 'Verbergen & weiter'
-                : 'Verbergen & weitergeben',
-          );
+          await _tapText(tester, 'Weiter');
           _expectConcealed(catalog);
           expect(find.text('Nur für $name.'), findsNothing);
         }
@@ -132,7 +146,7 @@ void main() {
         expect(hints.single, pair.hint);
         expect(find.text('Alle eingeweiht?'), findsOneWidget);
         expect(find.text('Alle Geheimnisse sind verteilt.'), findsOneWidget);
-        expect(find.text('Geheimnis aufdecken'), findsNothing);
+        expect(find.text('Geheimnis kurz ansehen'), findsNothing);
 
         await _tapText(tester, '10 Sekunden starten');
         expect(find.text('Jetzt wird geblufft.'), findsOneWidget);
@@ -210,19 +224,14 @@ void main() {
         final nextWords = <String>{};
         final nextHints = <String>[];
         for (var index = 0; index < _players.length; index++) {
-          await _tapText(tester, 'Geheimnis aufdecken');
+          await _tapText(tester, 'Geheimnis kurz ansehen');
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
             nextHints.add(secret);
           } else {
             nextWords.add(secret);
           }
-          await _tapText(
-            tester,
-            index == _players.length - 1
-                ? 'Verbergen & weiter'
-                : 'Verbergen & weitergeben',
-          );
+          await _tapText(tester, 'Weiter');
         }
         expect(nextWords, hasLength(1));
         expect(nextWords.single, isNot(words.first));
@@ -247,7 +256,7 @@ void main() {
   ) async {
     await _launchAndCreateGroup(tester);
     final catalog = await loadWordCatalog();
-    await _tapText(tester, 'Geheimnis aufdecken');
+    await _tapText(tester, 'Geheimnis kurz ansehen');
     final firstSecret = _visibleSecret(catalog);
 
     await _tapText(tester, 'Gruppe bearbeiten');
@@ -256,12 +265,12 @@ void main() {
     await _tapText(tester, 'Weiterspielen');
     expect(find.text('Handy an Anna.'), findsOneWidget);
     _expectConcealed(catalog);
-    await _tapText(tester, 'Geheimnis aufdecken');
+    await _tapText(tester, 'Geheimnis kurz ansehen');
     expect(_visibleSecret(catalog), firstSecret);
 
-    await _tapText(tester, 'Verbergen & weitergeben');
+    await _tapText(tester, 'Weiter');
     expect(find.text('Handy an Ben.'), findsOneWidget);
-    await _tapText(tester, 'Geheimnis aufdecken');
+    await _tapText(tester, 'Geheimnis kurz ansehen');
     final secondSecret = _visibleSecret(catalog);
     // At least one of the first two people belongs to the group.
     final previousWord = catalog.pairs
@@ -289,20 +298,15 @@ void main() {
     expect(find.text('Handy an Anna.'), findsOneWidget);
     expect(find.text('Person 1 von 3'), findsOneWidget);
     _expectConcealed(catalog);
-    await _tapText(tester, 'Geheimnis aufdecken');
+    await _tapText(tester, 'Geheimnis kurz ansehen');
     final restartedWords = <String>{};
     for (var index = 0; index < _players.length; index++) {
-      if (index > 0) await _tapText(tester, 'Geheimnis aufdecken');
+      if (index > 0) await _tapText(tester, 'Geheimnis kurz ansehen');
       final secret = _visibleSecret(catalog);
       if (find.text('Du bist der Imposter').evaluate().isEmpty) {
         restartedWords.add(secret);
       }
-      await _tapText(
-        tester,
-        index == _players.length - 1
-            ? 'Verbergen & weiter'
-            : 'Verbergen & weitergeben',
-      );
+      await _tapText(tester, 'Weiter');
     }
     expect(restartedWords, hasLength(1));
     expect(restartedWords.single, isNot(previousWord));

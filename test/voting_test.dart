@@ -23,17 +23,12 @@ final class _Clock {
 
 Future<String> _distribute(WidgetTester tester, List<String> names) async {
   String? imposter;
-  for (final (index, name) in names.indexed) {
-    await tapVisible(tester, 'Geheimnis aufdecken');
+  for (final name in names) {
+    await tapVisible(tester, 'Geheimnis kurz ansehen');
     if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
       imposter = name;
     }
-    await tapVisible(
-      tester,
-      index == names.length - 1
-          ? 'Verbergen & weiter'
-          : 'Verbergen & weitergeben',
-    );
+    await tapVisible(tester, 'Weiter');
   }
   return imposter!;
 }

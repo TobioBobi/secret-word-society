@@ -13,6 +13,13 @@ Ticket 19 vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
 
 ## Abgedeckte Abläufe
 
+Seit Ticket 23 werden Geheimnisse mit einer gehaltenen Ziehgeste am unteren
+Kartengriff angesehen. Die Gerätetests verwenden echte Pointer-Gesten und
+lassen vor der getrennten „Weiter“-Aktion los. Widget-Tests prüfen zusätzlich
+Gestenabbruch, Unterbrechungen während vollständiger und teilweiser Gesten,
+mehrfaches Ansehen und die automatisch schließende Screenreader-Alternative.
+Details: [Vorhang-Bedienung](mvp/ticket-23-vorhang.md).
+
 1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
    starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.

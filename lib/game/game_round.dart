@@ -46,6 +46,7 @@ final class GameRound {
     required this._imposterIndex,
     this.phase = GamePhase.handoff,
     this._handoffIndex = 0,
+    this.hasViewedSecret = false,
     this.discussionEndsAt,
     this.suspect,
     this.revealEndsAt,
@@ -94,6 +95,11 @@ final class GameRound {
 
   final List<Player> players;
   final GamePhase phase;
+  final bool hasViewedSecret;
+
+  bool get canAdvanceCard =>
+      (phase == GamePhase.handoff || phase == GamePhase.secret) &&
+      hasViewedSecret;
   final DateTime? discussionEndsAt;
   final Player? suspect;
   final DateTime? revealEndsAt;
@@ -134,7 +140,7 @@ final class GameRound {
 
   GameRound revealSecret() {
     _requirePhase(GamePhase.handoff);
-    return _copy(phase: GamePhase.secret);
+    return _copy(phase: GamePhase.secret, hasViewedSecret: true);
   }
 
   /// Conceals on interruption without advancing to another person.
@@ -143,11 +149,14 @@ final class GameRound {
 
   /// Concealment and advancing happen in a single state change.
   GameRound hideAndAdvance() {
-    _requirePhase(GamePhase.secret);
+    if (!canAdvanceCard) {
+      throw StateError('View your secret before passing the phone.');
+    }
     final isLast = _handoffIndex == players.length - 1;
     return _copy(
       phase: isLast ? GamePhase.ready : GamePhase.handoff,
       handoffIndex: isLast ? _handoffIndex : _handoffIndex + 1,
+      hasViewedSecret: false,
     );
   }
 
@@ -238,6 +247,7 @@ final class GameRound {
   GameRound _copy({
     required GamePhase phase,
     int? handoffIndex,
+    bool? hasViewedSecret,
     DateTime? discussionEndsAt,
     Player? suspect,
     DateTime? revealEndsAt,
@@ -251,6 +261,7 @@ final class GameRound {
     imposterIndex: _imposterIndex,
     phase: phase,
     handoffIndex: handoffIndex ?? _handoffIndex,
+    hasViewedSecret: hasViewedSecret ?? this.hasViewedSecret,
     discussionEndsAt: discussionEndsAt ?? this.discussionEndsAt,
     suspect: suspect ?? this.suspect,
     revealEndsAt: pauseReveal ? null : revealEndsAt ?? this.revealEndsAt,
