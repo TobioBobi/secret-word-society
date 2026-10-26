@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
@@ -42,8 +43,20 @@ Future<void> _launchAndCreateGroup(WidgetTester tester) async {
     await tester.enterText(find.byType(TextField), name);
     await _tap(tester, find.byTooltip('Name hinzufügen'));
   }
-  // Dismiss the real keyboard through the scroll view's on-drag behavior.
-  await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+  // Native keyboard metrics can arrive after pumpAndSettle has returned.
+  // Wait for the viewport to expand before scrolling to the start button.
+  FocusManager.instance.primaryFocus?.unfocus();
+  await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+  final keyboardWait = Stopwatch()..start();
+  while (tester.view.viewInsets.bottom > 0 &&
+      keyboardWait.elapsed < const Duration(seconds: 15)) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(
+    tester.view.viewInsets.bottom,
+    0,
+    reason: 'Android keyboard is hidden',
+  );
   await _settle(tester);
   await _tapText(tester, 'Runde starten');
   expect(find.text('Handy an Anna.'), findsOneWidget);
