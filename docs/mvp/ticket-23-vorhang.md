@@ -57,3 +57,16 @@ Frame verdeckt zuverlässig.
 Physisches Handy, reales TalkBack und Gruppenfeedback bleiben zusätzliche
 Abnahmeprüfungen. Automatisierte Semantiktests bestätigen keine tatsächlich
 erfolgte Sprachausgabe auf einem echten Gerät.
+
+## CI-Nachbesserung
+
+Der erste PR-Lauf bestand Build, Analyse und Unit-/Widget-Tests. Im zweiten
+Android-Ablauf verschwand der Startbutton zwischen Scrollen und Tippen aus dem
+Widget-Baum. Die gemeinsame Testhilfe prüft das Ziel nun nach weiteren Frames
+erneut auf Sichtbarkeit, Trefferfläche und stabile Position, bevor sie genau
+einmal tippt. Ein zusätzlicher Regressionstest reproduziert den Fehler mit
+der alten Hilfe und besteht mit der Korrektur. Die Produktbedienung bleibt
+unverändert.
+
+Alle 65 Unit-/Widget-Tests, alle drei lokalen Android-Integrationstests,
+Analyse, Format- und Diff-Prüfung bestanden nach der Korrektur erneut.

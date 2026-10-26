@@ -6,6 +6,8 @@ import 'package:secret_word_society/data/word_catalog_loader.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
 
+import '../test/support/tap_when_stable.dart';
+
 const _players = ['Anna', 'Ben', 'Cem'];
 
 Finder get _pageScroll => find
@@ -22,9 +24,7 @@ Future<void> _settle(WidgetTester tester) => tester.pumpAndSettle(
 );
 
 Future<void> _tap(WidgetTester tester, Finder target) async {
-  await tester.scrollUntilVisible(target, 160, scrollable: _pageScroll);
-  await _settle(tester);
-  await tester.tap(target);
+  await tapWhenStable(tester, target, scrollable: _pageScroll);
   await _settle(tester);
 }
 

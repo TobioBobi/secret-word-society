@@ -58,6 +58,14 @@ zum Startbutton scrollen. `pumpAndSettle` allein wartet nicht zuverlässig auf
 nachgelieferte Tastaturmetriken. Damit verschiebt sich der sichtbare Bereich
 nicht mehr durch eine noch schließende Tastatur zwischen Scrollen und Tippen.
 
+Die gemeinsame Tipp-Hilfe sucht ihr Ziel nach Scrollen und weiteren Frames
+erneut und prüft, dass es anklickbar ist und seine Position stabil bleibt.
+Verschwindet ein verzögert aufgebautes Sliver-Kind während des Wartens, wird
+nur die Suche wiederholt. Die eigentliche Aktion wird genau einmal ausgelöst.
+Ein Widget-Regressionstest entfernt den Startbutton zwischen Scrollen und
+Tippen vorübergehend: Mit der alten Hilfe schlägt er fehl, mit der neuen
+Hilfe wird nach dem Wiedererscheinen genau einmal getippt.
+
 ## Lokal ausführen
 
 Seit Ticket 18 folgt auf die bestätigte Abstimmung ein eigener dreisekündiger
