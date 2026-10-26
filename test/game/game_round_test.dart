@@ -362,6 +362,40 @@ void main() {
     expect(nextResult.word, isNot(finished.result!.word));
   });
 
+  test('viewed cards advance while concealed and reset for every person', () {
+    var round = _start();
+    for (var i = 1; i <= round.players.length; i++) {
+      expect(round.canAdvanceCard, isFalse);
+      expect(round.hideAndAdvance, throwsStateError);
+      round = round.revealSecret().concealSecret();
+      expect(round.currentPlayerNumber, i);
+      expect(round.currentSecret, isNull);
+      expect(round.canAdvanceCard, isTrue);
+      round = round.hideAndAdvance();
+      expect(round.currentSecret, isNull);
+    }
+    expect(round.phase, GamePhase.ready);
+    expect(round.canAdvanceCard, isFalse);
+  });
+
+  test('partial preview alone does not unlock the next handoff', () {
+    var round = _start();
+    expect(round.markSecretViewed, throwsStateError);
+    round = round.revealSecret(markAsViewed: false);
+    expect(round.currentSecret, isNotNull);
+    expect(round.canAdvanceCard, isFalse);
+    expect(round.hideAndAdvance, throwsStateError);
+    round = round.concealSecret();
+    expect(round.currentSecret, isNull);
+    expect(round.canAdvanceCard, isFalse);
+    round = round.revealSecret(markAsViewed: false).markSecretViewed();
+    expect(round.canAdvanceCard, isTrue);
+    round = round.concealSecret();
+    expect(round.canAdvanceCard, isTrue);
+    round = round.hideAndAdvance();
+    expect(round.canAdvanceCard, isFalse);
+  });
+
   test('out-of-order actions are rejected in every phase', () {
     final handoff = _start();
     final secret = handoff.revealSecret();

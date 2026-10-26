@@ -44,7 +44,7 @@ void main() {
           for (final name in ['Anna', 'Ben', 'Cem']) {
             expectConcealed(tester);
             await _checkAndroidControls(tester);
-            await tapVisible(tester, 'Geheimnis aufdecken');
+            await tapVisible(tester, 'Geheimnis kurz ansehen');
             if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
               imposter = name;
             }
@@ -52,16 +52,13 @@ void main() {
             expectConcealed(tester);
             await _checkAndroidControls(tester);
             await tapVisible(tester, 'Weiterspielen');
-            await tapVisible(tester, 'Geheimnis aufdecken');
+            await tapVisible(tester, 'Geheimnis kurz ansehen');
             await tester.ensureVisible(
               find.text(name == imposter ? 'Kino' : 'Popcorn'),
             );
             await tester.pumpAndSettle();
             await _checkAndroidControls(tester);
-            await tapVisible(
-              tester,
-              name == 'Cem' ? 'Verbergen & weiter' : 'Verbergen & weitergeben',
-            );
+            await tapVisible(tester, 'Weiter');
           }
           await _checkAndroidControls(tester);
           await tapVisible(tester, '10 Sekunden starten');
@@ -121,7 +118,7 @@ void main() {
       await readyGroup(tester);
       await showStart(tester);
       await tapVisible(tester, 'Runde starten');
-      await tapVisible(tester, 'Geheimnis aufdecken');
+      await tapVisible(tester, 'Geheimnis kurz ansehen');
       await tapVisible(tester, 'Gruppe bearbeiten');
       expectConcealed(tester);
       // The dialog has its own scrollable body; buttons must fit outside it.

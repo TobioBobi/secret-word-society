@@ -9,6 +9,7 @@ import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import 'party_card.dart';
 import 'party_theme.dart';
+import 'secret_curtain.dart';
 
 typedef CatalogLoader = Future<WordCatalog> Function();
 
@@ -38,6 +39,7 @@ class _SessionScreenState extends State<SessionScreen>
   bool _starting = false;
   bool _catalogFailed = false;
   bool _leavingDialog = false;
+  int _concealRevision = 0;
   Timer? _phaseTimer;
   int _remainingSeconds = GameRound.discussionDuration.inSeconds;
   int _revealSeconds = GameRound.revealDuration.inSeconds;
@@ -119,15 +121,45 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   void _concealSecret() {
-    if (_session.round?.phase != GamePhase.secret) return;
-    setState(_session.concealSecret);
-    _focusNewPhase();
+    setState(() {
+      _concealRevision++;
+      _session.concealSecret();
+    });
   }
 
-  void _actOnCard(GameRound expected, {required bool reveal}) {
-    // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
+  void _peekCard(
+    GameRound expected,
+    bool reveal,
+    int expectedRevision, {
+    bool fullyOpen = false,
+  }) {
+    if (expectedRevision != _concealRevision) return;
+    final current = _session.round;
+    // Preparing, fully opening and releasing can all precede the next frame.
+    // Completion and concealment must still apply only to the same person.
+    if (current != null &&
+        identical(current.players, expected.players) &&
+        identical(current.currentPlayer, expected.currentPlayer) &&
+        _canAct(current)) {
+      if (!reveal) {
+        setState(_session.concealSecret);
+        return;
+      }
+      if (fullyOpen && current.phase == GamePhase.secret) {
+        setState(_session.markSecretViewed);
+        return;
+      }
+    }
     if (!_canAct(expected)) return;
-    setState(reveal ? _session.revealSecret : _session.hideAndAdvance);
+    if (reveal && expected.phase == GamePhase.handoff) {
+      setState(() => _session.revealSecret(markAsViewed: fullyOpen));
+    }
+  }
+
+  void _advanceCard(GameRound expected) {
+    // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
+    if (!_canAct(expected) || !expected.canAdvanceCard) return;
+    setState(_session.hideAndAdvance);
     _focusNewPhase();
   }
 
@@ -299,6 +331,7 @@ class _SessionScreenState extends State<SessionScreen>
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final concealRevision = _concealRevision;
     final round = _session.round;
     final result = round?.result;
     final compactReveal =
@@ -458,13 +491,27 @@ class _SessionScreenState extends State<SessionScreen>
                                   _buildRevealCountdown(strings)
                                 else if (result != null)
                                   _buildResult(strings, result)
-                                else if (revealed)
-                                  _buildSecretCard(
-                                    strings,
-                                    round.currentSecret!,
-                                  )
                                 else
-                                  _buildConcealedCard(strings),
+                                  SecretCurtain(
+                                    key: ValueKey(round.currentPlayer!.id),
+                                    revealed: revealed,
+                                    concealRevision: _concealRevision,
+                                    onReveal: (fullyOpen) => _peekCard(
+                                      round,
+                                      true,
+                                      concealRevision,
+                                      fullyOpen: fullyOpen,
+                                    ),
+                                    onConceal: () => _peekCard(
+                                      round,
+                                      false,
+                                      concealRevision,
+                                    ),
+                                    secretBuilder: (_) => _buildSecretContent(
+                                      strings,
+                                      round.currentSecret!,
+                                    ),
+                                  ),
                             ],
                           ),
                         ),
@@ -650,15 +697,8 @@ class _SessionScreenState extends State<SessionScreen>
         if (round.phase == GamePhase.handoff || revealed) ...[
           FilledButton(
             key: ValueKey(round.phase),
-            onPressed: () => _actOnCard(round, reveal: !revealed),
-            child: Text(
-              !revealed
-                  ? strings.revealSecret
-                  : round.currentPlayerNumber == round.players.length
-                  ? strings.hideAndFinish
-                  : strings.hideAndPass,
-              textAlign: TextAlign.center,
-            ),
+            onPressed: round.canAdvanceCard ? () => _advanceCard(round) : null,
+            child: Text(strings.nextPlayer, textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
         ],
@@ -866,46 +906,29 @@ class _SessionScreenState extends State<SessionScreen>
     ),
   ];
 
-  Widget _buildConcealedCard(AppLocalizations strings) => PartyCard(
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-    child: Column(
-      children: [
-        _buildCardIcon(Icons.lock_outline),
-        const SizedBox(height: 20),
-        Text(strings.secretConcealed, textAlign: TextAlign.center),
-      ],
-    ),
-  );
-
-  Widget _buildSecretCard(AppLocalizations strings, PlayerSecret secret) =>
-      PartyCard(
-        color: PartyColors.purple,
-        outlined: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (secret.role == PlayerRole.imposter) ...[
-              Text(
-                strings.imposterRole,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+  Widget _buildSecretContent(AppLocalizations strings, PlayerSecret secret) =>
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (secret.role == PlayerRole.imposter) ...[
             Text(
-              secret.role == PlayerRole.imposter
-                  ? strings.secretHint
-                  : strings.secretWord,
+              strings.imposterRole,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: 12),
-            Text(
-              secret.text,
-              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800),
-            ),
+            const SizedBox(height: 16),
           ],
-        ),
+          Text(
+            secret.role == PlayerRole.imposter
+                ? strings.secretHint
+                : strings.secretWord,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            secret.text,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+          ),
+        ],
       );
 
   Widget _buildReadyCard(AppLocalizations strings) =>
@@ -958,17 +981,6 @@ class _SessionScreenState extends State<SessionScreen>
           ),
         ),
       ),
-    ),
-  );
-
-  Widget _buildCardIcon(IconData icon) => ExcludeSemantics(
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: PartyColors.background,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, size: 40, color: PartyColors.lime),
     ),
   );
 

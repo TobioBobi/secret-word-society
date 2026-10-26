@@ -13,6 +13,13 @@ Ticket 19 vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
 
 ## Abgedeckte Abläufe
 
+Seit Ticket 23 werden Geheimnisse mit einer gehaltenen Ziehgeste am unteren
+Kartengriff angesehen. Die Gerätetests verwenden echte Pointer-Gesten und
+lassen vor der getrennten „Weiter“-Aktion los. Widget-Tests prüfen zusätzlich
+Gestenabbruch, Unterbrechungen während vollständiger und teilweiser Gesten,
+mehrfaches Ansehen und die automatisch schließende Screenreader-Alternative.
+Details: [Vorhang-Bedienung](mvp/ticket-23-vorhang.md).
+
 1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
    starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
@@ -50,6 +57,14 @@ gezielt und warten bis zu 15 Sekunden auf `viewInsets.bottom == 0`, bevor sie
 zum Startbutton scrollen. `pumpAndSettle` allein wartet nicht zuverlässig auf
 nachgelieferte Tastaturmetriken. Damit verschiebt sich der sichtbare Bereich
 nicht mehr durch eine noch schließende Tastatur zwischen Scrollen und Tippen.
+
+Die gemeinsame Tipp-Hilfe sucht ihr Ziel nach Scrollen und weiteren Frames
+erneut und prüft, dass es anklickbar ist und seine Position stabil bleibt.
+Verschwindet ein verzögert aufgebautes Sliver-Kind während des Wartens, wird
+nur die Suche wiederholt. Die eigentliche Aktion wird genau einmal ausgelöst.
+Ein Widget-Regressionstest entfernt den Startbutton zwischen Scrollen und
+Tippen vorübergehend: Mit der alten Hilfe schlägt er fehl, mit der neuen
+Hilfe wird nach dem Wiedererscheinen genau einmal getippt.
 
 ## Lokal ausführen
 

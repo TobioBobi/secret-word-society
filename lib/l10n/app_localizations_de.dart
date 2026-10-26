@@ -102,7 +102,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get editGroup => 'Gruppe bearbeiten';
 
   @override
-  String get revealSecret => 'Geheimnis aufdecken';
+  String get peekSecret => 'Geheimnis kurz ansehen';
+
+  @override
+  String get peekAccessibilityHint =>
+      'Aktivieren zum Ansehen und Vorlesen. Wird nach acht Sekunden automatisch verdeckt.';
+
+  @override
+  String get curtainInstruction => 'Hochziehen und halten';
+
+  @override
+  String get curtainRelease => 'Loslassen verdeckt';
+
+  @override
+  String get nextPlayer => 'Weiter';
 
   @override
   String privateTitle(String name) {
@@ -110,8 +123,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get privateIntro =>
-      'Merke dir deine Karte. Verbirg sie, bevor du das Handy weitergibst.';
+  String get privateIntro => 'Nur du schaust auf den Bildschirm.';
 
   @override
   String get secretWord => 'Dein geheimes Wort';
@@ -121,12 +133,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get secretHint => 'Dein Hinweis';
-
-  @override
-  String get hideAndPass => 'Verbergen & weitergeben';
-
-  @override
-  String get hideAndFinish => 'Verbergen & weiter';
 
   @override
   String get readyPhase => 'Eure Runde';
