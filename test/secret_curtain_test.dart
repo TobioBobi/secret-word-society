@@ -13,14 +13,68 @@ Future<TestGesture> _hold(WidgetTester tester) async {
   await tester.ensureVisible(_curtain);
   await tester.pumpAndSettle();
   final gesture = await tester.startGesture(tester.getCenter(_curtain));
+  final panel = tester.getRect(
+    find.byKey(const ValueKey('secret-curtain-panel')),
+  );
   await gesture.moveBy(const Offset(0, -30));
   await tester.pump();
-  await gesture.moveBy(const Offset(0, -120));
+  await gesture.moveTo(Offset(panel.center.dx, panel.top + 32));
   await tester.pump();
   return gesture;
 }
 
 void main() {
+  testWidgets(
+    'cover follows the finger without acceleration and keeps its grip',
+    (tester) async {
+      await startTestRound(tester);
+      await tester.ensureVisible(_curtain);
+      await tester.pumpAndSettle();
+      final start = tester.getCenter(_curtain);
+      final panel = tester.getRect(
+        find.byKey(const ValueKey('secret-curtain-panel')),
+      );
+      final gesture = await tester.startGesture(start);
+      await gesture.moveBy(const Offset(0, -60));
+      await tester.pump();
+      expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
+      expectConcealed(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
+      expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 40, 0.1));
+      await gesture.moveTo(Offset(start.dx, panel.top + 32));
+      await tester.pump();
+      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 32, 0.1));
+      expect(
+        find.text('Popcorn').evaluate().isNotEmpty ||
+            find.text('Kino').evaluate().isNotEmpty,
+        isTrue,
+      );
+      await gesture.moveBy(const Offset(0, -100));
+      await tester.pump();
+      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 32, 0.1));
+      await gesture.moveBy(const Offset(0, 30));
+      await tester.pump();
+      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 62, 0.1));
+      expectConcealed(tester);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(tester.getCenter(_curtain).dy, closeTo(start.dy, 0.1));
+      final flick = await tester.startGesture(start);
+      await flick.moveBy(const Offset(0, -60));
+      await tester.pump();
+      final releasedAt = tester.getCenter(_curtain).dy;
+      await flick.up();
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.getCenter(_curtain).dy, greaterThanOrEqualTo(releasedAt));
+      expectConcealed(tester);
+      await tester.pumpAndSettle();
+      expect(tester.getCenter(_curtain).dy, closeTo(start.dy, 0.1));
+    },
+  );
+
   testWidgets('hold, release, repeat, cancel and separate concealed handoff', (
     tester,
   ) async {
@@ -114,7 +168,7 @@ void main() {
       await tester.pumpAndSettle();
       final quick = await tester.startGesture(tester.getCenter(_curtain));
       await quick.moveBy(const Offset(0, -30));
-      await quick.moveBy(const Offset(0, -120));
+      await quick.moveBy(const Offset(0, -260));
       await quick.up();
       await tester.pump();
       expectConcealed(tester);

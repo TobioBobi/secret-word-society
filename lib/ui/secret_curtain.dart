@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -34,9 +35,13 @@ class _SecretCurtainState extends State<SecretCurtain>
     with SingleTickerProviderStateMixin {
   late final _cover = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 180),
+    duration: const Duration(milliseconds: 280),
   );
+  static const _handleHeight = 64.0;
+  static const _revealAt = 0.95;
+
   Timer? _accessibleTimer;
+  double? _lastDragY;
   bool _dragging = false;
   bool _requestedReveal = false;
 
@@ -46,6 +51,7 @@ class _SecretCurtainState extends State<SecretCurtain>
     if (oldWidget.concealRevision != widget.concealRevision) {
       _accessibleTimer?.cancel();
       _dragging = false;
+      _lastDragY = null;
       _requestedReveal = false;
       _cover.value = 0;
     }
@@ -61,12 +67,13 @@ class _SecretCurtainState extends State<SecretCurtain>
   void _close() {
     _accessibleTimer?.cancel();
     _dragging = false;
+    _lastDragY = null;
     _requestedReveal = false;
     widget.onConceal();
     if (MediaQuery.disableAnimationsOf(context)) {
       _cover.value = 0;
     } else {
-      _cover.animateBack(0, curve: Curves.easeOutCubic);
+      _cover.animateBack(0, curve: Curves.easeInOutCubic);
     }
   }
 
@@ -86,6 +93,7 @@ class _SecretCurtainState extends State<SecretCurtain>
       240 * MediaQuery.textScalerOf(context).scale(1),
       math.max(160.0, MediaQuery.sizeOf(context).height / 2),
     );
+    final travel = height - _handleHeight;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -113,6 +121,7 @@ class _SecretCurtainState extends State<SecretCurtain>
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: SizedBox(
+                key: const ValueKey('secret-curtain-panel'),
                 height: height,
                 child: Stack(
                   fit: StackFit.expand,
@@ -120,7 +129,12 @@ class _SecretCurtainState extends State<SecretCurtain>
                     PartyCard(
                       color: PartyColors.purple,
                       outlined: false,
-                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 64),
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        height - travel * _revealAt + 8,
+                        24,
+                        16,
+                      ),
                       child: widget.revealed
                           ? LayoutBuilder(
                               builder: (context, constraints) => Semantics(
@@ -140,85 +154,110 @@ class _SecretCurtainState extends State<SecretCurtain>
                     AnimatedBuilder(
                       animation: _cover,
                       builder: (context, child) => Transform.translate(
-                        offset: Offset(0, -height * _cover.value),
+                        key: const ValueKey('secret-curtain-cover'),
+                        offset: Offset(0, -travel * _cover.value),
                         child: child,
                       ),
-                      child: ExcludeSemantics(
-                        child: PartyCard(
-                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 64),
-                          child: LayoutBuilder(
-                            builder: (context, constraints) => FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: SizedBox(
-                                width: constraints.maxWidth,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.keyboard_double_arrow_up_rounded,
-                                      size: 40,
-                                      color: PartyColors.lime,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ExcludeSemantics(
+                            child: PartyCard(
+                              padding: const EdgeInsets.fromLTRB(
+                                24,
+                                16,
+                                24,
+                                64,
+                              ),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) => FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: SizedBox(
+                                    width: constraints.maxWidth,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons
+                                              .keyboard_double_arrow_up_rounded,
+                                          size: 40,
+                                          color: PartyColors.lime,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          strings.curtainInstruction,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          strings.curtainRelease,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: PartyColors.muted,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      strings.curtainInstruction,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      strings.curtainRelease,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: PartyColors.muted,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: 64,
-                      child: GestureDetector(
-                        key: const ValueKey('secret-curtain-gesture'),
-                        excludeFromSemantics: true,
-                        behavior: HitTestBehavior.opaque,
-                        onVerticalDragStart: (_) {
-                          _accessibleTimer?.cancel();
-                          _cover.stop();
-                          _dragging = true;
-                        },
-                        onVerticalDragUpdate: (details) {
-                          if (!_dragging) return;
-                          _cover.value = (_cover.value - details.delta.dy / 120)
-                              .clamp(0.0, 1.0);
-                          if (_cover.value >= 0.85 && !_requestedReveal) {
-                            _requestedReveal = true;
-                            widget.onReveal();
-                          } else if (_cover.value < 0.85 && _requestedReveal) {
-                            _requestedReveal = false;
-                            widget.onConceal();
-                          }
-                        },
-                        onVerticalDragEnd: (_) => _close(),
-                        onVerticalDragCancel: _close,
-                        child: const Center(
-                          child: Icon(
-                            Icons.drag_handle_rounded,
-                            size: 40,
-                            color: PartyColors.lime,
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: _handleHeight,
+                            child: GestureDetector(
+                              key: const ValueKey('secret-curtain-gesture'),
+                              excludeFromSemantics: true,
+                              behavior: HitTestBehavior.opaque,
+                              dragStartBehavior: DragStartBehavior.down,
+                              onVerticalDragStart: (details) {
+                                _accessibleTimer?.cancel();
+                                _cover.stop();
+                                _dragging = true;
+                                _lastDragY = details.globalPosition.dy;
+                              },
+                              onVerticalDragUpdate: (details) {
+                                if (!_dragging) return;
+                                final y = details.globalPosition.dy;
+                                final movement = _lastDragY! - y;
+                                _lastDragY = y;
+                                // A pixel of finger travel moves the cover one pixel.
+                                // Global coordinates stay stable as the grip moves.
+                                _cover.value =
+                                    (_cover.value + movement / travel).clamp(
+                                      0.0,
+                                      1.0,
+                                    );
+                                if (_cover.value >= _revealAt &&
+                                    !_requestedReveal) {
+                                  _requestedReveal = true;
+                                  widget.onReveal();
+                                } else if (_cover.value < _revealAt &&
+                                    _requestedReveal) {
+                                  _requestedReveal = false;
+                                  widget.onConceal();
+                                }
+                              },
+                              onVerticalDragEnd: (_) => _close(),
+                              onVerticalDragCancel: _close,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.drag_handle_rounded,
+                                  size: 40,
+                                  color: PartyColors.lime,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],

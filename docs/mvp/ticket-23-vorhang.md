@@ -6,9 +6,13 @@ GitHub: [Issue #26](https://github.com/TobioBobi/secret-word-society/issues/26).
 
 - Den limettenfarbenen Griff am unteren Kartenrand nach oben ziehen und halten.
   Wort bzw. Imposter-Rolle mit Hinweis erscheinen erst bei ausreichend weit
-  geöffnetem Vorhang. Der Gestenweg beträgt 120 logische Pixel.
+  geöffnetem Vorhang. Die Abdeckung folgt dem Finger im Verhältnis 1:1;
+  der mitbewegte Griff bleibt am oberen Anschlag sichtbar. Der Weg ergibt
+  sich aus Kartenhöhe minus 64 logischen Pixeln für den Griff (bei normaler
+  Schrift 176 Pixel). Ein schneller Swipe beschleunigt die Abdeckung nicht.
 - Loslassen, Abbrechen und Zurückziehen verdecken den Inhalt sofort. Nur die
-  Abdeckung gleitet beim normalen Loslassen noch 180 Millisekunden zurück.
+  Abdeckung gleitet beim normalen Loslassen in bis zu 280 Millisekunden
+  ruhig zurück, ohne über den Anschlag hinauszulaufen.
   Bei reduzierten Animationen schließt sie sofort.
 - Dieselbe Person kann vor der Übergabe beliebig oft nachsehen.
 - „Weiter“ wird nach dem ersten Ansehen freigegeben und übergibt verdeckt an
@@ -70,3 +74,15 @@ unverändert.
 
 Alle 65 Unit-/Widget-Tests, alle drei lokalen Android-Integrationstests,
 Analyse, Format- und Diff-Prüfung bestanden nach der Korrektur erneut.
+
+## Rückmeldung zur Schiebebewegung
+
+Die ursprüngliche Übersetzung von 120 Pixeln Fingerweg auf die gesamte
+Kartenhöhe wirkte zu leicht und wie Wegwischen. Seit der Nachbesserung folgt
+die Abdeckung dem Finger direkt. Der Griff bewegt sich mit und bleibt auch
+am oberen Anschlag greifbar. Beim Anhalten bleibt die Abdeckung stehen;
+Zurückziehen wirkt sofort, auch nach Überziehen am Anschlag. Der Inhalt liegt
+unterhalb des verbleibenden Griffstreifens, sodass Wort und Imposter-Rolle
+weiter lesbar bleiben. Ein zusätzlicher Gestentest prüft diese Eigenschaften.
+Alle 66 Unit-/Widget-Tests und die Roboto-Sichtprüfung bei normaler sowie
+200 Prozent Schrift bestanden mit dieser Anpassung.

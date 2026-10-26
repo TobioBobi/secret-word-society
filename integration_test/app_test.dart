@@ -41,9 +41,12 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     await tester.ensureVisible(target);
     await _settle(tester);
     _peekGesture = await tester.startGesture(tester.getCenter(target));
+    final panel = tester.getRect(
+      find.byKey(const ValueKey('secret-curtain-panel')),
+    );
     await _peekGesture!.moveBy(const Offset(0, -30));
     await tester.pump();
-    await _peekGesture!.moveBy(const Offset(0, -120));
+    await _peekGesture!.moveTo(Offset(panel.center.dx, panel.top + 32));
     await _settle(tester);
     return;
   }
