@@ -137,7 +137,7 @@ void main() {
           expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
           _expectConcealed(catalog);
           await _tapText(tester, 'Geheimnis kurz ansehen');
-          expect(find.text('Nur für $name.'), findsOneWidget);
+          expect(find.text('Handy an $name.'), findsOneWidget);
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
             expect(find.text('Dein Hinweis'), findsOneWidget);
@@ -151,7 +151,7 @@ void main() {
           }
           await _tapText(tester, 'Weiter');
           _expectConcealed(catalog);
-          expect(find.text('Nur für $name.'), findsNothing);
+          expect(find.text('Handy an $name.'), findsNothing);
         }
 
         expect(words, hasLength(2));

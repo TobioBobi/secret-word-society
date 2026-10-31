@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
-import 'party_card.dart';
 import 'party_theme.dart';
 
 /// Keeps only the cover animation locally. Private content belongs to the round
@@ -14,6 +12,8 @@ import 'party_theme.dart';
 class SecretCurtain extends StatefulWidget {
   const SecretCurtain({
     super.key,
+    required this.title,
+    required this.headingFocus,
     required this.revealed,
     required this.concealRevision,
     required this.onReveal,
@@ -21,6 +21,8 @@ class SecretCurtain extends StatefulWidget {
     required this.secretBuilder,
   });
 
+  final String title;
+  final FocusNode headingFocus;
   final bool revealed;
   final int concealRevision;
   // False prepares a visual preview; true confirms a complete viewing.
@@ -90,16 +92,12 @@ class _SecretCurtainState extends State<SecretCurtain>
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    final height = math.min(
-      240 * MediaQuery.textScalerOf(context).scale(1),
-      math.max(160.0, MediaQuery.sizeOf(context).height / 2),
-    );
-    final travel = height - _handleHeight;
-    final contentTop = height - travel * _fullyOpenAt + 8;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        FocusableActionDetector(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.maxHeight;
+        final travel = height - _handleHeight;
+        final contentTop = height - travel * _fullyOpenAt + 8;
+        return FocusableActionDetector(
           shortcuts: const {
             SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
             SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
@@ -113,6 +111,7 @@ class _SecretCurtainState extends State<SecretCurtain>
             ),
           },
           child: Semantics(
+            explicitChildNodes: true,
             button: true,
             label: strings.peekSecret,
             value: widget.revealed
@@ -120,17 +119,15 @@ class _SecretCurtainState extends State<SecretCurtain>
                 : strings.secretConcealed,
             hint: strings.peekAccessibilityHint,
             onTap: _accessiblePeek,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+            child: ClipRect(
               child: SizedBox(
                 key: const ValueKey('secret-curtain-panel'),
                 height: height,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    PartyCard(
+                    Container(
                       color: PartyColors.purple,
-                      outlined: false,
                       padding: EdgeInsets.fromLTRB(24, contentTop, 24, 16),
                       child: AnimatedBuilder(
                         animation: _cover,
@@ -148,7 +145,7 @@ class _SecretCurtainState extends State<SecretCurtain>
                                       liveRegion: true,
                                       child: FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
+                                        alignment: Alignment.bottomLeft,
                                         child: SizedBox(
                                           width: constraints.maxWidth,
                                           child: widget.secretBuilder(context),
@@ -171,47 +168,88 @@ class _SecretCurtainState extends State<SecretCurtain>
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          ExcludeSemantics(
-                            child: PartyCard(
-                              padding: const EdgeInsets.fromLTRB(
-                                24,
-                                16,
-                                24,
-                                64,
+                          PhysicalShape(
+                            clipper: const _SoftEdgeClipper(),
+                            clipBehavior: Clip.antiAlias,
+                            color: PartyColors.surface,
+                            elevation: 8,
+                            shadowColor: Colors.black54,
+                            child: DecoratedBox(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF38274E),
+                                    PartyColors.surface,
+                                    Color(0xFF42305C),
+                                  ],
+                                ),
                               ),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) => FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: SizedBox(
-                                    width: constraints.maxWidth,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons
-                                              .keyboard_double_arrow_up_rounded,
-                                          size: 40,
-                                          color: PartyColors.lime,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  16,
+                                  24,
+                                  80,
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, space) => Center(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: SizedBox(
+                                        width: space.maxWidth,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              key: const ValueKey(
+                                                'curtain-avatar',
+                                              ),
+                                              width: 104,
+                                              height: 104,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: PartyColors.purple
+                                                    .withValues(alpha: 0.22),
+                                                border: Border.all(
+                                                  color: PartyColors.outline,
+                                                ),
+                                              ),
+                                              child: const ExcludeSemantics(
+                                                child: Icon(
+                                                  Icons.person_outline_rounded,
+                                                  size: 64,
+                                                  color: PartyColors.muted,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 24),
+                                            Focus(
+                                              focusNode: widget.headingFocus,
+                                              skipTraversal: true,
+                                              child: Semantics(
+                                                header: true,
+                                                child: Text(
+                                                  widget.title,
+                                                  textAlign: TextAlign.center,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headlineLarge,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              strings.curtainYourTurn,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                color: PartyColors.muted,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          strings.curtainInstruction,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          strings.curtainRelease,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            color: PartyColors.muted,
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -256,11 +294,26 @@ class _SecretCurtainState extends State<SecretCurtain>
                               },
                               onVerticalDragEnd: (_) => _close(),
                               onVerticalDragCancel: _close,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.drag_handle_rounded,
-                                  size: 40,
-                                  color: PartyColors.lime,
+                              child: const ExcludeSemantics(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.keyboard_double_arrow_up_rounded,
+                                      size: 24,
+                                      color: PartyColors.lime,
+                                    ),
+                                    SizedBox(height: 2),
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: PartyColors.lime,
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(4),
+                                        ),
+                                      ),
+                                      child: SizedBox(width: 64, height: 6),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -273,10 +326,31 @@ class _SecretCurtainState extends State<SecretCurtain>
               ),
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
+}
+
+class _SoftEdgeClipper extends CustomClipper<Path> {
+  const _SoftEdgeClipper();
+
+  @override
+  Path getClip(Size size) => Path()
+    ..lineTo(0, size.height - 18)
+    ..cubicTo(
+      size.width * .28,
+      size.height - 36,
+      size.width * .62,
+      size.height + 8,
+      size.width,
+      size.height - 12,
+    )
+    ..lineTo(size.width, 0)
+    ..close();
+
+  @override
+  bool shouldReclip(_SoftEdgeClipper oldClipper) => false;
 }
 
 /// Paint only the portion below the moving cover; fully covered previews are

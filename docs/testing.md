@@ -31,6 +31,12 @@ Gestenabbruch, Unterbrechungen während vollständiger und teilweiser Gesten,
 mehrfaches Ansehen und die automatisch schließende Screenreader-Alternative.
 Details: [Vorhang-Bedienung](mvp/ticket-23-vorhang.md).
 
+Seit Issue #32 bewegen sich Spielerüberschrift und Avatar-Platzhalter gemeinsam
+mit einer großflächigen Abdeckung. Das Geheimnis liegt fest unten. Zusätzliche
+Widget-Prüfungen kombinieren Systemleisten, lange Inhalte, 200 Prozent Schrift
+und reduzierte Bewegung. Die Spielerüberschrift bleibt während der Geste stabil.
+Details: [Weiche Vorhangkante](mvp/issue-32-weiche-vorhangkante.md).
+
 1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
    starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.

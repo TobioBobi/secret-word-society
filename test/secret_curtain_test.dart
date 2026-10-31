@@ -3,9 +3,17 @@ import 'dart:ui' show SemanticsAction, SemanticsActionEvent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:secret_word_society/main.dart';
+import 'package:secret_word_society/game/word_catalog.dart';
 
 import 'widget_test.dart'
-    show startTestRound, tapVisible, expectConcealed, semanticsTree;
+    show
+        startTestRound,
+        tapVisible,
+        expectConcealed,
+        semanticsTree,
+        addName,
+        showStart;
 
 Finder get _curtain => find.byKey(const ValueKey('secret-curtain-gesture'));
 Finder get _opening => find.byKey(const ValueKey('secret-curtain-opening'));
@@ -43,6 +51,85 @@ Future<TestGesture> _hold(WidgetTester tester) async {
 
 void main() {
   testWidgets(
+    'small screen with system bars, long secrets and reduced motion',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      final catalog = WordCatalog(
+        languageCode: 'de',
+        pairs: [
+          WordPair(
+            id: 'long',
+            word: 'Geburtstagsüberraschung',
+            hint: 'Gemeinsames Erlebnis',
+          ),
+        ],
+      );
+      await tester.pumpWidget(MyApp(catalogLoader: () async => catalog));
+      for (final name in [
+        'Alexandra Maximiliane',
+        'Benjamin Konstantin',
+        'Charlotte Friederike',
+      ]) {
+        await addName(tester, name);
+      }
+      await showStart(tester);
+      await tapVisible(tester, 'Runde starten');
+      var imposters = 0;
+      for (var person = 0; person < 3; person++) {
+        final full = await _hold(tester);
+        final grip = tester.getRect(_curtain);
+        expect(grip.top, greaterThanOrEqualTo(24));
+        expect(grip.bottom, lessThanOrEqualTo(544));
+        final isImposter = find
+            .text('Du bist der Imposter')
+            .evaluate()
+            .isNotEmpty;
+        if (isImposter) imposters++;
+        final secret = tester.getRect(
+          find.text(
+            isImposter ? 'Gemeinsames Erlebnis' : 'Geburtstagsüberraschung',
+          ),
+        );
+        expect(secret.left, greaterThanOrEqualTo(0));
+        expect(secret.right, lessThanOrEqualTo(320));
+        expect(secret.top, greaterThanOrEqualTo(grip.bottom));
+        expect(
+          secret.bottom,
+          lessThan(tester.getRect(find.text('Weiter')).top),
+        );
+        await full.up();
+        await tester.pump();
+        expect(find.text('Geburtstagsüberraschung'), findsNothing);
+        expect(find.text('Gemeinsames Erlebnis'), findsNothing);
+        expect(
+          tester.getCenter(_curtain).dy,
+          closeTo(
+            tester
+                    .getRect(find.byKey(const ValueKey('secret-curtain-panel')))
+                    .bottom -
+                32,
+            .1,
+          ),
+        );
+        await tapVisible(tester, 'Weiter');
+        expect(tester.takeException(), isNull);
+      }
+      expect(imposters, 1);
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'cover follows the finger without acceleration and keeps its grip',
     (tester) async {
       final semantics = tester.ensureSemantics();
@@ -53,11 +140,34 @@ void main() {
       final panel = tester.getRect(
         find.byKey(const ValueKey('secret-curtain-panel')),
       );
+      final avatarStart = tester.getCenter(
+        find.byKey(const ValueKey('curtain-avatar')),
+      );
+      final titleStart = tester.getCenter(find.text('Handy an Anna.'));
       final gesture = await tester.startGesture(start);
       await gesture.moveBy(const Offset(0, -60));
       await tester.pump();
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
       expectPreview(tester);
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('curtain-avatar'))).dy,
+        closeTo(avatarStart.dy - 60, .1),
+      );
+      expect(
+        tester.getCenter(find.text('Handy an Anna.')).dy,
+        closeTo(titleStart.dy - 60, .1),
+      );
+      final avatar = tester.getCenter(
+        find.byKey(const ValueKey('curtain-avatar')),
+      );
+      await gesture.moveBy(const Offset(0, -20));
+      await tester.pump();
+      expect(
+        tester.getCenter(find.byKey(const ValueKey('curtain-avatar'))).dy,
+        closeTo(avatar.dy - 20, 0.1),
+      );
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 60, 0.1));
       await gesture.moveBy(const Offset(0, 20));
