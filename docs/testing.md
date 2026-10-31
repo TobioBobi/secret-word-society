@@ -52,7 +52,7 @@ Details: [Weiche Vorhangkante](mvp/issue-32-weiche-vorhangkante.md).
    Ticket 7 muss die Folgerunde ein anderes Wort mit zugehörigem Hinweis haben.
    Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 10 Sekunden
    zusätzlich; die Produktionsuhr wird nicht ersetzt.
-2. Eine sichtbare Karte über „Gruppe bearbeiten“ verbergen und den
+2. Eine sichtbare Karte über Android-Zurück verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
    aufdecken. Danach bei der zweiten Person die Runde tatsächlich verlassen:
    Alle drei Namen bleiben erhalten. Eine neue Runde beginnt wieder verdeckt
@@ -140,13 +140,23 @@ Der Emulatorjob hat 30 Minuten Gesamttimeout und 180 Sekunden Boot-Timeout;
 das Warten auf eine ruhige Flutter-Oberfläche ist pro Aktion auf 15 Sekunden
 begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werden.
 
+Seit der weiteren Überarbeitung von Issue #32 entfällt „Gruppe bearbeiten“ aus
+allen Rundenansichten. Die Tests öffnen den Verlassensdialog über den Flutter-
+Back-Handler. Ein vierter Android-Ablauf überspringt alle ungeöffneten Karten:
+„Weiter“ muss von Beginn an aktiv sein, ohne irgendein Geheimnis freizulegen.
+Ein Pixeltest sichert ab, dass die Textfreilegung der tatsächlichen Kurve folgt.
+Die Testhilfe beginnt Teilöffnungen auf unterschiedlichen Vorhangflächen. Liegt
+der Startpunkt hoch, lässt sie vor dem Anschlag los und greift unten neu an,
+damit alle Pointer-Ereignisse einschließlich Loslassen im Bildschirm bleiben.
+
 ## Grenzen und spätere Ergänzungen
 
 - Diese Tests ergänzen die schnelleren Unit-/Widget-Tests; Varianten der Regeln,
   Fehlerfälle und kleine Displays werden weiterhin dort geprüft.
 - Texteingabe erfolgt über Flutter-Test-APIs. Das ist kein Test einer bestimmten
-  Android-Tastatur. Dialoge werden über App-Buttons bedient; Android-System-Zurück
-  und echte App-Unterbrechungen sind in dieser Suite noch nicht automatisiert.
+  Android-Tastatur. Dialoge werden über den Flutter-Back-Handler und App-Buttons bedient.
+  Native Android-Systemereignisse und echte App-Unterbrechungen sind in dieser
+  Suite noch nicht automatisiert.
 - `integration_test` bedient keine nativen Systemoberflächen. Für echte
   App-Wechsel, Systemdialoge und weitere Geräteaktionen ist Patrol eine mögliche
   spätere Ergänzung.

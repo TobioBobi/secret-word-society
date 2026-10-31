@@ -479,9 +479,7 @@ class _SessionScreenState extends State<SessionScreen>
                                     title: title,
                                     name: round.currentPlayer!.name,
                                     advanceAction: FilledButton(
-                                      onPressed: round.canAdvanceCard
-                                          ? () => _advanceCard(round)
-                                          : null,
+                                      onPressed: () => _advanceCard(round),
                                       style: FilledButton.styleFrom(
                                         backgroundColor: PartyColors.surface,
                                         foregroundColor: PartyColors.text,
@@ -513,18 +511,6 @@ class _SessionScreenState extends State<SessionScreen>
                                       round.currentSecret!,
                                     ),
                                   ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                  inset,
-                                  12,
-                                  inset,
-                                  16,
-                                ),
-                                child: TextButton(
-                                  onPressed: _confirmLeaveRound,
-                                  child: Text(strings.editGroup),
                                 ),
                               ),
                             ],
@@ -779,7 +765,6 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   Widget _buildRoundActions(AppLocalizations strings, GameRound round) {
-    final revealed = round.phase == GamePhase.secret;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -811,24 +796,6 @@ class _SessionScreenState extends State<SessionScreen>
           ),
           const SizedBox(height: 12),
         ],
-        if (round.phase == GamePhase.handoff || revealed) ...[
-          FilledButton(
-            key: ValueKey(round.phase),
-            onPressed: round.canAdvanceCard ? () => _advanceCard(round) : null,
-            child: Text(strings.nextPlayer, textAlign: TextAlign.center),
-          ),
-          const SizedBox(height: 12),
-        ],
-        OutlinedButton(
-          style: round.currentPlayer == null
-              ? null
-              : OutlinedButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge!
-                      .copyWith(fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-          onPressed: _confirmLeaveRound,
-          child: Text(strings.editGroup, textAlign: TextAlign.center),
-        ),
       ],
     );
   }

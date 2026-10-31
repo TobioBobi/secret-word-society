@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 
+import 'support/curtain_geometry.dart';
+
 import 'widget_test.dart'
     show
         startTestRound,
@@ -13,7 +15,8 @@ import 'widget_test.dart'
         expectConcealed,
         semanticsTree,
         addName,
-        showStart;
+        showStart,
+        leaveRound;
 
 Finder get _curtain => find.byKey(const ValueKey('secret-curtain-gesture'));
 Finder get _opening => find.byKey(const ValueKey('secret-curtain-opening'));
@@ -30,11 +33,6 @@ void expectPreview(WidgetTester tester) {
   }
 }
 
-Rect openingClip(WidgetTester tester) => tester
-    .widget<ClipRect>(_opening)
-    .clipper!
-    .getClip(tester.getSize(_opening));
-
 Future<TestGesture> _hold(WidgetTester tester) async {
   await tester.ensureVisible(_curtain);
   await tester.pumpAndSettle();
@@ -50,6 +48,58 @@ Future<TestGesture> _hold(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets(
+    'back while held then cancelling the dialog permits a fresh drag',
+    (tester) async {
+      await startTestRound(tester);
+      final old = await _hold(tester);
+      await leaveRound(tester);
+      expectConcealed(tester);
+      await old.up();
+      await tester.pumpAndSettle();
+      await tapVisible(tester, 'Weiterspielen');
+      expectConcealed(tester);
+      final fresh = await _hold(tester);
+      expect(
+        find.text('Popcorn').evaluate().isNotEmpty ||
+            find.text('Kino').evaluate().isNotEmpty,
+        isTrue,
+      );
+      await fresh.up();
+      await tester.pumpAndSettle();
+      expectConcealed(tester);
+    },
+  );
+
+  testWidgets(
+    'next is always active and skips unseen cards safely through ready',
+    (tester) async {
+      await startTestRound(tester);
+      for (final name in ['Anna', 'Ben', 'Cem']) {
+        expect(find.text(name), findsOneWidget);
+        expect(find.text('Gruppe bearbeiten'), findsNothing);
+        expectConcealed(tester);
+        final panel = tester.getRect(
+          find.byKey(const ValueKey('secret-curtain-panel')),
+        );
+        expect(
+          panel.bottom,
+          tester.getRect(find.byType(CustomScrollView)).bottom,
+        );
+        final next = tester
+            .widget<FilledButton>(find.byType(FilledButton))
+            .onPressed;
+        expect(next, isNotNull);
+        await tapVisible(tester, 'Weiter');
+        next!(); // A callback from the previous person cannot skip another one.
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+      }
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      expect(find.text('Gruppe bearbeiten'), findsNothing);
+    },
+  );
+
   testWidgets(
     'dragging avatar, name, background and button reveals without advancing',
     (tester) async {
@@ -283,12 +333,12 @@ void main() {
         await tester.pump();
         expectPreview(tester);
         if (find.text('Du bist der Imposter').evaluate().isNotEmpty) hints++;
-        final before = openingClip(tester);
+        final before = openingBounds(tester);
         expect(before.top, greaterThan(0));
         expect(before.height, greaterThan(0));
         expect(
           tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-          isNull,
+          isNotNull,
         );
         final secret = find.text('Popcorn').evaluate().isNotEmpty
             ? 'Popcorn'
@@ -297,14 +347,14 @@ void main() {
         await gesture.moveBy(const Offset(0, -40));
         await tester.pump();
         expectPreview(tester);
-        expect(openingClip(tester).top, closeTo(before.top - 40, 0.1));
+        expect(openingBounds(tester).top, closeTo(before.top - 40, 0.1));
         expect(tester.getRect(find.text(secret)), textRect);
         await gesture.up();
         await tester.pumpAndSettle();
         expectConcealed(tester);
         expect(
           tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-          isNull,
+          isNotNull,
         );
         final full = await _hold(tester);
         expect(semanticsTree(tester), contains(secret));
@@ -337,7 +387,7 @@ void main() {
     await startTestRound(tester);
     expect(
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-      isNull,
+      isNotNull,
     );
     await tester.ensureVisible(_curtain);
     await tester.tap(_curtain);
@@ -365,7 +415,7 @@ void main() {
     expectConcealed(tester);
     expect(
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-      isNull,
+      isNotNull,
     );
     semantics.dispose();
   });
@@ -409,7 +459,11 @@ void main() {
     'same-frame release and advancing while held cannot leak secrets',
     (tester) async {
       await startTestRound(tester);
-      final gesture = await _hold(tester);
+      await tester.ensureVisible(_curtain);
+      await tester.pumpAndSettle();
+      final gesture = await tester.startGesture(tester.getCenter(_curtain));
+      await gesture.moveBy(const Offset(0, -30));
+      await tester.pump();
       final advance = tester
           .widget<FilledButton>(find.byType(FilledButton))
           .onPressed!;

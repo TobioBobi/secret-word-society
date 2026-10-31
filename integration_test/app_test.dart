@@ -7,6 +7,7 @@ import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
 
 import '../test/support/tap_when_stable.dart';
+import '../test/support/curtain_geometry.dart';
 
 const _players = ['Anna', 'Ben', 'Cem'];
 
@@ -54,7 +55,7 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     final origin = area == 2
         ? tester.getRect(originTarget).topLeft + const Offset(12, 24)
         : tester.getCenter(originTarget);
-    final gripStart = tester.getCenter(target);
+    var gripStart = tester.getCenter(target);
     _peekGesture = await tester.startGesture(origin);
     final panel = tester.getRect(
       find.byKey(const ValueKey('secret-curtain-panel')),
@@ -69,13 +70,26 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     );
     await _peekGesture!.moveBy(const Offset(0, -60));
     await tester.pump();
-    final clip = tester
-        .widget<ClipRect>(preview)
-        .clipper!
-        .getClip(tester.getSize(preview));
+    final clip = openingBounds(tester);
     expect(clip.top, greaterThan(0));
     expect(clip.height, greaterThan(0));
-    await _peekGesture!.moveBy(const Offset(0, -300));
+    if (area != 1) {
+      // Starting near the top can demonstrate a partial opening, but cannot
+      // reach the stop without leaving the physical screen. Release and
+      // re-grab the lower grip rather than injecting off-screen pointers.
+      await _peekGesture!.up();
+      await _settle(tester);
+      expect(preview, findsNothing);
+      await tester.ensureVisible(target);
+      await _settle(tester);
+      gripStart = tester.getCenter(target);
+      _peekGesture = await tester.startGesture(gripStart);
+      await _peekGesture!.moveBy(const Offset(0, -30));
+      await tester.pump();
+    }
+    await _peekGesture!.moveTo(
+      Offset(panel.center.dx, panel.top.clamp(0.0, double.infinity) + 32),
+    );
     await _settle(tester);
     expect(
       gripStart.dy - tester.getCenter(target).dy,
@@ -116,6 +130,15 @@ Future<void> _launchAndCreateGroup(WidgetTester tester) async {
   await _tapText(tester, 'Runde starten');
   expect(find.text('Anna'), findsOneWidget);
   expect(find.text('Person 1 von 3'), findsOneWidget);
+}
+
+Future<void> _leaveRound(WidgetTester tester) async {
+  expect(find.text('Gruppe bearbeiten'), findsNothing);
+  await tester.binding.handlePopRoute();
+  await _settle(tester);
+  await _peekGesture?.up();
+  _peekGesture = null;
+  await _settle(tester);
 }
 
 void _expectConcealed(WordCatalog catalog) {
@@ -288,6 +311,27 @@ void main() {
     );
   }
 
+  testWidgets('unseen cards can all be skipped without exposing secrets', (
+    tester,
+  ) async {
+    await _launchAndCreateGroup(tester);
+    final catalog = await loadWordCatalog();
+    for (final name in _players) {
+      expect(find.text(name), findsOneWidget);
+      expect(find.text('Gruppe bearbeiten'), findsNothing);
+      _expectConcealed(catalog);
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNotNull,
+      );
+      await _tapText(tester, 'Weiter');
+      _expectConcealed(catalog);
+    }
+    expect(find.text('Alle eingeweiht?'), findsOneWidget);
+    expect(find.text('Gruppe bearbeiten'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('leave dialog conceals cards, retains group and allows restart', (
     tester,
   ) async {
@@ -296,7 +340,7 @@ void main() {
     await _tapText(tester, 'Geheimnis kurz ansehen');
     final firstSecret = _visibleSecret(catalog);
 
-    await _tapText(tester, 'Gruppe bearbeiten');
+    await _leaveRound(tester);
     expect(find.text('Runde verlassen?'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Weiterspielen');
@@ -315,7 +359,7 @@ void main() {
           (pair) => pair.word == firstSecret || pair.word == secondSecret,
         )
         .word;
-    await _tapText(tester, 'Gruppe bearbeiten');
+    await _leaveRound(tester);
     expect(find.text('Runde verlassen?'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Runde verlassen');

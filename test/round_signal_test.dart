@@ -6,7 +6,13 @@ import 'package:secret_word_society/platform/round_signal.dart';
 import 'package:secret_word_society/ui/time_up_card.dart';
 
 import 'widget_test.dart'
-    show readyGroup, showStart, tapVisible, expectConcealed, testCatalog;
+    show
+        leaveRound,
+        readyGroup,
+        showStart,
+        tapVisible,
+        expectConcealed,
+        testCatalog;
 
 void main() {
   final calls = <MethodCall>[];
@@ -129,7 +135,7 @@ void main() {
   ) async {
     await ready(tester);
     await tapVisible(tester, '10 Sekunden starten');
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(calls.last.method, 'cancel');
     now = now.add(const Duration(seconds: 20));

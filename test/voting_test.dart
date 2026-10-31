@@ -8,6 +8,7 @@ import 'package:secret_word_society/platform/round_signal.dart';
 
 import 'widget_test.dart'
     show
+        leaveRound,
         addName,
         readyGroup,
         showStart,
@@ -173,7 +174,7 @@ void main() {
     final confirm = (await _action(tester)).onPressed!;
     confirm();
     await tester.pumpAndSettle();
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     clock.value = clock.value.add(const Duration(minutes: 1));
     await tester.pump(const Duration(minutes: 1));
@@ -329,7 +330,7 @@ void main() {
       expect(_reveals, hasLength(2));
       expect(_reveals.last.arguments['winner'], 'group');
       expect(_reveals.last.arguments['token'], isNot(sound.arguments['token']));
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       expect(find.byType(AlertDialog), findsNothing);
       expect(find.text('3 Personen'), findsOneWidget);
       expectConcealed(tester);
@@ -401,7 +402,7 @@ void main() {
     final clock = _Clock();
     await _voting(tester, clock);
     await tapVisible(tester, 'Cem');
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(find.text('3 Personen'), findsOneWidget);
     expectConcealed(tester);

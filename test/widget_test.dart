@@ -70,6 +70,12 @@ Future<void> tapVisible(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> leaveRound(WidgetTester tester) async {
+  expect(find.text('Gruppe bearbeiten'), findsNothing);
+  await tester.binding.handlePopRoute();
+  await tester.pumpAndSettle();
+}
+
 Future<void> startTestRound(WidgetTester tester) async {
   await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
   await readyGroup(tester);
@@ -185,10 +191,7 @@ void main() {
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Gruppe bearbeiten'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Gruppe bearbeiten'));
-    await tester.pumpAndSettle();
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(find.text('Wer ist dabei?'), findsOneWidget);
     expect(find.text('3 Personen'), findsOneWidget);
@@ -285,14 +288,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(longName), findsOneWidget);
       expect(find.text('Person 1 von 12'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.text('Gruppe bearbeiten'),
-        150,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Gruppe bearbeiten'));
-      await tester.pumpAndSettle();
+      await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       expect(find.text('12 Personen'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -390,22 +386,17 @@ void main() {
   );
 
   testWidgets(
-    'back and edit conceal before dialog; cancellation never restores secrets',
+    'back conceals before dialog; cancellation never restores secrets',
     (tester) async {
       final semantics = tester.ensureSemantics();
 
       await startTestRound(tester);
-      for (final edit in [false, true]) {
+      for (final dismissWithBack in [false, true]) {
         await tapVisible(tester, 'Geheimnis kurz ansehen');
-        if (edit) {
-          await tapVisible(tester, 'Gruppe bearbeiten');
-        } else {
-          await tester.binding.handlePopRoute();
-          await tester.pumpAndSettle();
-        }
+        await leaveRound(tester);
         expect(find.text('Runde verlassen?'), findsOneWidget);
         expectConcealed(tester);
-        if (edit) {
+        if (dismissWithBack) {
           // System back dismisses only the dialog, not the concealed round.
           await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
@@ -416,7 +407,7 @@ void main() {
         expectConcealed(tester);
       }
       await tapVisible(tester, 'Geheimnis kurz ansehen');
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       expect(find.text('3 Personen'), findsOneWidget);
       await showStart(tester);
@@ -481,7 +472,7 @@ void main() {
         await tapVisible(tester, 'Weiter');
         expect(tester.takeException(), isNull);
       }
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       expect(tester.takeException(), isNull);
       await tapVisible(tester, 'Weiterspielen');
       expect(find.text('Alle eingeweiht?'), findsOneWidget);

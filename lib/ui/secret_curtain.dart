@@ -165,22 +165,20 @@ class _SecretCurtainState extends State<SecretCurtain>
                         builder: (context, _) =>
                             widget.revealed && _cover.value > 0
                             ? LayoutBuilder(
-                                builder: (context, space) => ClipRect(
+                                // The curved cover is the visual mask. A second,
+                                // rectangular clip would hide the text beyond
+                                // that curve and make the moving edge look flat.
+                                builder: (context, space) => ExcludeSemantics(
                                   key: const ValueKey('secret-curtain-opening'),
-                                  clipper: _OpeningClipper(
-                                    height - travel * _cover.value - contentTop,
-                                  ),
-                                  child: ExcludeSemantics(
-                                    excluding: _cover.value < _fullyOpenAt,
-                                    child: Semantics(
-                                      liveRegion: true,
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.bottomLeft,
-                                        child: SizedBox(
-                                          width: space.maxWidth,
-                                          child: widget.secretBuilder(context),
-                                        ),
+                                  excluding: _cover.value < _fullyOpenAt,
+                                  child: Semantics(
+                                    liveRegion: true,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.bottomLeft,
+                                      child: SizedBox(
+                                        width: space.maxWidth,
+                                        child: widget.secretBuilder(context),
                                       ),
                                     ),
                                   ),
@@ -197,7 +195,11 @@ class _SecretCurtainState extends State<SecretCurtain>
                         child: child,
                       ),
                       child: GestureDetector(
-                        key: const ValueKey('secret-curtain-drag-surface'),
+                        // Discard recognizer pointer tracking as well as the visual drag
+                        // when a dialog or interruption invalidates the gesture.
+                        key: ValueKey(
+                          'secret-curtain-drag-surface-${widget.concealRevision}',
+                        ),
                         excludeFromSemantics: true,
                         behavior: HitTestBehavior.opaque,
                         dragStartBehavior: DragStartBehavior.down,
@@ -391,19 +393,4 @@ class _SoftEdgeClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(_SoftEdgeClipper oldClipper) => false;
-}
-
-/// Paint only the portion below the moving cover; fully covered previews are
-/// also excluded from semantics independently of their paint clipping.
-class _OpeningClipper extends CustomClipper<Rect> {
-  const _OpeningClipper(this.top);
-
-  final double top;
-
-  @override
-  Rect getClip(Size size) =>
-      Rect.fromLTRB(0, top.clamp(0.0, size.height), size.width, size.height);
-
-  @override
-  bool shouldReclip(_OpeningClipper oldClipper) => top != oldClipper.top;
 }
