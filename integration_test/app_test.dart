@@ -194,6 +194,7 @@ void main() {
           find.text('Die Zeit ist um. Einigt euch auf eine Person.'),
           findsOneWidget,
         );
+        expect(find.text('Zeit ist um!'), findsOneWidget);
         expect(find.text('Jetzt wird geblufft.'), findsNothing);
         _expectConcealed(catalog);
         final confirmButton = find.byType(FilledButton);

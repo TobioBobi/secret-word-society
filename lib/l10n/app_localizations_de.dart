@@ -148,6 +148,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get readyCard => 'Alle Geheimnisse sind verteilt.';
 
   @override
+  String get timeUpTitle => 'Zeit ist um!';
+
+  @override
   String get startDiscussion => '10 Sekunden starten';
 
   @override

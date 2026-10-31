@@ -310,6 +310,12 @@ abstract class AppLocalizations {
   /// **'Alle Geheimnisse sind verteilt.'**
   String get readyCard;
 
+  /// No description provided for @timeUpTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeit ist um!'**
+  String get timeUpTitle;
+
   /// No description provided for @startDiscussion.
   ///
   /// In de, this message translates to:
