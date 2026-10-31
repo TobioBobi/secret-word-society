@@ -51,7 +51,8 @@ object RoundSignal {
     fun finish(context: Context, roundToken: String?, audible: Boolean, onPlaybackEnded: () -> Unit) {
         if (roundToken == null || token != roundToken || consumed) return
         val lateness = SystemClock.elapsedRealtime() - deadline
-        if (lateness < 0) return
+        // Flutter's terminal transition is authoritative even if a wall-clock
+        // adjustment makes it finish before our monotonic deadline.
         // Consume even a muted/missed signal. Returning to the app never replays it.
         consumed = true
         if (!audible || !foreground) return

@@ -36,6 +36,11 @@ Unterbrochene Wiedergabe wird beendet; bestätigte Abstimmung und Abbruch
 verwerfen den Ton. Ein mehr als zwei Sekunden verspäteter Abschluss bleibt
 stumm. Prozessende verwirft wie bisher die gesamte Sitzung.
 
+Der abschließende Flutter-Aufruf verbraucht die passende Runde auch dann,
+wenn eine vorgestellte Systemuhr den Übergang vor Androids monotoner Endzeit
+auslöst. Ein stummer Abschluss gibt das Wachhalten sofort frei, ein hörbarer
+nach Ende des Tons. Doppelte oder veraltete Abschlüsse bleiben wirkungslos.
+
 Die temporären zehn Sekunden sowie die offenen Änderungen in
 [#22](https://github.com/TobioBobi/secret-word-society/issues/22) und
 [#25](https://github.com/TobioBobi/secret-word-society/issues/25) bleiben unverändert.
@@ -67,6 +72,13 @@ Lautstärkeänderung wurde vom Testemulator nicht übernommen und bleibt am
 physischen Handy zu prüfen.
 Ein physisches Handy, tatsächliche Hörbarkeit in lauten Gruppen und echtes
 TalkBack bleiben Praxisprüfungen.
+
+Regression zu PR #29 am 31.10.2026 auf API 36.1 geprüft: vorgestellte Flutter-
+Uhr während einer echten Spielrunde sowie vorgezogener hörbarer/stummer
+Abschluss, doppelte/veraltete Aufrufe, Abbruch und verspäteter Abschluss.
+Sieben native Fensterflag-Prüfungen, drei vollständig abgespielte Signale und
+ein unterdrückter verspäteter Ton erfolgreich; alle 73 Unit-/Widget-Tests und
+Analyse weiterhin erfolgreich.
 
 Grundlagen: [Android-Bildschirm wach halten](https://developer.android.com/develop/background-work/background-tasks/awake/screen-on),
 [Audioattribute](https://developer.android.com/reference/android/media/AudioAttributes).
