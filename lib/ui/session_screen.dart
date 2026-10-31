@@ -45,6 +45,8 @@ class _SessionScreenState extends State<SessionScreen>
   Timer? _phaseTimer;
   final _roundSignal = RoundSignal();
   String? _signalToken;
+  String? _revealToken;
+  int _audioRevision = 0;
   bool _animateTimeUp = false;
   int _remainingSeconds = GameRound.discussionDuration.inSeconds;
   int _revealSeconds = GameRound.revealDuration.inSeconds;
@@ -61,6 +63,7 @@ class _SessionScreenState extends State<SessionScreen>
     // Android can make the window visible in `inactive` before `resumed`.
     // Reconcile on every transition so that return frame is already current.
     if (state != AppLifecycleState.resumed) {
+      _audioRevision++;
       _animateTimeUp = false;
       setState(() => _session.pauseReveal(widget.now()));
       _updateTimedPhase();
@@ -216,6 +219,8 @@ class _SessionScreenState extends State<SessionScreen>
       _session.confirmSuspect(widget.now());
       _revealSeconds = GameRound.revealDuration.inSeconds;
     });
+    _revealToken = '${DateTime.now().microsecondsSinceEpoch}';
+    unawaited(_roundSignal.prepareReveal(_revealToken!));
     _startPhaseTimer();
     _focusNewPhase();
   }
@@ -251,6 +256,7 @@ class _SessionScreenState extends State<SessionScreen>
 
   void _cancelSignal() {
     _signalToken = null;
+    _revealToken = null;
     _animateTimeUp = false;
     unawaited(_roundSignal.cancel());
   }
@@ -272,6 +278,23 @@ class _SessionScreenState extends State<SessionScreen>
       if (_session.round!.phase == GamePhase.result) {
         _stopPhaseTimer();
         _focusNewPhase();
+        final resultRound = _session.round!;
+        final token = _revealToken;
+        final revision = _audioRevision;
+        _revealToken = null; // Consume before scheduling the reveal frame.
+        final recent =
+            now.difference(round.revealEndsAt!) <= const Duration(seconds: 2);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (token == null || !mounted) return;
+          unawaited(
+            _roundSignal.reveal(
+              token,
+              resultRound.result!.winner.name,
+              audible:
+                  recent && revision == _audioRevision && _canAct(resultRound),
+            ),
+          );
+        });
       }
       return;
     }

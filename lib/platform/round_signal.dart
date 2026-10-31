@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-/// Keeps the visible countdown awake and plays its end signal once on Android.
+/// Keeps the countdown awake and plays timer/winner signals once on Android.
 class RoundSignal {
   static const channel = MethodChannel('secret_word_society/round_signal');
 
@@ -21,4 +21,9 @@ class RoundSignal {
   Future<void> finish(String token, {required bool audible}) =>
       _invoke('finish', {'token': token, 'audible': audible});
   Future<void> cancel() => _invoke('cancel');
+
+  Future<void> prepareReveal(String token) =>
+      _invoke('prepareReveal', {'token': token});
+  Future<void> reveal(String token, String winner, {required bool audible}) =>
+      _invoke('reveal', {'token': token, 'winner': winner, 'audible': audible});
 }
