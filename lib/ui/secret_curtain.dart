@@ -121,7 +121,10 @@ class _SecretCurtainState extends State<SecretCurtain>
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
-        // Only uncover the reading area. Use the same travel for both roles.
+        // A little covered space below the secret protects it against a
+        // small accidental drag while passing the phone.
+        const secretLift = 40.0;
+        // Keep the established stop and reachable handoff action.
         final travel = math.min(
           height * .55,
           160 * MediaQuery.textScalerOf(context).scale(1) + 32,
@@ -159,7 +162,12 @@ class _SecretCurtainState extends State<SecretCurtain>
                   children: [
                     Container(
                       color: PartyColors.purple,
-                      padding: EdgeInsets.fromLTRB(24, contentTop, 24, 16),
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        contentTop,
+                        24,
+                        16 + secretLift,
+                      ),
                       child: AnimatedBuilder(
                         animation: _cover,
                         builder: (context, _) =>

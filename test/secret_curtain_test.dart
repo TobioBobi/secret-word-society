@@ -49,6 +49,53 @@ Future<TestGesture> _hold(WidgetTester tester) async {
 
 void main() {
   testWidgets(
+    'a small accidental drag leaves word and hint fully behind the curve',
+    (tester) async {
+      await startTestRound(tester);
+      var hints = 0;
+      for (var person = 0; person < 3; person++) {
+        await tester.ensureVisible(_curtain);
+        await tester.pumpAndSettle();
+        final gesture = await tester.startGesture(tester.getCenter(_curtain));
+        await gesture.moveBy(const Offset(0, -24));
+        await tester.pump();
+        expectPreview(tester);
+        final isHint = find.text('Kino').evaluate().isNotEmpty;
+        if (isHint) hints++;
+        final text = tester.getRect(find.text(isHint ? 'Kino' : 'Popcorn'));
+        final cover = find
+            .descendant(
+              of: find.byKey(const ValueKey('secret-curtain-cover')),
+              matching: find.byType(PhysicalShape),
+            )
+            .first;
+        final mask = tester
+            .widget<PhysicalShape>(cover)
+            .clipper
+            .getClip(tester.getSize(cover))
+            .shift(tester.getTopLeft(cover));
+        for (final point in [
+          text.topLeft,
+          text.topRight,
+          text.bottomLeft,
+          text.bottomRight,
+        ]) {
+          expect(
+            mask.contains(point),
+            isTrue,
+            reason: 'Secret must stay behind the real cover after a small drag',
+          );
+        }
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expectConcealed(tester);
+        await tapVisible(tester, 'Weiter');
+      }
+      expect(hints, 1);
+    },
+  );
+
+  testWidgets(
     'back while held then cancelling the dialog permits a fresh drag',
     (tester) async {
       await startTestRound(tester);

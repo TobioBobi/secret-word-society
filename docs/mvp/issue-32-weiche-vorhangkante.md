@@ -104,3 +104,19 @@ Format-/Diff-Prüfung und Release-Build erfolgreich. Alle vier Android-Abläufe
 auf API 36.1 bei 320 × 568 und 200 Prozent Schrift bestanden, einschließlich
 komplett übersprungener Kartenverteilung sowie Dialogabbruch während einer
 gehaltenen Geste und anschließendem erneutem Aufdecken.
+
+## Zusätzlicher Abstand beim Weiterreichen
+
+Nach erfolgreichem Handytest der bisherigen Fassung liegen Wort und Hinweis
+auf Nutzerwunsch um 40 logische Pixel höher. Der zusätzliche untere Abstand
+verzögert das Sichtbarwerden bei einer kleinen versehentlichen Ziehbewegung.
+Der bestehende Anschlag und die 1:1-Fingerführung bleiben erhalten. Lange Inhalte
+passen sich weiter an die verfügbare Lesefläche an; vollständiges Ansehen bleibt
+auch bei 200 Prozent Schrift möglich, ohne die Weiter-Aktion wegzuschieben.
+
+Alle 81 Unit-/Widget-Tests, Analyse und Roboto-Sichtprüfung bestehen. Ein neuer
+Test zieht für beide Rollen um 24 Pixel und prüft gegen die tatsächlich gerenderte
+Kurve, dass die ganze Wort-/Hinweiszeile noch verdeckt ist. Die vorhandene Pixel-
+prüfung der gekrümmten Freilegung bleibt erfolgreich. Für diese reine Layout-
+korrektur wurde keine neue native Android-Ablaufsuite ausgeführt; die erneute
+Handyprüfung dieser Position und echtes TalkBack bleiben offen.
