@@ -9,7 +9,7 @@ verwendeten Aufnahmen sind auf den jeweiligen Originalseiten als
 | Crowd cheer 2.wav | deleted_user_2104797 (Freesound-Sound-ID 346689) | [Freesound](https://freesound.org/people/deleted_user_2104797/sounds/346689/) | Jubel in `group_win.ogg` |
 | Evil Laugh | AntumDeluge | [OpenGameArt](https://opengameart.org/content/evil-laugh) | Lachen in `imposter_win.ogg` |
 
-Bearbeitung des Jubels: erste vier Sekunden der auf der Originalseite
+Bearbeitung des Jubels: Sekunde 4 bis 8 der auf der Originalseite
 angebotenen hochwertigen MP3-Datei, Stereo/48 kHz beibehalten, Spitzenpegel
 mit Aussteuerungsreserve normalisiert, 10 ms eingeblendet und 300 ms
 ausgeblendet, als Ogg Vorbis gebündelt. Die ursprüngliche Aufnahme dauert

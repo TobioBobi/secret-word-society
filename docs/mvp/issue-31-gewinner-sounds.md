@@ -6,7 +6,7 @@ Gewinner einmal Jubel mit Applaus (Gruppe) oder ein schelmisches Lachen
 [Quellen und Bearbeitung](../audio-credits.md).
 
 Der Gruppen-Sound verwendet „Crowd cheer 2.wav“ (Freesound #346689), als
-viersekündigen Stereo-Ausschnitt mit kurzem Ausklang. Er ersetzt den
+viersekündigen Stereo-Ausschnitt ab Sekunde 4 mit kurzem Ausklang. Er ersetzt den
 ursprünglichen Mix aus Jubel und Applaus.
 
 Die App bereitet bei bestätigtem Verdacht eine neue Soundkennung vor und
@@ -41,6 +41,7 @@ bytegleich in der APK, Fensterschutz aktiv, keine App-Fehler in den geprüften
 Prozesslogs. Echtes Handy, Klangwirkung in Gruppen und TalkBack bleiben offen.
 
 Nach Austausch des Gruppen-Sounds weiterhin 75 Unit-/Widget-Tests erfolgreich.
-Der neue Stereo-Clip wurde auf Android API 36.1 vollständig und bei erneutem
-Aufruf derselben Kennung nur einmal abgespielt; der Release-Build enthält den
-neuen Clip bytegleich.
+Die Aufnahme wurde zunächst mit einem Ausschnitt ab Beginn auf Android API 36.1
+vollständig und bei erneutem Aufruf derselben Kennung nur einmal abgespielt.
+Für den Ausschnitt ab Sekunde 4 werden vollständige Dekodierung, Übereinstimmung
+mit Sekunde 4 bis 8 der Quelle und bytegleiche Bündelung in der APK geprüft.
