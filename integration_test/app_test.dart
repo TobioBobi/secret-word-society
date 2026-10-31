@@ -29,6 +29,7 @@ Future<void> _tap(WidgetTester tester, Finder target) async {
 }
 
 TestGesture? _peekGesture;
+int _peekStart = 0;
 
 Future<void> _tapText(WidgetTester tester, String text) async {
   if (_peekGesture != null) {
@@ -40,7 +41,21 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     final target = find.byKey(const ValueKey('secret-curtain-gesture'));
     await tester.ensureVisible(target);
     await _settle(tester);
-    _peekGesture = await tester.startGesture(tester.getCenter(target));
+    final area = _peekStart++ % 3;
+    final originTarget = switch (area) {
+      0 => find.byKey(const ValueKey('curtain-avatar')),
+      1 => target,
+      _ => find.byKey(const ValueKey('secret-curtain-panel')),
+    };
+    // The full-height cover can scroll on small viewports. Bring the actual
+    // origin into view, not just the lower grip, before starting the pointer.
+    await tester.ensureVisible(originTarget);
+    await _settle(tester);
+    final origin = area == 2
+        ? tester.getRect(originTarget).topLeft + const Offset(12, 24)
+        : tester.getCenter(originTarget);
+    final gripStart = tester.getCenter(target);
+    _peekGesture = await tester.startGesture(origin);
     final panel = tester.getRect(
       find.byKey(const ValueKey('secret-curtain-panel')),
     );
@@ -60,8 +75,12 @@ Future<void> _tapText(WidgetTester tester, String text) async {
         .getClip(tester.getSize(preview));
     expect(clip.top, greaterThan(0));
     expect(clip.height, greaterThan(0));
-    await _peekGesture!.moveTo(Offset(panel.center.dx, panel.top + 32));
+    await _peekGesture!.moveBy(const Offset(0, -300));
     await _settle(tester);
+    expect(
+      gripStart.dy - tester.getCenter(target).dy,
+      lessThan(panel.height * .6),
+    );
     return;
   }
   await _tap(tester, find.text(text));
@@ -95,7 +114,7 @@ Future<void> _launchAndCreateGroup(WidgetTester tester) async {
   );
   await _settle(tester);
   await _tapText(tester, 'Runde starten');
-  expect(find.text('Handy an Anna.'), findsOneWidget);
+  expect(find.text('Anna'), findsOneWidget);
   expect(find.text('Person 1 von 3'), findsOneWidget);
 }
 
@@ -133,11 +152,11 @@ void main() {
         String? imposter;
 
         for (final (index, name) in _players.indexed) {
-          expect(find.text('Handy an $name.'), findsOneWidget);
+          expect(find.text(name), findsOneWidget);
           expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
           _expectConcealed(catalog);
           await _tapText(tester, 'Geheimnis kurz ansehen');
-          expect(find.text('Handy an $name.'), findsOneWidget);
+          expect(find.text(name), findsOneWidget);
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
             expect(find.text('Dein Hinweis'), findsOneWidget);
@@ -151,7 +170,7 @@ void main() {
           }
           await _tapText(tester, 'Weiter');
           _expectConcealed(catalog);
-          expect(find.text('Handy an $name.'), findsNothing);
+          expect(find.text(name), findsNothing);
         }
 
         expect(words, hasLength(2));
@@ -236,7 +255,7 @@ void main() {
         expect(find.text('Der Imposter war'), findsOneWidget);
         expect(find.text('Das geheime Wort'), findsOneWidget);
         await _tapText(tester, 'Noch eine Runde');
-        expect(find.text('Handy an Anna.'), findsOneWidget);
+        expect(find.text('Anna'), findsOneWidget);
         expect(find.text('Person 1 von 3'), findsOneWidget);
         _expectConcealed(catalog);
         final nextWords = <String>{};
@@ -281,13 +300,13 @@ void main() {
     expect(find.text('Runde verlassen?'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Weiterspielen');
-    expect(find.text('Handy an Anna.'), findsOneWidget);
+    expect(find.text('Anna'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Geheimnis kurz ansehen');
     expect(_visibleSecret(catalog), firstSecret);
 
     await _tapText(tester, 'Weiter');
-    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expect(find.text('Ben'), findsOneWidget);
     await _tapText(tester, 'Geheimnis kurz ansehen');
     final secondSecret = _visibleSecret(catalog);
     // At least one of the first two people belongs to the group.
@@ -313,7 +332,7 @@ void main() {
     }
 
     await _tapText(tester, 'Runde starten');
-    expect(find.text('Handy an Anna.'), findsOneWidget);
+    expect(find.text('Anna'), findsOneWidget);
     expect(find.text('Person 1 von 3'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Geheimnis kurz ansehen');

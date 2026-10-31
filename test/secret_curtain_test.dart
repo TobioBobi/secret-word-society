@@ -51,6 +51,65 @@ Future<TestGesture> _hold(WidgetTester tester) async {
 
 void main() {
   testWidgets(
+    'dragging avatar, name, background and button reveals without advancing',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final semantics = tester.ensureSemantics();
+      await startTestRound(tester);
+      var imposters = 0;
+      for (final name in ['Anna', 'Ben', 'Cem']) {
+        for (final area in ['avatar', 'name', 'background', 'button']) {
+          final panel = tester.getRect(
+            find.byKey(const ValueKey('secret-curtain-panel')),
+          );
+          final startGrip = tester.getCenter(_curtain);
+          final start = switch (area) {
+            'avatar' => tester.getCenter(
+              find.byKey(const ValueKey('curtain-avatar')),
+            ),
+            'name' => tester.getCenter(find.text(name)),
+            'button' => tester.getCenter(find.text('Weiter')),
+            _ => panel.topLeft + const Offset(12, 24),
+          };
+          final gesture = await tester.startGesture(start);
+          await gesture.moveBy(const Offset(0, -60));
+          await tester.pump();
+          expect(tester.getCenter(_curtain).dy, closeTo(startGrip.dy - 60, .1));
+          expectPreview(tester);
+          await gesture.moveBy(const Offset(0, -220));
+          await tester.pump();
+          final secret = find.text('Popcorn').evaluate().isNotEmpty
+              ? 'Popcorn'
+              : 'Kino';
+          expect(semanticsTree(tester), contains(secret));
+          final distance = startGrip.dy - tester.getCenter(_curtain).dy;
+          expect(distance, lessThan(panel.height * .6));
+          expect(
+            tester.getRect(find.text(secret)).top,
+            greaterThan(tester.getRect(_curtain).bottom),
+          );
+          await gesture.up();
+          await tester.pumpAndSettle();
+          expectConcealed(tester);
+          expect(find.text(name), findsOneWidget);
+        }
+        final full = await _hold(tester);
+        if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
+          imposters++;
+        }
+        await full.up();
+        await tester.pumpAndSettle();
+        await tapVisible(tester, 'Weiter');
+      }
+      expect(imposters, 1);
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets(
     'small screen with system bars, long secrets and reduced motion',
     (tester) async {
       tester.view.physicalSize = const Size(320, 568);
@@ -105,7 +164,11 @@ void main() {
         expect(secret.top, greaterThanOrEqualTo(grip.bottom));
         expect(
           secret.bottom,
-          lessThan(tester.getRect(find.text('Weiter')).top),
+          lessThan(
+            tester
+                .getRect(find.byKey(const ValueKey('secret-curtain-panel')))
+                .bottom,
+          ),
         );
         await full.up();
         await tester.pump();
@@ -117,7 +180,7 @@ void main() {
             tester
                     .getRect(find.byKey(const ValueKey('secret-curtain-panel')))
                     .bottom -
-                32,
+                54,
             .1,
           ),
         );
@@ -143,7 +206,7 @@ void main() {
       final avatarStart = tester.getCenter(
         find.byKey(const ValueKey('curtain-avatar')),
       );
-      final titleStart = tester.getCenter(find.text('Handy an Anna.'));
+      final titleStart = tester.getCenter(find.text('Anna'));
       final gesture = await tester.startGesture(start);
       await gesture.moveBy(const Offset(0, -60));
       await tester.pump();
@@ -154,7 +217,7 @@ void main() {
         closeTo(avatarStart.dy - 60, .1),
       );
       expect(
-        tester.getCenter(find.text('Handy an Anna.')).dy,
+        tester.getCenter(find.text('Anna')).dy,
         closeTo(titleStart.dy - 60, .1),
       );
       final avatar = tester.getCenter(
@@ -175,7 +238,8 @@ void main() {
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy - 40, 0.1));
       await gesture.moveTo(Offset(start.dx, panel.top + 32));
       await tester.pump();
-      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 32, 0.1));
+      final stoppedAt = tester.getCenter(_curtain).dy;
+      expect(stoppedAt, greaterThan(panel.top + 64));
       expect(
         find.text('Popcorn').evaluate().isNotEmpty ||
             find.text('Kino').evaluate().isNotEmpty,
@@ -183,10 +247,10 @@ void main() {
       );
       await gesture.moveBy(const Offset(0, -100));
       await tester.pump();
-      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 32, 0.1));
+      expect(tester.getCenter(_curtain).dy, closeTo(stoppedAt, 0.1));
       await gesture.moveBy(const Offset(0, 30));
       await tester.pump();
-      expect(tester.getCenter(_curtain).dy, closeTo(panel.top + 62, 0.1));
+      expect(tester.getCenter(_curtain).dy, closeTo(stoppedAt + 30, 0.1));
       expectPreview(tester);
       await gesture.up();
       await tester.pumpAndSettle();
@@ -297,7 +361,7 @@ void main() {
       await tester.pumpAndSettle();
     }
     await tapVisible(tester, 'Weiter');
-    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expect(find.text('Ben'), findsOneWidget);
     expectConcealed(tester);
     expect(
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
@@ -353,7 +417,7 @@ void main() {
       advance();
       await gesture.up();
       await tester.pumpAndSettle();
-      expect(find.text('Handy an Ben.'), findsOneWidget);
+      expect(find.text('Ben'), findsOneWidget);
       expectConcealed(tester);
       await tester.ensureVisible(_curtain);
       await tester.pumpAndSettle();

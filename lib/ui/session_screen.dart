@@ -473,10 +473,27 @@ class _SessionScreenState extends State<SessionScreen>
                                 child: SizedBox(
                                   // Gives the sliver an intrinsic minimum without
                                   // asking the curtain's LayoutBuilder to measure.
-                                  height: 260,
+                                  height: 420,
                                   child: SecretCurtain(
                                     key: ValueKey(round!.currentPlayer!.id),
                                     title: title,
+                                    name: round.currentPlayer!.name,
+                                    advanceAction: FilledButton(
+                                      onPressed: round.canAdvanceCard
+                                          ? () => _advanceCard(round)
+                                          : null,
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: PartyColors.surface,
+                                        foregroundColor: PartyColors.text,
+                                        side: const BorderSide(
+                                          color: PartyColors.outline,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        strings.nextPlayer,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                     headingFocus: _headingFocus,
                                     revealed: revealed,
                                     concealRevision: concealRevision,
@@ -505,7 +522,10 @@ class _SessionScreenState extends State<SessionScreen>
                                   inset,
                                   16,
                                 ),
-                                child: _buildRoundActions(strings, round),
+                                child: TextButton(
+                                  onPressed: _confirmLeaveRound,
+                                  child: Text(strings.editGroup),
+                                ),
                               ),
                             ],
                           ),

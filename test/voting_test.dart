@@ -306,13 +306,13 @@ void main() {
       next();
       confirm(); // Previous-round callbacks must not reveal the new round.
       await tester.pumpAndSettle();
-      expect(find.text('Handy an Anna.'), findsOneWidget);
+      expect(find.text('Anna'), findsOneWidget);
       expect(find.text('Person 1 von 3'), findsOneWidget);
       expectConcealed(tester);
       expect(find.text('Euer Verdacht'), findsNothing);
       clock.value = clock.value.add(const Duration(minutes: 5));
       await tester.pump(const Duration(minutes: 5));
-      expect(find.text('Handy an Anna.'), findsOneWidget);
+      expect(find.text('Anna'), findsOneWidget);
       final secondImposter = await _distribute(tester, _names);
       await _reachVoting(tester, clock);
       expect((await _action(tester)).onPressed, isNull);
@@ -407,7 +407,7 @@ void main() {
     expectConcealed(tester);
     await showStart(tester);
     await tapVisible(tester, 'Runde starten');
-    expect(find.text('Handy an Anna.'), findsOneWidget);
+    expect(find.text('Anna'), findsOneWidget);
     expectConcealed(tester);
   });
 
@@ -438,7 +438,7 @@ void main() {
     await tapVisible(tester, '$longName verdächtigen');
     await _finishReveal(tester, clock);
     await tapVisible(tester, 'Noch eine Runde');
-    expect(find.text('Handy an Person 1.'), findsOneWidget);
+    expect(find.text('Person 1'), findsOneWidget);
     expect(find.text('Person 1 von 12'), findsOneWidget);
     expectConcealed(tester);
     expect(tester.takeException(), isNull);

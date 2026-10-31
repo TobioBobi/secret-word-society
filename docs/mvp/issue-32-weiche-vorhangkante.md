@@ -8,16 +8,25 @@ Avatare vor; Bilderfassung und Speicherung gehören nicht zu dieser Umsetzung.
 
 ## Layout und Bedienung
 
-- Die Phasenanzeige und die getrennten Aktionen bleiben außerhalb der Abdeckung.
+- Die Phasenanzeige und „Gruppe bearbeiten“ bleiben außerhalb der Abdeckung.
+  Der Übergabebutton bewegt sich unter dem Spielernamen mit dem Vorhang.
   Die gesamte Ansicht liegt innerhalb der Android-Systemleisten. Auf kurzen
   Ansichten bleibt eine Mindesthöhe für den Vorhang erhalten; bei Bedarf lässt
-  sich die Seite scrollen. Die Gruppenaktion nutzt eine kompaktere Schrift.
+  sich die Seite scrollen. Die Button-Touchfläche wird nicht mit dem Avatar skaliert.
 - Das Geheimnis liegt fest unten auf einer violetten Fläche. Lange Inhalte
   brechen um und werden bei Platzmangel proportional verkleinert. Ein eigener
   Ausschnitt gibt den Inhalt während der Teilöffnung schrittweise frei.
-- Ein Pixel Fingerweg bewegt den Vorhang um ein Pixel. Der Griff bleibt am oberen
-  Anschlag innerhalb der Fläche. Anhalten, Zurückziehen und erneutes Ansehen
+- Die ganze Abdeckung ist greifbar, auch über Avatar, Namen und Übergabebutton.
+  Ein Pixel Fingerweg bewegt den Vorhang um ein Pixel. Der Anschlag legt nur die
+  untere Lesefläche frei; er liegt deutlich unter dem oberen Bildschirmrand.
+  Der Weg wächst mit der Schrift und ist auf kurzen Flächen begrenzt. Beide Rollen
+  verwenden dieselbe Geometrie. Anhalten, Zurückziehen und erneutes Ansehen
   funktionieren ohne Schwung oder Einrasten.
+- Der große violette Avatar-Kreis, der reine Spielername, die mittige Übergabe
+  und die breite, symmetrisch gebogene Unterkante prägen die Gestaltung.
+- Ein Tippen auf den freigegebenen Übergabebutton bleibt eine eigene Aktion.
+  Verliert der noch nicht begonnene Drag gegen diesen Tap, verdeckt er nicht
+  vorher die Runde und entwertet dadurch nicht den Übergabe-Callback.
 - Loslassen und Gestenabbruch entfernen die privaten Inhalte sofort; nur die
   leere Abdeckung gleitet zurück. Bei reduzierter Bewegung schließt sie sofort.
 - „Weiter“ wird nach dem ersten vollständigen Ansehen freigegeben. Jede Übergabe
@@ -51,3 +60,15 @@ Diff-Prüfung erfolgreich. Die drei Android-Abläufe bestanden mit der endgülti
 Fassung auf API 36.1 bei 320 × 568 und 200 Prozent Schrift. Zuvor bestanden sie
 auch bei normaler Anzeige. Roboto-Sichtprüfung beider Rollen einschließlich
 Teilöffnung, 320 × 568, 200 Prozent Schrift und Systemleisten durchgeführt.
+
+Nachbesserung nach Bedienfeedback: Ganze Abdeckung statt nur Griff greifbar,
+verkürzter Öffnungsweg und überarbeitete Spieleransicht. Ein weiterer Widget-Test
+prüft beide Rollen mit Start auf Avatar, Name, Hintergrund und Übergabebutton;
+er sichert dabei 1:1-Bewegung, kurzen Anschlag und ausbleibenden Personenwechsel
+beim Ziehen ab. Android-Tests wechseln ebenfalls zwischen Startflächen und prüfen
+den kurzen Weg. Alle 77 Unit-/Widget-Tests, Analyse und Sichtprüfung bestanden.
+
+Auch alle drei aktualisierten Android-Abläufe bestanden auf API 36.1 bei
+320 × 568 und 200 Prozent Schrift. Die Testhilfe bringt die tatsächliche
+Startfläche vor dem Ziehen ins Bild; der Griff allein reicht dafür auf einer
+scrollenden kleinen Ansicht nicht aus.
