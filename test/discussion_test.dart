@@ -3,7 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
 import 'widget_test.dart'
-    show readyGroup, showStart, tapVisible, expectConcealed, testCatalog;
+    show
+        leaveRound,
+        readyGroup,
+        showStart,
+        tapVisible,
+        expectConcealed,
+        testCatalog;
 
 final class _Clock {
   DateTime value = DateTime.utc(2026, 10, 23, 12);
@@ -170,7 +176,7 @@ void main() {
       await tapVisible(tester, '10 Sekunden starten');
       clock.advance(const Duration(seconds: 3));
       await _tick(tester);
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       clock.advance(const Duration(minutes: 3));
       await tester.pump(const Duration(minutes: 3));
@@ -228,13 +234,13 @@ void main() {
     await tapVisible(tester, '10 Sekunden starten');
     expect(find.text('00:10'), findsOneWidget);
     expect(tester.takeException(), isNull);
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Weiterspielen');
     clock.advance(const Duration(seconds: 10));
     await _tick(tester);
     await tester.pumpAndSettle();
     expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(find.text('3 Personen'), findsOneWidget);
     expect(tester.takeException(), isNull);

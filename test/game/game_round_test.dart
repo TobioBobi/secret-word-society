@@ -362,38 +362,36 @@ void main() {
     expect(nextResult.word, isNot(finished.result!.word));
   });
 
-  test('viewed cards advance while concealed and reset for every person', () {
+  test('every card may be skipped without viewing and stays concealed', () {
     var round = _start();
     for (var i = 1; i <= round.players.length; i++) {
-      expect(round.canAdvanceCard, isFalse);
-      expect(round.hideAndAdvance, throwsStateError);
-      round = round.revealSecret().concealSecret();
       expect(round.currentPlayerNumber, i);
       expect(round.currentSecret, isNull);
+      expect(round.hasViewedSecret, isFalse);
       expect(round.canAdvanceCard, isTrue);
       round = round.hideAndAdvance();
       expect(round.currentSecret, isNull);
     }
     expect(round.phase, GamePhase.ready);
     expect(round.canAdvanceCard, isFalse);
+    expect(round.hideAndAdvance, throwsStateError);
   });
 
-  test('partial preview alone does not unlock the next handoff', () {
+  test('partial, complete and concealed views may all advance', () {
     var round = _start();
     expect(round.markSecretViewed, throwsStateError);
     round = round.revealSecret(markAsViewed: false);
-    expect(round.currentSecret, isNotNull);
-    expect(round.canAdvanceCard, isFalse);
-    expect(round.hideAndAdvance, throwsStateError);
-    round = round.concealSecret();
-    expect(round.currentSecret, isNull);
-    expect(round.canAdvanceCard, isFalse);
-    round = round.revealSecret(markAsViewed: false).markSecretViewed();
-    expect(round.canAdvanceCard, isTrue);
-    round = round.concealSecret();
+    expect(round.hasViewedSecret, isFalse);
     expect(round.canAdvanceCard, isTrue);
     round = round.hideAndAdvance();
-    expect(round.canAdvanceCard, isFalse);
+    expect(round.currentSecret, isNull);
+    expect(round.canAdvanceCard, isTrue);
+    round = round.revealSecret().concealSecret();
+    expect(round.hasViewedSecret, isTrue);
+    expect(round.canAdvanceCard, isTrue);
+    round = round.hideAndAdvance();
+    expect(round.hasViewedSecret, isFalse);
+    expect(round.canAdvanceCard, isTrue);
   });
 
   test('out-of-order actions are rejected in every phase', () {
@@ -417,9 +415,11 @@ void main() {
           round.phase != GamePhase.reveal) {
         expect(() => round.advanceTime(_now), throwsStateError);
       }
+      if (!round.canAdvanceCard) {
+        expect(round.hideAndAdvance, throwsStateError);
+      }
       final actions = <GamePhase, List<void Function()>>{
         GamePhase.handoff: [round.revealSecret],
-        GamePhase.secret: [round.hideAndAdvance],
         GamePhase.ready: [() => round.startDiscussion(_now)],
 
         GamePhase.voting: [

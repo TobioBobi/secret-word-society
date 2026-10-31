@@ -3,10 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
 import 'widget_test.dart'
-    show readyGroup, showStart, tapVisible, testCatalog, expectConcealed;
+    show
+        leaveRound,
+        readyGroup,
+        showStart,
+        tapVisible,
+        testCatalog,
+        expectConcealed;
 
 Future<void> _checkAndroidControls(WidgetTester tester) async {
   expect(tester.takeException(), isNull);
+  expect(find.text('Gruppe bearbeiten'), findsNothing);
   await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
   await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
   await expectLater(tester, meetsGuideline(textContrastGuideline));
@@ -48,7 +55,7 @@ void main() {
             if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
               imposter = name;
             }
-            await tapVisible(tester, 'Gruppe bearbeiten');
+            await leaveRound(tester);
             expectConcealed(tester);
             await _checkAndroidControls(tester);
             await tapVisible(tester, 'Weiterspielen');
@@ -119,13 +126,13 @@ void main() {
       await showStart(tester);
       await tapVisible(tester, 'Runde starten');
       await tapVisible(tester, 'Geheimnis kurz ansehen');
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       expectConcealed(tester);
       // The dialog has its own scrollable body; buttons must fit outside it.
       await tester.tap(find.text('Weiterspielen'));
       await tester.pumpAndSettle();
       expectConcealed(tester);
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       await tester.tap(find.text('Runde verlassen'));
       await tester.pumpAndSettle();
       expect(find.text('3 Personen'), findsOneWidget);

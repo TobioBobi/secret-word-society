@@ -8,6 +8,7 @@ import 'package:secret_word_society/platform/round_signal.dart';
 
 import 'widget_test.dart'
     show
+        leaveRound,
         addName,
         readyGroup,
         showStart,
@@ -173,7 +174,7 @@ void main() {
     final confirm = (await _action(tester)).onPressed!;
     confirm();
     await tester.pumpAndSettle();
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     clock.value = clock.value.add(const Duration(minutes: 1));
     await tester.pump(const Duration(minutes: 1));
@@ -306,13 +307,13 @@ void main() {
       next();
       confirm(); // Previous-round callbacks must not reveal the new round.
       await tester.pumpAndSettle();
-      expect(find.text('Handy an Anna.'), findsOneWidget);
+      expect(find.text('Anna'), findsOneWidget);
       expect(find.text('Person 1 von 3'), findsOneWidget);
       expectConcealed(tester);
       expect(find.text('Euer Verdacht'), findsNothing);
       clock.value = clock.value.add(const Duration(minutes: 5));
       await tester.pump(const Duration(minutes: 5));
-      expect(find.text('Handy an Anna.'), findsOneWidget);
+      expect(find.text('Anna'), findsOneWidget);
       final secondImposter = await _distribute(tester, _names);
       await _reachVoting(tester, clock);
       expect((await _action(tester)).onPressed, isNull);
@@ -329,7 +330,7 @@ void main() {
       expect(_reveals, hasLength(2));
       expect(_reveals.last.arguments['winner'], 'group');
       expect(_reveals.last.arguments['token'], isNot(sound.arguments['token']));
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       expect(find.byType(AlertDialog), findsNothing);
       expect(find.text('3 Personen'), findsOneWidget);
       expectConcealed(tester);
@@ -401,13 +402,13 @@ void main() {
     final clock = _Clock();
     await _voting(tester, clock);
     await tapVisible(tester, 'Cem');
-    await tapVisible(tester, 'Gruppe bearbeiten');
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(find.text('3 Personen'), findsOneWidget);
     expectConcealed(tester);
     await showStart(tester);
     await tapVisible(tester, 'Runde starten');
-    expect(find.text('Handy an Anna.'), findsOneWidget);
+    expect(find.text('Anna'), findsOneWidget);
     expectConcealed(tester);
   });
 
@@ -438,7 +439,7 @@ void main() {
     await tapVisible(tester, '$longName verdächtigen');
     await _finishReveal(tester, clock);
     await tapVisible(tester, 'Noch eine Runde');
-    expect(find.text('Handy an Person 1.'), findsOneWidget);
+    expect(find.text('Person 1'), findsOneWidget);
     expect(find.text('Person 1 von 12'), findsOneWidget);
     expectConcealed(tester);
     expect(tester.takeException(), isNull);

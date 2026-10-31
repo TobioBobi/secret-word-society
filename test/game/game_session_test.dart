@@ -202,7 +202,7 @@ void main() {
     var words = 0;
     var hints = 0;
     for (var i = 1; i <= 3; i++) {
-      expect(session.hideAndAdvance, throwsStateError);
+      expect(session.round!.canAdvanceCard, isTrue);
       session.revealSecret();
       final secret = session.round!.currentSecret!;
       session.concealSecret();

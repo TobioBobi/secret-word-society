@@ -109,6 +109,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Aktivieren zum Ansehen und Vorlesen. Wird nach acht Sekunden automatisch verdeckt.';
 
   @override
+  String get curtainYourTurn => 'Du bist dran';
+
+  @override
   String get curtainInstruction => 'Hochziehen und halten';
 
   @override

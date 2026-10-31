@@ -399,7 +399,7 @@ class _SessionScreenState extends State<SessionScreen>
     final title = switch (round?.phase) {
       null => strings.groupTitle,
       GamePhase.handoff => strings.handoffTitle(round!.currentPlayer!.name),
-      GamePhase.secret => strings.privateTitle(round!.currentPlayer!.name),
+      GamePhase.secret => strings.handoffTitle(round!.currentPlayer!.name),
       GamePhase.ready => strings.readyTitle,
       GamePhase.discussion => strings.discussionTitle,
       GamePhase.voting => strings.votingTitle,
@@ -451,6 +451,74 @@ class _SessionScreenState extends State<SessionScreen>
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final inset = constraints.maxWidth < 360 ? 16.0 : 24.0;
+                  if (round?.currentPlayer != null) {
+                    return CustomScrollView(
+                      controller: _scroll,
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  24,
+                                  12,
+                                  24,
+                                  8,
+                                ),
+                                child: _buildPhaseLabel(phaseLabel, phaseIcon),
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  // Gives the sliver an intrinsic minimum without
+                                  // asking the curtain's LayoutBuilder to measure.
+                                  height: 420,
+                                  child: SecretCurtain(
+                                    key: ValueKey(round!.currentPlayer!.id),
+                                    title: title,
+                                    name: round.currentPlayer!.name,
+                                    advanceAction: FilledButton(
+                                      onPressed: () => _advanceCard(round),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: PartyColors.surface,
+                                        foregroundColor: PartyColors.text,
+                                        side: const BorderSide(
+                                          color: PartyColors.outline,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        strings.nextPlayer,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    headingFocus: _headingFocus,
+                                    revealed: revealed,
+                                    concealRevision: concealRevision,
+                                    onReveal: (fullyOpen) => _peekCard(
+                                      round,
+                                      true,
+                                      concealRevision,
+                                      fullyOpen: fullyOpen,
+                                    ),
+                                    onConceal: () => _peekCard(
+                                      round,
+                                      false,
+                                      concealRevision,
+                                    ),
+                                    secretBuilder: (_) => _buildSecretContent(
+                                      strings,
+                                      round.currentSecret!,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }
                   final scrollView = CustomScrollView(
                     controller: _scroll,
                     keyboardDismissBehavior:
@@ -546,28 +614,7 @@ class _SessionScreenState extends State<SessionScreen>
                                 else if (round.phase == GamePhase.reveal)
                                   _buildRevealCountdown(strings)
                                 else if (result != null)
-                                  _buildResult(strings, result)
-                                else
-                                  SecretCurtain(
-                                    key: ValueKey(round.currentPlayer!.id),
-                                    revealed: revealed,
-                                    concealRevision: _concealRevision,
-                                    onReveal: (fullyOpen) => _peekCard(
-                                      round,
-                                      true,
-                                      concealRevision,
-                                      fullyOpen: fullyOpen,
-                                    ),
-                                    onConceal: () => _peekCard(
-                                      round,
-                                      false,
-                                      concealRevision,
-                                    ),
-                                    secretBuilder: (_) => _buildSecretContent(
-                                      strings,
-                                      round.currentSecret!,
-                                    ),
-                                  ),
+                                  _buildResult(strings, result),
                             ],
                           ),
                         ),
@@ -718,7 +765,6 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   Widget _buildRoundActions(AppLocalizations strings, GameRound round) {
-    final revealed = round.phase == GamePhase.secret;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -750,18 +796,6 @@ class _SessionScreenState extends State<SessionScreen>
           ),
           const SizedBox(height: 12),
         ],
-        if (round.phase == GamePhase.handoff || revealed) ...[
-          FilledButton(
-            key: ValueKey(round.phase),
-            onPressed: round.canAdvanceCard ? () => _advanceCard(round) : null,
-            child: Text(strings.nextPlayer, textAlign: TextAlign.center),
-          ),
-          const SizedBox(height: 12),
-        ],
-        OutlinedButton(
-          onPressed: _confirmLeaveRound,
-          child: Text(strings.editGroup, textAlign: TextAlign.center),
-        ),
       ],
     );
   }

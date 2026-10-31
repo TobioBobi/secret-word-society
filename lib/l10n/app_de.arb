@@ -29,6 +29,7 @@
   "editGroup": "Gruppe bearbeiten",
   "peekSecret": "Geheimnis kurz ansehen",
   "peekAccessibilityHint": "Aktivieren zum Ansehen und Vorlesen. Wird nach acht Sekunden automatisch verdeckt.",
+  "curtainYourTurn": "Du bist dran",
   "curtainInstruction": "Hochziehen und halten",
   "curtainRelease": "Loslassen verdeckt",
   "nextPlayer": "Weiter",

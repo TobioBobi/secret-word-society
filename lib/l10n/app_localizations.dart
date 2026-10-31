@@ -238,6 +238,12 @@ abstract class AppLocalizations {
   /// **'Aktivieren zum Ansehen und Vorlesen. Wird nach acht Sekunden automatisch verdeckt.'**
   String get peekAccessibilityHint;
 
+  /// No description provided for @curtainYourTurn.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist dran'**
+  String get curtainYourTurn;
+
   /// No description provided for @curtainInstruction.
   ///
   /// In de, this message translates to:

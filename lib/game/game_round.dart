@@ -98,8 +98,7 @@ final class GameRound {
   final bool hasViewedSecret;
 
   bool get canAdvanceCard =>
-      (phase == GamePhase.handoff || phase == GamePhase.secret) &&
-      hasViewedSecret;
+      phase == GamePhase.handoff || phase == GamePhase.secret;
   final DateTime? discussionEndsAt;
   final Player? suspect;
   final DateTime? revealEndsAt;
@@ -146,7 +145,7 @@ final class GameRound {
     );
   }
 
-  /// A partial visual preview does not yet permit passing the phone.
+  /// Records a complete viewing independently of the always-available handoff.
   GameRound markSecretViewed() {
     _requirePhase(GamePhase.secret);
     return hasViewedSecret ? this : _copy(phase: phase, hasViewedSecret: true);
@@ -159,7 +158,7 @@ final class GameRound {
   /// Concealment and advancing happen in a single state change.
   GameRound hideAndAdvance() {
     if (!canAdvanceCard) {
-      throw StateError('View your secret before passing the phone.');
+      throw StateError('Cards can only advance during handoff.');
     }
     final isLast = _handoffIndex == players.length - 1;
     return _copy(

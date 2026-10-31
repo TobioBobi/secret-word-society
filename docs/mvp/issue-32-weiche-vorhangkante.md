@@ -1,0 +1,155 @@
+# Großflächige Aufdeckansicht
+
+Die Übergabeansicht nutzt die verfügbare Höhe als zusammenhängenden Vorhang.
+Avatar-Platzhalter, Spielerüberschrift und die kurze Aufforderung „Du bist dran“
+bewegen sich gemeinsam. Die untere Kante ist geschwungen, mit Schatten und einem
+limettenfarbenen Griff samt Aufwärtspfeilen. Der Platzhalter bereitet spätere
+Avatare vor; Bilderfassung und Speicherung gehören nicht zu dieser Umsetzung.
+
+## Layout und Bedienung
+
+- Die Phasenanzeige bleibt oberhalb der Abdeckung. „Gruppe bearbeiten“ ist aus
+  sämtlichen Rundenansichten entfernt. Der Vorhang reicht bis an die untere
+  sichere Bildschirmkante. Android-Zurück öffnet weiter den Verlassensdialog;
+  nach dem Ergebnis führt es direkt zur Gruppe.
+  Der Übergabebutton bewegt sich unter dem Spielernamen mit dem Vorhang.
+  Die gesamte Ansicht liegt innerhalb der Android-Systemleisten. Auf kurzen
+  Ansichten bleibt eine Mindesthöhe für den Vorhang erhalten; bei Bedarf lässt
+  sich die Seite scrollen. Die Button-Touchfläche wird nicht mit dem Avatar skaliert.
+- Das Geheimnis liegt fest unten auf einer violetten Fläche. Lange Inhalte
+  brechen um und werden bei Platzmangel proportional verkleinert. Die echte
+  gebogene Abdeckung ist die einzige visuelle Maske: Ein zusätzlicher gerader
+  Ausschnitt vor dem Text ist entfernt. Dadurch folgt auch die Freilegung weißer
+  Buchstaben exakt der sichtbaren Kurve; der violette Untergrund bleibt fest.
+- Die ganze Abdeckung ist greifbar, auch über Avatar, Namen und Übergabebutton.
+  Ein Pixel Fingerweg bewegt den Vorhang um ein Pixel. Der Anschlag legt nur die
+  untere Lesefläche frei; er liegt deutlich unter dem oberen Bildschirmrand.
+  Der Weg wächst mit der Schrift und ist auf kurzen Flächen begrenzt. Beide Rollen
+  verwenden dieselbe Geometrie. Anhalten, Zurückziehen und erneutes Ansehen
+  funktionieren ohne Schwung oder Einrasten.
+- Der große violette Avatar-Kreis, der reine Spielername, die mittige Übergabe
+  und die breite, symmetrisch gebogene Unterkante prägen die Gestaltung.
+- Ein Tippen auf den Übergabebutton bleibt eine eigene Aktion.
+  Verliert der noch nicht begonnene Drag gegen diesen Tap, verdeckt er nicht
+  vorher die Runde und entwertet dadurch nicht den Übergabe-Callback.
+- Beim normalen Loslassen bleiben Wort und Hinweis fest auf der Unterlage,
+  bis die zurückgleitende Abdeckung sie verdeckt. Erst am Ende des Rücklaufs
+  entfernt die Rundenlogik die privaten Inhalte. Die private Semantik wird
+  bereits beim Loslassen gesperrt.
+- Gestenabbruch, App-Wechsel, Sperren, Dialoge und Übergabe entfernen die privaten
+  Inhalte weiterhin sofort. Bei reduzierter Bewegung schließt die Abdeckung
+  sofort. Die auf acht Sekunden begrenzte Tastatur-/Screenreader-Alternative
+  entfernt ihren Inhalt bei Ablauf ebenfalls sofort.
+- „Weiter“ ist sofort aktiv, unabhängig davon, ob das Geheimnis angesehen wurde.
+  Auch die Spielregel erlaubt das Überspringen ungeöffneter oder teilgeöffneter
+  Karten. Jede Übergabe beginnt verdeckt, die letzte führt zur Bereit-Phase.
+  Ein alter Button-Callback kann keine weitere Person überspringen.
+
+## Schutz und Zugänglichkeit
+
+Die Rundenlogik und Android-Screenshotsperre bleiben bestehen. Unterbrechungen,
+Dialoge und Rücknavigation verbergen sofort und entwerten alte Pointer-Ereignisse.
+Geschlossene und teilweise sichtbare Geheimnisse fehlen im Semantikbaum. Erst
+bei vollständiger Öffnung wird die private Live-Region zugänglich.
+Spielerüberschrift und Screenreader-Aktion haben getrennte Semantikknoten.
+Screenreader sowie Enter/Leertaste erlauben weiterhin acht Sekunden Ansehen.
+
+## Prüfung
+
+Die Widget-Tests sichern beide Rollen, feste Textposition, Teilöffnung und
+Zurückziehen, gemeinsame Bewegung des Avatar-Bereichs, Gestenabbruch,
+Unterbrechungen, alte Ereignisse, sichere Übergaben und den zeitlich begrenzten
+barrierefreien Zugriff ab. Ein zusätzlicher Test kombiniert 320 × 568,
+200 Prozent Schrift, Systemleisten, lange Namen/Geheimnisse und reduzierte
+Bewegung. Die vorhandenen Prüfungen für Kontrast und Touchflächen bleiben aktiv.
+
+Die Android-Ablauftests verwenden echte Inhalte und die Produktionsuhr. Sie
+prüfen beide Gewinner, Folgerunden und Verlassen mit verdeckten Übergaben.
+Echtes TalkBack und die Bedienung auf einem physischen Handy bleiben offene
+Praxistests.
+
+Lokale Abnahme am 31.10.2026: alle 76 Unit-/Widget-Tests, Analyse, Format- und
+Diff-Prüfung erfolgreich. Die drei Android-Abläufe bestanden mit der endgültigen
+Fassung auf API 36.1 bei 320 × 568 und 200 Prozent Schrift. Zuvor bestanden sie
+auch bei normaler Anzeige. Roboto-Sichtprüfung beider Rollen einschließlich
+Teilöffnung, 320 × 568, 200 Prozent Schrift und Systemleisten durchgeführt.
+
+Nachbesserung nach Bedienfeedback: Ganze Abdeckung statt nur Griff greifbar,
+verkürzter Öffnungsweg und überarbeitete Spieleransicht. Ein weiterer Widget-Test
+prüft beide Rollen mit Start auf Avatar, Name, Hintergrund und Übergabebutton;
+er sichert dabei 1:1-Bewegung, kurzen Anschlag und ausbleibenden Personenwechsel
+beim Ziehen ab. Android-Tests wechseln ebenfalls zwischen Startflächen und prüfen
+den kurzen Weg. Alle 77 Unit-/Widget-Tests, Analyse und Sichtprüfung bestanden.
+
+Auch alle drei aktualisierten Android-Abläufe bestanden auf API 36.1 bei
+320 × 568 und 200 Prozent Schrift. Die Testhilfe bringt die tatsächliche
+Startfläche vor dem Ziehen ins Bild; der Griff allein reicht dafür auf einer
+scrollenden kleinen Ansicht nicht aus.
+
+Weitere Bedienkorrektur: Die frühere Ansehen-Pflicht ist ausdrücklich aufgehoben.
+80 Unit-/Widget-Tests einschließlich vollständig übersprungener Kartenverteilung,
+fehlender Gruppenaktion und einer Pixelprüfung der echten gekrümmten Freilegung
+bestehen. Der Pixeltest prüft weißen Inhalt seitlich unter der höheren Kante,
+während die tiefere Mitte ihn noch verdeckt; beim Weiterschieben wird auch die
+Mitte sichtbar. Die realen Schatten bleiben dabei Bestandteil des Renderings.
+
+Ein zusätzlicher Gestentest öffnet während des Haltens den Verlassensdialog,
+bricht ihn ab und prüft eine frische erfolgreiche Geste. Die Android-Testhilfe
+verwendet ausschließlich Fingerpositionen innerhalb des Bildschirms: Nach einer
+Teilöffnung von oben wird losgelassen und für den Anschlag unten neu gegriffen.
+So endet auch eine gehaltene Geste beim Dialog-Ablauf zuverlässig.
+
+Beim Verdecken durch Dialog oder Unterbrechung wird außerdem die Gestenerkennung
+neu aufgebaut. Damit bleibt kein alter akzeptierter Pointer im Recognizer zurück,
+der nach der Rückkehr Updates ohne neuen Gestenstart liefern könnte. Die bereits
+bestehende Revisionsprüfung schützt weiterhin vor Ereignissen vor dem nächsten
+Frame; die neue Recognizer-Instanz schützt die anschließende frische Bedienung.
+
+Endgültige Abnahme dieser Korrektur: alle 80 Unit-/Widget-Tests, Analyse,
+Format-/Diff-Prüfung und Release-Build erfolgreich. Alle vier Android-Abläufe
+auf API 36.1 bei 320 × 568 und 200 Prozent Schrift bestanden, einschließlich
+komplett übersprungener Kartenverteilung sowie Dialogabbruch während einer
+gehaltenen Geste und anschließendem erneutem Aufdecken.
+
+## Zusätzlicher Abstand beim Weiterreichen
+
+Nach erfolgreichem Handytest der bisherigen Fassung liegen Wort und Hinweis
+auf Nutzerwunsch um 40 logische Pixel höher. Der zusätzliche untere Abstand
+verzögert das Sichtbarwerden bei einer kleinen versehentlichen Ziehbewegung.
+Der bestehende Anschlag und die 1:1-Fingerführung bleiben erhalten. Lange Inhalte
+passen sich weiter an die verfügbare Lesefläche an; vollständiges Ansehen bleibt
+auch bei 200 Prozent Schrift möglich, ohne die Weiter-Aktion wegzuschieben.
+
+Alle 81 Unit-/Widget-Tests, Analyse und Roboto-Sichtprüfung bestehen. Ein neuer
+Test zieht für beide Rollen um 24 Pixel und prüft gegen die tatsächlich gerenderte
+Kurve, dass die ganze Wort-/Hinweiszeile noch verdeckt ist. Die vorhandene Pixel-
+prüfung der gekrümmten Freilegung bleibt erfolgreich. Für diese reine Layout-
+korrektur wurde keine neue native Android-Ablaufsuite ausgeführt; die erneute
+Handyprüfung dieser Position und echtes TalkBack bleiben offen.
+
+## Text während des automatischen Rücklaufs
+
+Nach weiterer Handy-Rückmeldung verschwindet das Geheimnis beim normalen
+Loslassen nicht mehr vorzeitig: Die tatsächliche Kurve schiebt sich über den
+festliegenden Inhalt. Das ersetzt die frühere unmittelbare Entfernung bei jeder
+Art von Loslassen. Abbruch und Unterbrechungen behalten den sofortigen Schutz.
+
+Ein Rücklauf hat eine eigene Revisionskennung und verwendet abbrechbare
+Animationsabschlüsse. Erneutes Greifen stoppt die alte Animation; deren Abschluss
+kann kein neu angesehenes Geheimnis verbergen. Verdecken durch eine externe
+Unterbrechung entwertet den Abschluss ebenfalls. Akzeptierte Pointer-Abbrüche
+werden zusätzlich am rohen Cancel-Ereignis erkannt, da Flutter sie auch über
+Drag-Ende melden kann; sie gelten nicht als normales Loslassen.
+
+83 Unit-/Widget-Tests und Analyse bestehen. Beide Rollen werden während des
+Rücklaufs auf unveränderte Textposition und abgeschirmte Semantik geprüft;
+zusätzlich erneutes Greifen, Übergabe sowie App-/Dialog-Unterbrechung während
+des Rücklaufs. Der Pixeltest prüft, dass sichtbarer weißer Inhalt auch im ersten
+Rücklauf-Frame erhalten bleibt und am Ende entfernt ist. Die Android-Testhilfe
+prüft beim Loslassen ebenfalls den erhaltenen Inhalt und seine feste Position.
+
+Endgültige Rücklauf-Abnahme: alle vier Android-Abläufe auf API 36.1 bei
+320 × 568 und 200 Prozent Schrift bestanden. Bei normalen vollständigen und
+teilweisen Öffnungen bleibt der Text nach dem Loslassen zunächst an derselben
+Position, erst nach dem Rücklauf verschwindet er. Release-Build und Format-/
+Diff-Prüfung ebenfalls erfolgreich; physische Handyprüfung und TalkBack offen.

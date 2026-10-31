@@ -46,12 +46,7 @@ Future<void> tapVisible(WidgetTester tester, String label) async {
     final curtain = find.byType(SecretCurtain);
     await tester.ensureVisible(curtain);
     await tester.pumpAndSettle();
-    final action = find.descendant(
-      of: curtain,
-      matching: find.byWidgetPredicate(
-        (w) => w is Semantics && w.properties.onTap != null,
-      ),
-    );
+    final action = find.byKey(const ValueKey('secret-peek-action'));
     tester.widget<Semantics>(action).properties.onTap!();
     await tester.pumpAndSettle();
     return;
@@ -72,6 +67,12 @@ Future<void> tapVisible(WidgetTester tester, String label) async {
   await tester.ensureVisible(find.text(label));
   await tester.pumpAndSettle();
   await tester.tap(find.text(label));
+  await tester.pumpAndSettle();
+}
+
+Future<void> leaveRound(WidgetTester tester) async {
+  expect(find.text('Gruppe bearbeiten'), findsNothing);
+  await tester.binding.handlePopRoute();
   await tester.pumpAndSettle();
 }
 
@@ -165,7 +166,7 @@ void main() {
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
     await tester.pumpAndSettle();
-    expect(find.text('Handy an Anna.'), findsOneWidget);
+    expect(find.text('Anna'), findsOneWidget);
     expect(find.text('Person 1 von 3'), findsOneWidget);
     expect(find.bySemanticsLabel('Geheimnis kurz ansehen'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
@@ -190,10 +191,7 @@ void main() {
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Gruppe bearbeiten'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Gruppe bearbeiten'));
-    await tester.pumpAndSettle();
+    await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(find.text('Wer ist dabei?'), findsOneWidget);
     expect(find.text('3 Personen'), findsOneWidget);
@@ -243,7 +241,7 @@ void main() {
       expect(calls, 2);
       pending.complete(testCatalog);
       await tester.pumpAndSettle();
-      expect(find.text('Handy an Anna.'), findsOneWidget);
+      expect(find.text('Anna'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -288,16 +286,9 @@ void main() {
       await showStart(tester);
       await tester.tap(find.text('Runde starten'));
       await tester.pumpAndSettle();
-      expect(find.text('Handy an $longName.'), findsOneWidget);
+      expect(find.text(longName), findsOneWidget);
       expect(find.text('Person 1 von 12'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.text('Gruppe bearbeiten'),
-        150,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Gruppe bearbeiten'));
-      await tester.pumpAndSettle();
+      await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       expect(find.text('12 Personen'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -313,11 +304,11 @@ void main() {
       var words = 0;
       var hints = 0;
       for (final (index, name) in ['Anna', 'Ben', 'Cem'].indexed) {
-        expect(find.text('Handy an $name.'), findsOneWidget);
+        expect(find.text(name), findsOneWidget);
         expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
         expectConcealed(tester);
         await tapVisible(tester, 'Geheimnis kurz ansehen');
-        expect(find.text('Nur für $name.'), findsOneWidget);
+        expect(find.text(name), findsOneWidget);
         if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
           hints++;
           expect(find.text('Dein Hinweis'), findsOneWidget);
@@ -332,7 +323,7 @@ void main() {
         }
         await tapVisible(tester, 'Weiter');
         expectConcealed(tester);
-        expect(find.text('Nur für $name.'), findsNothing);
+        expect(find.text(name), findsNothing);
       }
       expect(words, 2);
       expect(hints, 1);
@@ -379,7 +370,7 @@ void main() {
           AppLifecycleState.resumed,
         );
         await tester.pumpAndSettle();
-        expect(find.text('Handy an Ben.'), findsOneWidget);
+        expect(find.text('Ben'), findsOneWidget);
         expectConcealed(tester);
         await tapVisible(tester, 'Geheimnis kurz ansehen');
         expect(find.text(secret), findsOneWidget);
@@ -395,33 +386,28 @@ void main() {
   );
 
   testWidgets(
-    'back and edit conceal before dialog; cancellation never restores secrets',
+    'back conceals before dialog; cancellation never restores secrets',
     (tester) async {
       final semantics = tester.ensureSemantics();
 
       await startTestRound(tester);
-      for (final edit in [false, true]) {
+      for (final dismissWithBack in [false, true]) {
         await tapVisible(tester, 'Geheimnis kurz ansehen');
-        if (edit) {
-          await tapVisible(tester, 'Gruppe bearbeiten');
-        } else {
-          await tester.binding.handlePopRoute();
-          await tester.pumpAndSettle();
-        }
+        await leaveRound(tester);
         expect(find.text('Runde verlassen?'), findsOneWidget);
         expectConcealed(tester);
-        if (edit) {
+        if (dismissWithBack) {
           // System back dismisses only the dialog, not the concealed round.
           await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
         } else {
           await tapVisible(tester, 'Weiterspielen');
         }
-        expect(find.text('Handy an Anna.'), findsOneWidget);
+        expect(find.text('Anna'), findsOneWidget);
         expectConcealed(tester);
       }
       await tapVisible(tester, 'Geheimnis kurz ansehen');
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       expect(find.text('3 Personen'), findsOneWidget);
       await showStart(tester);
@@ -444,14 +430,14 @@ void main() {
     advance();
     advance();
     await tester.pumpAndSettle();
-    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expect(find.text('Ben'), findsOneWidget);
     expectConcealed(tester);
     await tester.binding.handlePopRoute();
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsOneWidget);
     await tapVisible(tester, 'Weiterspielen');
-    expect(find.text('Handy an Ben.'), findsOneWidget);
+    expect(find.text('Ben'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -486,7 +472,7 @@ void main() {
         await tapVisible(tester, 'Weiter');
         expect(tester.takeException(), isNull);
       }
-      await tapVisible(tester, 'Gruppe bearbeiten');
+      await leaveRound(tester);
       expect(tester.takeException(), isNull);
       await tapVisible(tester, 'Weiterspielen');
       expect(find.text('Alle eingeweiht?'), findsOneWidget);
