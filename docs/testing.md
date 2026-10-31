@@ -145,6 +145,12 @@ allen Rundenansichten. Die Tests öffnen den Verlassensdialog über den Flutter-
 Back-Handler. Ein vierter Android-Ablauf überspringt alle ungeöffneten Karten:
 „Weiter“ muss von Beginn an aktiv sein, ohne irgendein Geheimnis freizulegen.
 Ein Pixeltest sichert ab, dass die Textfreilegung der tatsächlichen Kurve folgt.
+Beim Loslassen prüft die Testhilfe die tatsächliche Einstellung für reduzierte
+Bewegung: Bei aktivierten Animationen bleibt der Text zunächst an seiner Position;
+bei reduzierter Bewegung muss er sofort verschwinden. Nach dem Schließen ist er
+in beiden Fällen entfernt. Die CI deaktiviert Android-Animationen absichtlich und
+prüft damit den sofortigen Abschluss, nicht einen künstlich erzwungenen Rücklauf.
+
 Die Testhilfe beginnt Teilöffnungen auf unterschiedlichen Vorhangflächen. Liegt
 der Startpunkt hoch, lässt sie vor dem Anschlag los und greift unten neu an,
 damit alle Pointer-Ereignisse einschließlich Loslassen im Bildschirm bleiben.

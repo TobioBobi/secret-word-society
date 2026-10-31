@@ -38,11 +38,17 @@ Future<void> _releasePeek(WidgetTester tester) async {
       .descendant(of: opening, matching: find.byType(Text))
       .last;
   final position = tester.getRect(content);
+  final reducedMotion = MediaQuery.disableAnimationsOf(tester.element(opening));
   await _peekGesture!.up();
   _peekGesture = null;
   await tester.pump();
-  expect(opening, findsOneWidget);
-  expect(tester.getRect(content), position);
+  if (reducedMotion) {
+    // CI disables Android animations, so there is intentionally no return frame.
+    expect(opening, findsNothing);
+  } else {
+    expect(opening, findsOneWidget);
+    expect(tester.getRect(content), position);
+  }
   await _settle(tester);
   expect(opening, findsNothing);
 }
