@@ -1,11 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
         android:label="secret_word_society"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <receiver android:name=".RoundSignalReceiver" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

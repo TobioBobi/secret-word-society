@@ -1,41 +1,58 @@
 package com.example.secret_word_society
 
 import android.os.Bundle
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var resumed = false
+
+    private fun updateKeepScreenOn() {
+        if (resumed && RoundSignal.keepingScreenOn) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resumed = true
+        RoundSignal.setForeground(true)
+        updateKeepScreenOn()
+    }
+
+    override fun onPause() {
+        resumed = false
+        RoundSignal.setForeground(false)
+        updateKeepScreenOn()
+        super.onPause()
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,
             "secret_word_society/round_signal").setMethodCallHandler { call, result ->
             when (call.method) {
-                "backgroundAllowed" -> result.success(RoundSignal.backgroundAllowed(this))
-                "requestBackground" -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        !RoundSignal.backgroundAllowed(this)) {
-                        startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                            Uri.parse("package:$packageName")))
-                    }
-                    result.success(null)
-                }
                 "arm" -> {
-                    RoundSignal.arm(applicationContext, call.argument<String>("token")!!,
+                    RoundSignal.arm(call.argument<String>("token")!!,
                         call.argument<Number>("deadlineMillis")!!.toLong())
+                    updateKeepScreenOn()
                     result.success(null)
                 }
                 "finish" -> {
-                    RoundSignal.finish(applicationContext, call.argument<String>("token"))
+                    RoundSignal.finish(applicationContext, call.argument<String>("token"),
+                        call.argument<Boolean>("audible") == true && hasWindowFocus()) {
+                        updateKeepScreenOn()
+                    }
+                    updateKeepScreenOn()
                     result.success(null)
                 }
                 "cancel" -> {
-                    RoundSignal.cancel(applicationContext)
+                    RoundSignal.cancel()
+                    updateKeepScreenOn()
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -44,7 +61,8 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onDestroy() {
-        RoundSignal.cancel(applicationContext)
+        RoundSignal.cancel()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onDestroy()
     }
 

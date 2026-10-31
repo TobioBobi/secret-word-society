@@ -45,7 +45,6 @@ class _SessionScreenState extends State<SessionScreen>
   Timer? _phaseTimer;
   final _roundSignal = RoundSignal();
   String? _signalToken;
-  bool _backgroundSoundAllowed = false;
   bool _animateTimeUp = false;
   int _remainingSeconds = GameRound.discussionDuration.inSeconds;
   int _revealSeconds = GameRound.revealDuration.inSeconds;
@@ -68,7 +67,6 @@ class _SessionScreenState extends State<SessionScreen>
       _stopPhaseTimer();
       _concealSecret();
     } else {
-      unawaited(_refreshSoundPermission());
       if (!_leavingDialog) {
         setState(() => _session.resumeReveal(widget.now()));
       }
@@ -171,9 +169,6 @@ class _SessionScreenState extends State<SessionScreen>
     // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
     if (!_canAct(expected) || !expected.canAdvanceCard) return;
     setState(_session.hideAndAdvance);
-    if (_session.round?.phase == GamePhase.ready) {
-      unawaited(_refreshSoundPermission());
-    }
     _focusNewPhase();
   }
 
@@ -254,13 +249,6 @@ class _SessionScreenState extends State<SessionScreen>
     _phaseTimer = null;
   }
 
-  Future<void> _refreshSoundPermission() async {
-    final allowed = await _roundSignal.backgroundAllowed();
-    if (mounted && allowed != _backgroundSoundAllowed) {
-      setState(() => _backgroundSoundAllowed = allowed);
-    }
-  }
-
   void _cancelSignal() {
     _signalToken = null;
     _animateTimeUp = false;
@@ -307,9 +295,10 @@ class _SessionScreenState extends State<SessionScreen>
       final recent =
           now.difference(round.discussionEndsAt!) <= const Duration(seconds: 2);
       _animateTimeUp = visible && !_leavingDialog && recent;
-      // Android deduplicates this fallback and its independently scheduled alarm.
-      if (visible && recent && _signalToken != null) {
-        unawaited(_roundSignal.finish(_signalToken!));
+      if (_signalToken != null) {
+        unawaited(
+          _roundSignal.finish(_signalToken!, audible: visible && recent),
+        );
       }
       _stopPhaseTimer();
       if (!_leavingDialog) _focusNewPhase();
@@ -975,23 +964,8 @@ class _SessionScreenState extends State<SessionScreen>
         ],
       );
 
-  Widget _buildReadyCard(AppLocalizations strings) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _buildStatusCard(strings.readyCard, Icons.check_circle_outline),
-      const SizedBox(height: 16),
-      Text(strings.roundSoundInfo),
-      if (!_backgroundSoundAllowed) ...[
-        const SizedBox(height: 8),
-        Text(strings.backgroundSoundInfo),
-        TextButton.icon(
-          onPressed: () => unawaited(_roundSignal.requestBackground()),
-          icon: const Icon(Icons.notifications_active_outlined),
-          label: Text(strings.allowBackgroundSound),
-        ),
-      ],
-    ],
-  );
+  Widget _buildReadyCard(AppLocalizations strings) =>
+      _buildStatusCard(strings.readyCard, Icons.check_circle_outline);
 
   Widget _buildCountdown(AppLocalizations strings) {
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');

@@ -11,16 +11,13 @@ import 'widget_test.dart'
 void main() {
   final calls = <MethodCall>[];
   var now = DateTime.utc(2026, 10, 31, 12);
-  var backgroundAllowed = true;
 
   setUp(() {
     calls.clear();
     now = DateTime.utc(2026, 10, 31, 12);
-    backgroundAllowed = true;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(RoundSignal.channel, (call) async {
           calls.add(call);
-          if (call.method == 'backgroundAllowed') return backgroundAllowed;
           return null;
         });
   });
@@ -74,6 +71,7 @@ void main() {
       expectConcealed(tester);
       final finish = calls.singleWhere((c) => c.method == 'finish');
       expect(finish.arguments['token'], arm.arguments['token']);
+      expect(finish.arguments['audible'], isTrue);
       await tester.pumpAndSettle();
       for (var i = 0; i < 2; i++) {
         tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
@@ -120,12 +118,13 @@ void main() {
         tester.widget<TimeUpCard>(find.byType(TimeUpCard)).animate,
         isFalse,
       );
-      expect(calls.where((c) => c.method == 'finish'), isEmpty);
+      final finish = calls.singleWhere((c) => c.method == 'finish');
+      expect(finish.arguments['audible'], isFalse);
       expectConcealed(tester);
     },
   );
 
-  testWidgets('abort cancels alarm and abandoned deadline cannot fire', (
+  testWidgets('abort releases countdown and abandoned deadline cannot fire', (
     tester,
   ) async {
     await ready(tester);
@@ -139,19 +138,23 @@ void main() {
     expect(find.text('Zeit ist um!'), findsNothing);
   });
 
-  testWidgets('background permission is explained, requested and refreshed', (
+  testWidgets('return before deadline keeps one round and its end signal', (
     tester,
   ) async {
-    backgroundAllowed = false;
     await ready(tester);
-    expect(find.text('Hintergrundton erlauben'), findsOneWidget);
-    await tapVisible(tester, 'Hintergrundton erlauben');
-    expect(calls.where((c) => c.method == 'requestBackground'), hasLength(1));
+    await tapVisible(tester, '10 Sekunden starten');
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    backgroundAllowed = true;
+    now = now.add(const Duration(seconds: 4));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.text('Hintergrundton erlauben'), findsNothing);
+    expect(find.text('00:06'), findsOneWidget);
+    now = now.add(const Duration(seconds: 6));
+    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
+    expect(calls.where((c) => c.method == 'arm'), hasLength(1));
+    final finish = calls.singleWhere((c) => c.method == 'finish');
+    expect(finish.arguments['audible'], isTrue);
+    expect(find.text('Zeit ist um!'), findsOneWidget);
   });
 
   testWidgets('reduced motion uses a static, readable signal at 200% text', (

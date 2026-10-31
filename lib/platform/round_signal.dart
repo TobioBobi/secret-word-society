@@ -1,18 +1,8 @@
 import 'package:flutter/services.dart';
 
-/// Android owns the audible deadline so suspended Flutter frames cannot delay it.
+/// Keeps the visible countdown awake and plays its end signal once on Android.
 class RoundSignal {
   static const channel = MethodChannel('secret_word_society/round_signal');
-
-  Future<bool> backgroundAllowed() async {
-    try {
-      return await channel.invokeMethod<bool>('backgroundAllowed') ?? false;
-    } on MissingPluginException {
-      return false;
-    } on PlatformException {
-      return false;
-    }
-  }
 
   Future<void> _invoke(String method, [Map<String, Object>? arguments]) async {
     try {
@@ -24,11 +14,11 @@ class RoundSignal {
     }
   }
 
-  Future<void> requestBackground() => _invoke('requestBackground');
   Future<void> arm(String token, DateTime deadline) => _invoke('arm', {
     'token': token,
     'deadlineMillis': deadline.millisecondsSinceEpoch,
   });
-  Future<void> finish(String token) => _invoke('finish', {'token': token});
+  Future<void> finish(String token, {required bool audible}) =>
+      _invoke('finish', {'token': token, 'audible': audible});
   Future<void> cancel() => _invoke('cancel');
 }

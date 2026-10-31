@@ -14,8 +14,10 @@ vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
 
 Seit Issue #28 erscheint beim Timerende die dauerhafte Karte „Zeit ist um!“
 mit einer einmaligen, bei reduzierten Animationen deaktivierten Bewegung.
-Der native Android-Doppelton wird separat auf den echten Rundenendzeitpunkt
-geplant; für Hintergrund und Sperrbildschirm benötigt er „Alarme und Erinnerungen“.
+Der Bildschirm bleibt während des sichtbaren Rundentimers automatisch wach.
+Der native Android-Doppelton begleitet den Ablauf in der geöffneten App, ohne
+zusätzliche Freigaben oder Einrichtung. Bei Ablauf im Hintergrund oder bei
+manueller Sperre wird nach Rückkehr kein Ton nachgeholt.
 Die Ablauftests prüfen den sichtbaren Übergang und verdeckte Geheimnisse.
 Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
 [Beschreibung des Timersignals](mvp/issue-28-timersignal.md).

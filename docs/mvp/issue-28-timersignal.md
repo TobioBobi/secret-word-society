@@ -2,77 +2,60 @@
 
 ## Verhalten
 
-Beim tatsächlichen Ende der Hinweisphase folgt unverändert die Abstimmung.
-Eine limettengrüne Karte „Zeit ist um!“ mit Glocke begleitet den Übergang.
-Glocke und Karte bewegen sich einmal über 1,2 Sekunden. Die Karte bleibt danach
-ruhig sichtbar. Reduzierte Animationen deaktivieren die Bewegung vollständig.
+Während des sichtbaren Rundentimers bleibt der Bildschirm automatisch wach.
+Die Bereit-Ansicht enthält nur den normalen Rundenstart, ohne Ton-Erklärung,
+Einrichtung oder zusätzliche Android-Freigabe.
+
+Beim tatsächlichen Ende der Hinweisphase folgt die Abstimmung. Die
+limettengrüne Karte „Zeit ist um!“ bewegt sich einmal über 1,2 Sekunden und
+bleibt danach ruhig sichtbar. Reduzierte Animationen schalten die Bewegung ab.
 Wort, Hinweis und Rollen bleiben bis zur regulären Auflösung verborgen.
-Auch auf kleinen Displays und bei großer Schrift bleiben die Regeln für die
-mündliche Abstimmung und den Gleichstand durch Scrollen erreichbar.
 
-Der eigene, lokal gebündelte Doppelton besteht aus 880 Hz für 320 ms,
-120 ms Pause und 1175 Hz für 460 ms, mit weichen Ein-/Ausblendungen.
-Er verwendet Androids Benachrichtigungslautstärke. Stumm-/Vibrationsmodus,
-Lautstärke null und „Nicht stören“ unterdrücken ihn. Es gibt kein nachträgliches
-Abspielen nach dem Aufheben dieser Einstellungen und keine Lautstärkeänderung.
+Ein lokal gebündelter Doppelton (880 Hz für 320 ms, 120 ms Pause, 1175 Hz für
+460 ms) begleitet den Ablauf in der geöffneten App. Benachrichtigungslautstärke,
+Stumm-/Vibrationsmodus und „Nicht stören“ gelten weiterhin.
 
-Die Bereit-Ansicht erklärt den Ton und bietet auf Android bei fehlender Freigabe
-„Hintergrundton erlauben“ an. Das öffnet die Systemeinstellung für **Alarme und
-Erinnerungen**. Ohne Freigabe bleibt das Spiel nutzbar; der Ton ist dann auf die
-geöffnete App beschränkt. Die Freigabe wird nach App-Rückkehr erneut geprüft.
+## Umsetzung und Unterbrechungen
 
-## Technische Grenzen und Lebenszyklus
+Androids `FLAG_KEEP_SCREEN_ON` ist nur während des sichtbaren Rundentimers aktiv.
+Nach Ablauf bleibt er noch für den kurzen Doppelton wach, damit ein bereits
+überschrittener Bildschirm-Timeout den Ton nicht abschneidet. Danach sowie bei
+Abbruch, App-Wechsel und Entfernen der Spielansicht wird er wieder freigegeben. Bei Rückkehr vor Ablauf wird er für die verbleibende Zeit wieder
+wach gehalten. Die manuelle Bildschirmsperre wird nicht verhindert.
 
-`RoundSignal` plant einen einmaligen, nativen Android-Alarm auf den Endzeitpunkt
-der Spielrunde. `setExactAndAllowWhileIdle` mit `ELAPSED_REALTIME_WAKEUP` kann
-auch ohne Flutter-Frames und bei ausgeschaltetem Bildschirm auslösen. Android
-12 und neuer benötigen dafür `SCHEDULE_EXACT_ALARM`. Es wird keine dauerhafte
-Hintergrunddienst-, Benachrichtigungs- oder Nicht-stören-Ausnahme angefordert.
-Ein kurzer Wake-Lock während der Wiedergabe lässt den Bildschirm ausgeschaltet.
+Die App fordert weder `SCHEDULE_EXACT_ALARM` noch `WAKE_LOCK` an und verwendet
+keinen Alarm-Receiver oder Hintergrunddienst. Es gibt keinen garantierten Ton
+bei App-Wechsel oder manueller Sperre. Läuft die Zeit dort ab, erscheint bei
+Rückkehr die ruhige Abstimmung ohne nachgeholten Ton oder Animation.
 
-Die Vordergrund-Abstimmung bietet denselben Alarm zusätzlich zum unmittelbaren
-Abschluss an. Beide Wege laufen auf Androids Hauptthread und verbrauchen
-dieselbe Rundenkennung genau einmal, auch bei unterdrücktem oder fehlendem Ton.
-Der Alarm enthält keine geheimen Spielinformationen. Alte Callbacks passen
-nicht zur neuen Kennung. Abbruch, neue Runde, bestätigte Abstimmung und Entfernen
-der Spielansicht löschen den Alarm und beenden eine etwaige Wiedergabe.
+Rundenkennung und Endzeitpunkt verhindern doppelte oder alte Signale.
+Unterbrochene Wiedergabe wird beendet; bestätigte Abstimmung und Abbruch
+verwerfen den Ton. Ein mehr als zwei Sekunden verspäteter Abschluss bleibt
+stumm. Prozessende verwirft wie bisher die gesamte Sitzung.
 
-Die Kennung bleibt nur im Speicher. Wird der App-Prozess beendet, endet wie
-bisher die gesamte Spielsitzung; ein eventuell noch zugestellter Systemalarm
-spielt daher keinen Ton. Bei Rückkehr wird weder Ton noch Animation nachgeholt.
-Ein höchstens zwei Sekunden verspäteter Vordergrundübergang darf noch signalisieren;
-ältere akustische Signale werden verworfen. Systemeigene Energiesparmaßnahmen
-und die Zustellbegrenzung von Alarmen im Tiefschlaf können einen Ton verhindern.
-Sie rechtfertigen kein verspätetes Signal aus einer alten Runde.
-
-Die Rundendauer wird ausschließlich aus dem tatsächlichen Endzeitpunkt der
-Spielrunde übernommen. Die temporären zehn Sekunden sowie die offenen
-Änderungen in [#22](https://github.com/TobioBobi/secret-word-society/issues/22)
-und [#25](https://github.com/TobioBobi/secret-word-society/issues/25) werden
-dabei nicht verändert.
+Die temporären zehn Sekunden sowie die offenen Änderungen in
+[#22](https://github.com/TobioBobi/secret-word-society/issues/22) und
+[#25](https://github.com/TobioBobi/secret-word-society/issues/25) bleiben unverändert.
 
 ## Prüfungen
 
-- Widget-Tests: einmalige Planung/Auslösung, dieselbe Kennung im Abschluss,
-  Folgerunden mit eigener Kennung, Abbruch, verspätete Rückkehr, Freigabe und
-  erneute Prüfung nach Rückkehr sowie reduzierte Animationen bei 320 × 568
-  und 200 Prozent Schrift. Bestehende Timer-/Abstimmungstests bleiben erhalten.
-- Reguläre Android-Ablauftests prüfen die neue Zeit-Ende-Karte zusammen mit
-  verdeckten Geheimnissen, beiden Gewinnern und frischem Folgerundenstart.
-- Lokale Prüfung am 31.10.2026: 73 Unit-/Widget-Tests, die drei regulären
-  Android-Ablauftests und Analyse bestanden. Roboto-Sichtprüfung auf 390 × 844
-  sowie 320 × 568 bei 200 Prozent Schrift ohne Layoutfehler.
-- Separate native Prüfung auf dem Android-Emulator (API 36.1): Ton jeweils
-  einmal im Vordergrund, auf dem Homescreen und bei gesperrtem Bildschirm;
-  Stummmodus und „Nicht stören“ unterdrücken ihn. Wiederholte Abschlussaufrufe,
-  Rückkehr, Abbruch und ersetzte Alarme erzeugen keinen zusätzlichen Ton.
-  Ein zehn Sekunden alter Endzeitpunkt wird verworfen. Die tatsächlichen
-  MediaPlayer-Starts und Unterdrückungen wurden in den nativen Logs geprüft.
-  Hintergrund-Testfristen lagen über Androids Mindestvorlauf für Alarme;
-  die regulären Abläufe verwenden unverändert die echte Produktionsdauer.
-- Ein physisches Handy, tatsächliche Hörbarkeit in einer lauten Gruppe,
-  Hersteller-Energiesparregeln und echtes TalkBack bleiben Praxisprüfungen.
+73 Unit-/Widget-Tests prüfen unter anderem einmaligen Abschluss, Folgerunden,
+Abbruch, verspätete Rückkehr, Rückkehr vor Ablauf und reduzierte Animationen bei
+320 × 568 mit 200 Prozent Schrift. Die regulären Android-Ablauftests prüfen
+vollständige Spielrunden mit echten Assets und der Produktionsuhr; alle drei
+Abläufe bestanden am 31.10.2026. Analyse, Format-/Diff-Prüfung und Roboto-
+Sichtprüfung bei normaler und 200-Prozent-Schrift waren ebenfalls erfolgreich.
 
-Grundlagen: [Android-Alarme](https://developer.android.com/develop/background-work/services/alarms),
-[Audioattribute](https://developer.android.com/reference/android/media/AudioAttributes),
-[Nicht-stören-Filter](https://developer.android.com/reference/android/app/NotificationManager#getCurrentInterruptionFilter()).
+Native Prüfung am 31.10.2026 auf Android API 36.1 bestanden: Der Bildschirm
+bleibt bei auf eine Sekunde eingestelltem Timeout über elf Sekunden wach
+(Androids Mindest-Timeout beträgt dort zehn Sekunden). Das Fensterflag wird bei
+Ablauf, Abbruch, Home und Sperre entfernt. Rückkehr vor Ablauf erlaubt den Ton;
+Rückkehr nach Ablauf bleibt stumm. Stummmodus, „Nicht stören“, doppelte Aufrufe,
+ersetzte Runden und verspätete Abschlüsse wurden anhand nativer Logs geprüft.
+Alle drei vorgesehenen Töne wurden vollständig abgespielt, auch bei bereits
+überschrittenem Bildschirm-Timeout; erst danach wurde das Fensterflag entfernt.
+Ein physisches Handy, tatsächliche Hörbarkeit in lauten Gruppen und echtes
+TalkBack bleiben Praxisprüfungen.
+
+Grundlagen: [Android-Bildschirm wach halten](https://developer.android.com/develop/background-work/background-tasks/awake/screen-on),
+[Audioattribute](https://developer.android.com/reference/android/media/AudioAttributes).
