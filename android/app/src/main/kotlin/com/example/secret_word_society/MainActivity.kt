@@ -1,6 +1,7 @@
 package com.example.secret_word_society
 
 import android.os.Bundle
+import android.media.AudioManager
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -19,6 +20,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
+        volumeControlStream = AudioManager.STREAM_MUSIC
         resumed = true
         RoundSignal.setForeground(true)
         updateKeepScreenOn()

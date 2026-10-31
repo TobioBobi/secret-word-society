@@ -62,7 +62,7 @@ object RoundSignal {
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val notifications = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (audio.ringerMode != AudioManager.RINGER_MODE_NORMAL ||
-            audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION) == 0 ||
+            audio.getStreamVolume(AudioManager.STREAM_MUSIC) == 0 ||
             notifications.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL) {
             Log.i(TAG, "suppressed")
             return
@@ -71,7 +71,7 @@ object RoundSignal {
             val sound = MediaPlayer()
             player = sound
             sound.setAudioAttributes(AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
             context.resources.openRawResourceFd(R.raw.round_end).use { asset ->
                 sound.setDataSource(asset.fileDescriptor, asset.startOffset, asset.length)

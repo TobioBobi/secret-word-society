@@ -12,8 +12,11 @@ bleibt danach ruhig sichtbar. Reduzierte Animationen schalten die Bewegung ab.
 Wort, Hinweis und Rollen bleiben bis zur regulären Auflösung verborgen.
 
 Ein lokal gebündelter Doppelton (880 Hz für 320 ms, 120 ms Pause, 1175 Hz für
-460 ms) begleitet den Ablauf in der geöffneten App. Benachrichtigungslautstärke,
-Stumm-/Vibrationsmodus und „Nicht stören“ gelten weiterhin.
+460 ms) begleitet den Ablauf in der geöffneten App. Er folgt der eingestellten
+Medienlautstärke; bei Medienlautstärke null bleibt er stumm. Auch die
+Lautstärketasten steuern in der App den Medienkanal. Die App verändert weder
+die Systemlautstärke noch die Lautstärke des Players. Stumm-/Vibrationsmodus
+und „Nicht stören“ gelten weiterhin.
 
 ## Umsetzung und Unterbrechungen
 
@@ -54,6 +57,14 @@ Rückkehr nach Ablauf bleibt stumm. Stummmodus, „Nicht stören“, doppelte Au
 ersetzte Runden und verspätete Abschlüsse wurden anhand nativer Logs geprüft.
 Alle drei vorgesehenen Töne wurden vollständig abgespielt, auch bei bereits
 überschrittenem Bildschirm-Timeout; erst danach wurde das Fensterflag entfernt.
+
+Medienlautstärke am 31.10.2026 zusätzlich nativ geprüft: Bei unveränderter
+Benachrichtigungslautstärke folgt der Ton den Medienwerten 1 und 12. Androids
+Audiopolicy bestätigt unterschiedliche Ausgangspegel (-53,263 bzw. -8,500 dB).
+Bei Medienlautstärke null wird kein Player gestartet. Ein injiziertes
+Lautstärketasten-Ereignis erreicht den Medienkanal; dessen tatsächliche
+Lautstärkeänderung wurde vom Testemulator nicht übernommen und bleibt am
+physischen Handy zu prüfen.
 Ein physisches Handy, tatsächliche Hörbarkeit in lauten Gruppen und echtes
 TalkBack bleiben Praxisprüfungen.
 
