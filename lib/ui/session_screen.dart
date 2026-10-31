@@ -7,9 +7,11 @@ import '../game/game_round.dart';
 import '../game/game_session.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
+import '../platform/round_signal.dart';
 import 'party_card.dart';
 import 'party_theme.dart';
 import 'secret_curtain.dart';
+import 'time_up_card.dart';
 
 typedef CatalogLoader = Future<WordCatalog> Function();
 
@@ -41,6 +43,10 @@ class _SessionScreenState extends State<SessionScreen>
   bool _leavingDialog = false;
   int _concealRevision = 0;
   Timer? _phaseTimer;
+  final _roundSignal = RoundSignal();
+  String? _signalToken;
+  bool _backgroundSoundAllowed = false;
+  bool _animateTimeUp = false;
   int _remainingSeconds = GameRound.discussionDuration.inSeconds;
   int _revealSeconds = GameRound.revealDuration.inSeconds;
 
@@ -48,6 +54,7 @@ class _SessionScreenState extends State<SessionScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    unawaited(_roundSignal.cancel());
   }
 
   @override
@@ -55,11 +62,13 @@ class _SessionScreenState extends State<SessionScreen>
     // Android can make the window visible in `inactive` before `resumed`.
     // Reconcile on every transition so that return frame is already current.
     if (state != AppLifecycleState.resumed) {
+      _animateTimeUp = false;
       setState(() => _session.pauseReveal(widget.now()));
       _updateTimedPhase();
       _stopPhaseTimer();
       _concealSecret();
     } else {
+      unawaited(_refreshSoundPermission());
       if (!_leavingDialog) {
         setState(() => _session.resumeReveal(widget.now()));
       }
@@ -70,6 +79,7 @@ class _SessionScreenState extends State<SessionScreen>
 
   @override
   void dispose() {
+    unawaited(_roundSignal.cancel());
     _stopPhaseTimer();
     WidgetsBinding.instance.removeObserver(this);
     _name.dispose();
@@ -115,6 +125,7 @@ class _SessionScreenState extends State<SessionScreen>
   }
 
   void _returnToGroup() {
+    _cancelSignal();
     _stopPhaseTimer();
     setState(_session.returnToGroup);
     _focusNewPhase();
@@ -160,6 +171,9 @@ class _SessionScreenState extends State<SessionScreen>
     // Ignore stale callbacks, rapid repeated taps and actions while interrupted.
     if (!_canAct(expected) || !expected.canAdvanceCard) return;
     setState(_session.hideAndAdvance);
+    if (_session.round?.phase == GamePhase.ready) {
+      unawaited(_refreshSoundPermission());
+    }
     _focusNewPhase();
   }
 
@@ -171,6 +185,10 @@ class _SessionScreenState extends State<SessionScreen>
       _session.startDiscussion(widget.now());
       _remainingSeconds = GameRound.discussionDuration.inSeconds;
     });
+    _signalToken = '${DateTime.now().microsecondsSinceEpoch}';
+    unawaited(
+      _roundSignal.arm(_signalToken!, _session.round!.discussionEndsAt!),
+    );
     _startPhaseTimer();
     _focusNewPhase();
   }
@@ -198,6 +216,7 @@ class _SessionScreenState extends State<SessionScreen>
         expected.suspect == null) {
       return;
     }
+    _cancelSignal();
     setState(() {
       _session.confirmSuspect(widget.now());
       _revealSeconds = GameRound.revealDuration.inSeconds;
@@ -208,6 +227,7 @@ class _SessionScreenState extends State<SessionScreen>
 
   void _newRound(GameRound expected) {
     if (!_canAct(expected) || expected.phase != GamePhase.result) return;
+    _cancelSignal();
     _stopPhaseTimer();
     setState(() {
       _session.newRound();
@@ -232,6 +252,19 @@ class _SessionScreenState extends State<SessionScreen>
   void _stopPhaseTimer() {
     _phaseTimer?.cancel();
     _phaseTimer = null;
+  }
+
+  Future<void> _refreshSoundPermission() async {
+    final allowed = await _roundSignal.backgroundAllowed();
+    if (mounted && allowed != _backgroundSoundAllowed) {
+      setState(() => _backgroundSoundAllowed = allowed);
+    }
+  }
+
+  void _cancelSignal() {
+    _signalToken = null;
+    _animateTimeUp = false;
+    unawaited(_roundSignal.cancel());
   }
 
   void _updateTimedPhase() {
@@ -268,6 +301,16 @@ class _SessionScreenState extends State<SessionScreen>
       _remainingSeconds = seconds;
     });
     if (_session.round!.phase == GamePhase.voting) {
+      final lifecycle = WidgetsBinding.instance.lifecycleState;
+      final visible =
+          lifecycle == null || lifecycle == AppLifecycleState.resumed;
+      final recent =
+          now.difference(round.discussionEndsAt!) <= const Duration(seconds: 2);
+      _animateTimeUp = visible && !_leavingDialog && recent;
+      // Android deduplicates this fallback and its independently scheduled alarm.
+      if (visible && recent && _signalToken != null) {
+        unawaited(_roundSignal.finish(_signalToken!));
+      }
       _stopPhaseTimer();
       if (!_leavingDialog) _focusNewPhase();
     }
@@ -335,7 +378,8 @@ class _SessionScreenState extends State<SessionScreen>
     final round = _session.round;
     final result = round?.result;
     final compactReveal =
-        round?.phase == GamePhase.reveal &&
+        (round?.phase == GamePhase.reveal ||
+            round?.phase == GamePhase.voting) &&
         (MediaQuery.sizeOf(context).height < 650 ||
             MediaQuery.textScalerOf(context).scale(1) > 1.3);
     final groupWon = result?.winner == Winner.group;
@@ -931,8 +975,23 @@ class _SessionScreenState extends State<SessionScreen>
         ],
       );
 
-  Widget _buildReadyCard(AppLocalizations strings) =>
-      _buildStatusCard(strings.readyCard, Icons.check_circle_outline);
+  Widget _buildReadyCard(AppLocalizations strings) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _buildStatusCard(strings.readyCard, Icons.check_circle_outline),
+      const SizedBox(height: 16),
+      Text(strings.roundSoundInfo),
+      if (!_backgroundSoundAllowed) ...[
+        const SizedBox(height: 8),
+        Text(strings.backgroundSoundInfo),
+        TextButton.icon(
+          onPressed: () => unawaited(_roundSignal.requestBackground()),
+          icon: const Icon(Icons.notifications_active_outlined),
+          label: Text(strings.allowBackgroundSound),
+        ),
+      ],
+    ],
+  );
 
   Widget _buildCountdown(AppLocalizations strings) {
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
@@ -960,8 +1019,20 @@ class _SessionScreenState extends State<SessionScreen>
     );
   }
 
-  Widget _buildVotingCard(AppLocalizations strings) =>
-      _buildStatusCard(strings.votingCard, Icons.how_to_vote_outlined);
+  Widget _buildVotingCard(AppLocalizations strings) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      TimeUpCard(animate: _animateTimeUp),
+      if (MediaQuery.sizeOf(context).height < 650 ||
+          MediaQuery.textScalerOf(context).scale(1) > 1.3) ...[
+        const SizedBox(height: 16),
+        Text(
+          strings.votingIntro,
+          style: const TextStyle(color: PartyColors.muted),
+        ),
+      ],
+    ],
+  );
 
   Widget _buildRevealCountdown(AppLocalizations strings) => PartyCard(
     color: PartyColors.purple,

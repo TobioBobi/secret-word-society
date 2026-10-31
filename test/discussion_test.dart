@@ -27,6 +27,13 @@ Future<void> _distribute(WidgetTester tester) async {
     await tapVisible(tester, 'Geheimnis kurz ansehen');
     await tapVisible(tester, 'Weiter');
   }
+  // The ready view now explains the sound and Android background permission.
+  await tester.scrollUntilVisible(
+    find.text('10 Sekunden starten'),
+    160,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
 }
 
 Future<void> _tick(WidgetTester tester) =>

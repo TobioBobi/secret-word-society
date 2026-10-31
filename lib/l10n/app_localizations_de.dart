@@ -148,6 +148,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get readyCard => 'Alle Geheimnisse sind verteilt.';
 
   @override
+  String get roundSoundInfo =>
+      'Am Ende ertönt ein kurzer Doppelton. Stummmodus, Lautstärke und Nicht stören gelten weiterhin.';
+
+  @override
+  String get backgroundSoundInfo =>
+      'Für den Ton bei App-Wechsel oder gesperrtem Bildschirm erlaube unter Android Alarme und Erinnerungen. Ohne Freigabe ertönt er nur bei geöffneter App.';
+
+  @override
+  String get allowBackgroundSound => 'Hintergrundton erlauben';
+
+  @override
+  String get timeUpTitle => 'Zeit ist um!';
+
+  @override
   String get startDiscussion => '10 Sekunden starten';
 
   @override

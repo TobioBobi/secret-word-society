@@ -8,8 +8,17 @@ ersetzte Plattformkanäle.
 
 Seit 25.10.2026 ist die Rundendauer für manuelle Handytests vorübergehend auf
 10 Sekunden verkürzt. Die Tests verwenden diese echte App-Dauer; die MVP-Regel
-bleibt zwei Minuten. Die Rückstellung ist in der lokalen Ticketliste als
-Ticket 19 vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
+bleibt zwei Minuten. Die Rückstellung ist in
+[Issue #22](https://github.com/TobioBobi/secret-word-society/issues/22)
+vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
+
+Seit Issue #28 erscheint beim Timerende die dauerhafte Karte „Zeit ist um!“
+mit einer einmaligen, bei reduzierten Animationen deaktivierten Bewegung.
+Der native Android-Doppelton wird separat auf den echten Rundenendzeitpunkt
+geplant; für Hintergrund und Sperrbildschirm benötigt er „Alarme und Erinnerungen“.
+Die Ablauftests prüfen den sichtbaren Übergang und verdeckte Geheimnisse.
+Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
+[Beschreibung des Timersignals](mvp/issue-28-timersignal.md).
 
 ## Abgedeckte Abläufe
 

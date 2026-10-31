@@ -310,6 +310,30 @@ abstract class AppLocalizations {
   /// **'Alle Geheimnisse sind verteilt.'**
   String get readyCard;
 
+  /// No description provided for @roundSoundInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Am Ende ertönt ein kurzer Doppelton. Stummmodus, Lautstärke und Nicht stören gelten weiterhin.'**
+  String get roundSoundInfo;
+
+  /// No description provided for @backgroundSoundInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Für den Ton bei App-Wechsel oder gesperrtem Bildschirm erlaube unter Android Alarme und Erinnerungen. Ohne Freigabe ertönt er nur bei geöffneter App.'**
+  String get backgroundSoundInfo;
+
+  /// No description provided for @allowBackgroundSound.
+  ///
+  /// In de, this message translates to:
+  /// **'Hintergrundton erlauben'**
+  String get allowBackgroundSound;
+
+  /// No description provided for @timeUpTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeit ist um!'**
+  String get timeUpTitle;
+
   /// No description provided for @startDiscussion.
   ///
   /// In de, this message translates to:
