@@ -13,6 +13,7 @@ object RoundSignal {
     private var token: String? = null
     private var deadline = 0L
     private var consumed = false
+    private var revealToken: String? = null
     private var player: MediaPlayer? = null
     private var foreground = false
     private const val TAG = "RoundSignal"
@@ -43,6 +44,7 @@ object RoundSignal {
 
     fun cancel() {
         token = null
+        revealToken = null
         consumed = true
         player?.release()
         player = null
@@ -60,6 +62,28 @@ object RoundSignal {
             Log.i(TAG, "expired")
             return
         }
+        play(context, R.raw.round_end, "timer", onPlaybackEnded)
+    }
+
+    fun prepareReveal(roundToken: String) {
+        cancel()
+        revealToken = roundToken
+    }
+
+    fun reveal(context: Context, roundToken: String?, winner: String?, audible: Boolean,
+               onPlaybackEnded: () -> Unit) {
+        if (roundToken == null || revealToken != roundToken) return
+        revealToken = null // Muted or interrupted reveals are consumed as well.
+        if (!audible || !foreground) return
+        val resource = when (winner) {
+            "group" -> R.raw.group_win
+            "imposter" -> R.raw.imposter_win
+            else -> return
+        }
+        play(context, resource, winner, onPlaybackEnded)
+    }
+
+    private fun play(context: Context, resource: Int, kind: String, onPlaybackEnded: () -> Unit) {
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val notifications = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (audio.ringerMode != AudioManager.RINGER_MODE_NORMAL ||
@@ -74,12 +98,12 @@ object RoundSignal {
             sound.setAudioAttributes(AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
-            context.resources.openRawResourceFd(R.raw.round_end).use { asset ->
+            context.resources.openRawResourceFd(resource).use { asset ->
                 sound.setDataSource(asset.fileDescriptor, asset.startOffset, asset.length)
             }
             sound.setOnCompletionListener {
                 release(it)
-                Log.i(TAG, "completed")
+                Log.i(TAG, "completed:$kind")
                 onPlaybackEnded()
             }
             sound.setOnErrorListener { media, _, _ ->
@@ -89,7 +113,7 @@ object RoundSignal {
             }
             sound.prepare()
             sound.start()
-            Log.i(TAG, "played")
+            Log.i(TAG, "played:$kind")
         } catch (_: Exception) {
             player?.let { release(it) }
             Log.w(TAG, "audio_unavailable")

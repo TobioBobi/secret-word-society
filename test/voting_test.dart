@@ -1,8 +1,10 @@
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
+import 'package:secret_word_society/platform/round_signal.dart';
 
 import 'widget_test.dart'
     show
@@ -15,6 +17,9 @@ import 'widget_test.dart'
         testCatalog;
 
 const _names = ['Anna', 'Ben', 'Cem'];
+final _soundCalls = <MethodCall>[];
+Iterable<MethodCall> get _reveals =>
+    _soundCalls.where((call) => call.method == 'reveal');
 
 final class _Clock {
   DateTime value = DateTime.utc(2026, 10, 24, 12);
@@ -68,6 +73,7 @@ Future<FilledButton> _action(WidgetTester tester) async {
 }
 
 Future<void> _finishReveal(WidgetTester tester, _Clock clock) async {
+  final previousReveals = _reveals.length;
   expect(find.text('Wer hat geblufft?'), findsOneWidget);
   expect(find.text('3'), findsOneWidget);
   expectConcealed(tester);
@@ -87,6 +93,7 @@ Future<void> _finishReveal(WidgetTester tester, _Clock clock) async {
     expect(find.text('$seconds'), findsOneWidget);
     expectConcealed(tester);
     expect(find.text('Die Auflösung'), findsNothing);
+    expect(_reveals, hasLength(previousReveals));
   }
   clock.value = clock.value.add(const Duration(seconds: 1));
   await tester.pump(const Duration(seconds: 1));
@@ -94,6 +101,18 @@ Future<void> _finishReveal(WidgetTester tester, _Clock clock) async {
 }
 
 void main() {
+  setUp(() {
+    _soundCalls.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(RoundSignal.channel, (call) async {
+          _soundCalls.add(call);
+          return null;
+        });
+  });
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(RoundSignal.channel, null);
+  });
   testWidgets(
     'countdown freezes across background and leave dialog without restarting',
     (tester) async {
@@ -138,6 +157,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 251));
       await tester.pumpAndSettle();
       expect(find.text('Die Auflösung'), findsOneWidget);
+      expect(_reveals, hasLength(1));
+      expect(_reveals.single.arguments['audible'], isTrue);
       await tester.pumpWidget(const SizedBox.shrink());
       semantics.dispose();
     },
@@ -169,6 +190,49 @@ void main() {
     clock.value = clock.value.add(const Duration(minutes: 1));
     await tester.pump(const Duration(minutes: 1));
     expect(tester.takeException(), isNull);
+    expect(_reveals, isEmpty);
+  });
+
+  testWidgets('late reveal consumes the sound without replay on return', (
+    tester,
+  ) async {
+    final clock = _Clock();
+    await _voting(tester, clock);
+    await tapVisible(tester, 'Anna');
+    await tapVisible(tester, 'Anna verdächtigen');
+    expect(_reveals, isEmpty);
+    clock.value = clock.value.add(const Duration(seconds: 6));
+    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
+    expect(find.text('Die Auflösung'), findsOneWidget);
+    expect(_reveals.single.arguments['audible'], isFalse);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(_reveals, hasLength(1));
+  });
+
+  testWidgets('interruption before reveal frame completes consumes sound', (
+    tester,
+  ) async {
+    final clock = _Clock();
+    await _voting(tester, clock);
+    await tapVisible(tester, 'Anna');
+    await tapVisible(tester, 'Anna verdächtigen');
+    var interrupted = false;
+    tester.binding.addPersistentFrameCallback((_) {
+      if (interrupted || find.text('Die Auflösung').evaluate().isEmpty) return;
+      interrupted = true;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    });
+    clock.value = clock.value.add(const Duration(seconds: 3));
+    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
+    expect(interrupted, isTrue);
+    expect(_reveals.single.arguments['audible'], isFalse);
+    await tester.pump(const Duration(seconds: 10));
+    expect(_reveals, hasLength(1));
   });
 
   for (final correct in [true, false]) {
@@ -201,6 +265,20 @@ void main() {
       confirm(); // The same frame must not confirm twice.
       await tester.pumpAndSettle();
       await _finishReveal(tester, clock);
+      final sound = _reveals.single;
+      expect(sound.arguments['winner'], correct ? 'group' : 'imposter');
+      expect(sound.arguments['audible'], isTrue);
+      expect(
+        sound.arguments['token'],
+        _soundCalls
+            .singleWhere((c) => c.method == 'prepareReveal')
+            .arguments['token'],
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 10));
+      expect(_reveals, hasLength(1));
       expect(
         find.text(correct ? 'Erwischt!' : 'Gut geblufft!'),
         findsOneWidget,
@@ -248,6 +326,9 @@ void main() {
       await tapVisible(tester, '$secondImposter verdächtigen');
       await _finishReveal(tester, clock);
       expect(find.text('Erwischt!'), findsOneWidget);
+      expect(_reveals, hasLength(2));
+      expect(_reveals.last.arguments['winner'], 'group');
+      expect(_reveals.last.arguments['token'], isNot(sound.arguments['token']));
       await tapVisible(tester, 'Gruppe bearbeiten');
       expect(find.byType(AlertDialog), findsNothing);
       expect(find.text('3 Personen'), findsOneWidget);

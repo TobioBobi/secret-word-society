@@ -33,6 +33,12 @@ class MainActivity : FlutterActivity() {
         super.onPause()
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        RoundSignal.setForeground(resumed && hasFocus)
+        updateKeepScreenOn()
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,
@@ -54,6 +60,20 @@ class MainActivity : FlutterActivity() {
                 }
                 "cancel" -> {
                     RoundSignal.cancel()
+                    updateKeepScreenOn()
+                    result.success(null)
+                }
+                "prepareReveal" -> {
+                    RoundSignal.prepareReveal(call.argument<String>("token")!!)
+                    updateKeepScreenOn()
+                    result.success(null)
+                }
+                "reveal" -> {
+                    RoundSignal.reveal(applicationContext, call.argument<String>("token"),
+                        call.argument<String>("winner"),
+                        call.argument<Boolean>("audible") == true && hasWindowFocus()) {
+                        updateKeepScreenOn()
+                    }
                     updateKeepScreenOn()
                     result.success(null)
                 }
