@@ -101,7 +101,9 @@ void main() {
     expectExposedWhite((await samples())[1]);
     await gesture.up();
     await tester.pump();
-    expect(find.byKey(const ValueKey('white-secret')), findsNothing);
+    expect(find.byKey(const ValueKey('white-secret')), findsOneWidget);
+    expectExposedWhite((await samples())[1]);
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('white-secret')), findsNothing);
   });
 }

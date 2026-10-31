@@ -32,8 +32,14 @@ Avatare vor; Bilderfassung und Speicherung gehören nicht zu dieser Umsetzung.
 - Ein Tippen auf den Übergabebutton bleibt eine eigene Aktion.
   Verliert der noch nicht begonnene Drag gegen diesen Tap, verdeckt er nicht
   vorher die Runde und entwertet dadurch nicht den Übergabe-Callback.
-- Loslassen und Gestenabbruch entfernen die privaten Inhalte sofort; nur die
-  leere Abdeckung gleitet zurück. Bei reduzierter Bewegung schließt sie sofort.
+- Beim normalen Loslassen bleiben Wort und Hinweis fest auf der Unterlage,
+  bis die zurückgleitende Abdeckung sie verdeckt. Erst am Ende des Rücklaufs
+  entfernt die Rundenlogik die privaten Inhalte. Die private Semantik wird
+  bereits beim Loslassen gesperrt.
+- Gestenabbruch, App-Wechsel, Sperren, Dialoge und Übergabe entfernen die privaten
+  Inhalte weiterhin sofort. Bei reduzierter Bewegung schließt die Abdeckung
+  sofort. Die auf acht Sekunden begrenzte Tastatur-/Screenreader-Alternative
+  entfernt ihren Inhalt bei Ablauf ebenfalls sofort.
 - „Weiter“ ist sofort aktiv, unabhängig davon, ob das Geheimnis angesehen wurde.
   Auch die Spielregel erlaubt das Überspringen ungeöffneter oder teilgeöffneter
   Karten. Jede Übergabe beginnt verdeckt, die letzte führt zur Bereit-Phase.
@@ -120,3 +126,30 @@ Kurve, dass die ganze Wort-/Hinweiszeile noch verdeckt ist. Die vorhandene Pixel
 prüfung der gekrümmten Freilegung bleibt erfolgreich. Für diese reine Layout-
 korrektur wurde keine neue native Android-Ablaufsuite ausgeführt; die erneute
 Handyprüfung dieser Position und echtes TalkBack bleiben offen.
+
+## Text während des automatischen Rücklaufs
+
+Nach weiterer Handy-Rückmeldung verschwindet das Geheimnis beim normalen
+Loslassen nicht mehr vorzeitig: Die tatsächliche Kurve schiebt sich über den
+festliegenden Inhalt. Das ersetzt die frühere unmittelbare Entfernung bei jeder
+Art von Loslassen. Abbruch und Unterbrechungen behalten den sofortigen Schutz.
+
+Ein Rücklauf hat eine eigene Revisionskennung und verwendet abbrechbare
+Animationsabschlüsse. Erneutes Greifen stoppt die alte Animation; deren Abschluss
+kann kein neu angesehenes Geheimnis verbergen. Verdecken durch eine externe
+Unterbrechung entwertet den Abschluss ebenfalls. Akzeptierte Pointer-Abbrüche
+werden zusätzlich am rohen Cancel-Ereignis erkannt, da Flutter sie auch über
+Drag-Ende melden kann; sie gelten nicht als normales Loslassen.
+
+83 Unit-/Widget-Tests und Analyse bestehen. Beide Rollen werden während des
+Rücklaufs auf unveränderte Textposition und abgeschirmte Semantik geprüft;
+zusätzlich erneutes Greifen, Übergabe sowie App-/Dialog-Unterbrechung während
+des Rücklaufs. Der Pixeltest prüft, dass sichtbarer weißer Inhalt auch im ersten
+Rücklauf-Frame erhalten bleibt und am Ende entfernt ist. Die Android-Testhilfe
+prüft beim Loslassen ebenfalls den erhaltenen Inhalt und seine feste Position.
+
+Endgültige Rücklauf-Abnahme: alle vier Android-Abläufe auf API 36.1 bei
+320 × 568 und 200 Prozent Schrift bestanden. Bei normalen vollständigen und
+teilweisen Öffnungen bleibt der Text nach dem Loslassen zunächst an derselben
+Position, erst nach dem Rücklauf verschwindet er. Release-Build und Format-/
+Diff-Prüfung ebenfalls erfolgreich; physische Handyprüfung und TalkBack offen.

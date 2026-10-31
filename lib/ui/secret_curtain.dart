@@ -9,7 +9,8 @@ import '../l10n/app_localizations.dart';
 import 'party_theme.dart';
 
 /// Keeps only the cover animation locally. Private content belongs to the round
-/// and is removed immediately on release, cancellation or interruption.
+/// and stays behind the cover during a normal return. Interruptions and
+/// cancellation still remove it immediately.
 class SecretCurtain extends StatefulWidget {
   const SecretCurtain({
     super.key,
@@ -51,11 +52,15 @@ class _SecretCurtainState extends State<SecretCurtain>
   double? _lastDragY;
   bool _dragging = false;
   bool _requestedViewed = false;
+  bool _returning = false;
+  int _returnRevision = 0;
 
   @override
   void didUpdateWidget(SecretCurtain oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.concealRevision != widget.concealRevision) {
+      _returnRevision++;
+      _returning = false;
       _accessibleTimer?.cancel();
       _dragging = false;
       _lastDragY = null;
@@ -71,29 +76,59 @@ class _SecretCurtainState extends State<SecretCurtain>
     super.dispose();
   }
 
-  void _close() {
+  Future<void> _close({bool keepSecretDuringReturn = false}) async {
     _accessibleTimer?.cancel();
     _dragging = false;
     _lastDragY = null;
     _requestedViewed = false;
-    widget.onConceal();
-    if (MediaQuery.disableAnimationsOf(context)) {
+    final revision = ++_returnRevision;
+    final concealRevision = widget.concealRevision;
+    final immediate = MediaQuery.disableAnimationsOf(context);
+    final retain =
+        keepSecretDuringReturn &&
+        !immediate &&
+        widget.revealed &&
+        _cover.value > 0;
+    setState(() => _returning = retain);
+    if (!retain) widget.onConceal();
+    if (immediate) {
       _cover.value = 0;
-    } else {
-      _cover.animateBack(0, curve: Curves.easeInOutCubic);
+      return;
+    }
+    try {
+      await _cover.animateBack(0, curve: Curves.easeInOutCubic).orCancel;
+    } on TickerCanceled {
+      // Re-grabbing, interruption and disposal invalidate this return.
+      return;
+    }
+    if (!mounted ||
+        revision != _returnRevision ||
+        concealRevision != widget.concealRevision) {
+      return;
+    }
+    if (retain) {
+      setState(() => _returning = false);
+      widget.onConceal();
     }
   }
 
   void _accessiblePeek() {
+    _returnRevision++;
+    _returning = false;
     _requestedViewed = true;
     widget.onReveal(true);
     _cover.value = 1;
     _accessibleTimer?.cancel();
     // Allows the role and even a long word to be read, without latching open.
-    _accessibleTimer = Timer(const Duration(seconds: 8), _close);
+    _accessibleTimer = Timer(
+      const Duration(seconds: 8),
+      () => unawaited(_close()),
+    );
   }
 
   void _startDrag(DragStartDetails details) {
+    _returnRevision++;
+    setState(() => _returning = false);
     _accessibleTimer?.cancel();
     _cover.stop();
     _dragging = true;
@@ -130,205 +165,226 @@ class _SecretCurtainState extends State<SecretCurtain>
           160 * MediaQuery.textScalerOf(context).scale(1) + 32,
         );
         final contentTop = height - travel * _fullyOpenAt + 8;
-        return FocusableActionDetector(
-          shortcuts: const {
-            SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-            SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        return Listener(
+          onPointerCancel: (_) {
+            // Flutter reports cancellation of an accepted drag through onEnd.
+            // Conceal here first so it cannot be treated as normal release.
+            if (_dragging || _returning) unawaited(_close());
           },
-          actions: {
-            ActivateIntent: CallbackAction<ActivateIntent>(
-              onInvoke: (_) {
-                _accessiblePeek();
-                return null;
-              },
-            ),
-          },
-          child: Semantics(
-            key: const ValueKey('secret-peek-action'),
-            explicitChildNodes: true,
-            button: true,
-            label: strings.peekSecret,
-            value: widget.revealed
-                ? strings.curtainRelease
-                : strings.secretConcealed,
-            hint: strings.peekAccessibilityHint,
-            onTap: _accessiblePeek,
-            child: ClipRect(
-              child: SizedBox(
-                key: const ValueKey('secret-curtain-panel'),
-                height: height,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Container(
-                      color: PartyColors.purple,
-                      padding: EdgeInsets.fromLTRB(
-                        24,
-                        contentTop,
-                        24,
-                        16 + secretLift,
-                      ),
-                      child: AnimatedBuilder(
-                        animation: _cover,
-                        builder: (context, _) =>
-                            widget.revealed && _cover.value > 0
-                            ? LayoutBuilder(
-                                // The curved cover is the visual mask. A second,
-                                // rectangular clip would hide the text beyond
-                                // that curve and make the moving edge look flat.
-                                builder: (context, space) => ExcludeSemantics(
-                                  key: const ValueKey('secret-curtain-opening'),
-                                  excluding: _cover.value < _fullyOpenAt,
-                                  child: Semantics(
-                                    liveRegion: true,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.bottomLeft,
-                                      child: SizedBox(
-                                        width: space.maxWidth,
-                                        child: widget.secretBuilder(context),
+          child: FocusableActionDetector(
+            shortcuts: const {
+              SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+              SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+            },
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (_) {
+                  _accessiblePeek();
+                  return null;
+                },
+              ),
+            },
+            child: Semantics(
+              key: const ValueKey('secret-peek-action'),
+              explicitChildNodes: true,
+              button: true,
+              label: strings.peekSecret,
+              value: widget.revealed
+                  ? strings.curtainRelease
+                  : strings.secretConcealed,
+              hint: strings.peekAccessibilityHint,
+              onTap: _accessiblePeek,
+              child: ClipRect(
+                child: SizedBox(
+                  key: const ValueKey('secret-curtain-panel'),
+                  height: height,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Container(
+                        color: PartyColors.purple,
+                        padding: EdgeInsets.fromLTRB(
+                          24,
+                          contentTop,
+                          24,
+                          16 + secretLift,
+                        ),
+                        child: AnimatedBuilder(
+                          animation: _cover,
+                          builder: (context, _) =>
+                              widget.revealed && _cover.value > 0
+                              ? LayoutBuilder(
+                                  // The curved cover is the visual mask. A second,
+                                  // rectangular clip would hide the text beyond
+                                  // that curve and make the moving edge look flat.
+                                  builder: (context, space) => ExcludeSemantics(
+                                    key: const ValueKey(
+                                      'secret-curtain-opening',
+                                    ),
+                                    excluding:
+                                        _returning ||
+                                        _cover.value < _fullyOpenAt,
+                                    child: Semantics(
+                                      liveRegion: true,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.bottomLeft,
+                                        child: SizedBox(
+                                          width: space.maxWidth,
+                                          child: widget.secretBuilder(context),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : const SizedBox.expand(),
-                      ),
-                    ),
-                    AnimatedBuilder(
-                      animation: _cover,
-                      builder: (context, child) => Transform.translate(
-                        key: const ValueKey('secret-curtain-cover'),
-                        offset: Offset(0, -travel * _cover.value),
-                        child: child,
-                      ),
-                      child: GestureDetector(
-                        // Discard recognizer pointer tracking as well as the visual drag
-                        // when a dialog or interruption invalidates the gesture.
-                        key: ValueKey(
-                          'secret-curtain-drag-surface-${widget.concealRevision}',
+                                )
+                              : const SizedBox.expand(),
                         ),
-                        excludeFromSemantics: true,
-                        behavior: HitTestBehavior.opaque,
-                        dragStartBehavior: DragStartBehavior.down,
-                        onVerticalDragStart: _startDrag,
-                        onVerticalDragUpdate: (details) =>
-                            _updateDrag(details, travel),
-                        onVerticalDragEnd: (_) => _close(),
-                        onVerticalDragCancel: () {
-                          // A tap on the nested handoff button can win before
-                          // a drag starts. Do not invalidate that button's round.
-                          if (_dragging) _close();
-                        },
-                        child: PhysicalShape(
-                          clipper: const _SoftEdgeClipper(),
-                          clipBehavior: Clip.antiAlias,
-                          color: PartyColors.surface,
-                          elevation: 8,
-                          shadowColor: Colors.black54,
-                          child: DecoratedBox(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0xFF2D2042),
-                                  Color(0xFF231A34),
-                                  PartyColors.background,
-                                ],
+                      ),
+                      AnimatedBuilder(
+                        animation: _cover,
+                        builder: (context, child) => Transform.translate(
+                          key: const ValueKey('secret-curtain-cover'),
+                          offset: Offset(0, -travel * _cover.value),
+                          child: child,
+                        ),
+                        child: GestureDetector(
+                          // Discard recognizer pointer tracking as well as the visual drag
+                          // when a dialog or interruption invalidates the gesture.
+                          key: ValueKey(
+                            'secret-curtain-drag-surface-${widget.concealRevision}',
+                          ),
+                          excludeFromSemantics: true,
+                          behavior: HitTestBehavior.opaque,
+                          dragStartBehavior: DragStartBehavior.down,
+                          onVerticalDragStart: _startDrag,
+                          onVerticalDragUpdate: (details) =>
+                              _updateDrag(details, travel),
+                          onVerticalDragEnd: (_) {
+                            if (_dragging) {
+                              unawaited(_close(keepSecretDuringReturn: true));
+                            }
+                          },
+                          onVerticalDragCancel: () {
+                            // A tap on the nested handoff button can win before
+                            // a drag starts. Do not invalidate that button's round.
+                            if (_dragging) unawaited(_close());
+                          },
+                          child: PhysicalShape(
+                            clipper: const _SoftEdgeClipper(),
+                            clipBehavior: Clip.antiAlias,
+                            color: PartyColors.surface,
+                            elevation: 8,
+                            shadowColor: Colors.black54,
+                            child: DecoratedBox(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF2D2042),
+                                    Color(0xFF231A34),
+                                    PartyColors.background,
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    24,
-                                    16,
-                                    24,
-                                    120,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: Center(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: SizedBox(
-                                              width: constraints.maxWidth - 48,
-                                              child: _identity(
-                                                context,
-                                                strings,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      24,
+                                      16,
+                                      24,
+                                      120,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: Center(
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: SizedBox(
+                                                width:
+                                                    constraints.maxWidth - 48,
+                                                child: _identity(
+                                                  context,
+                                                  strings,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      SizedBox(
-                                        width: math.min(
-                                          constraints.maxWidth - 48,
-                                          200 *
-                                              MediaQuery.textScalerOf(context)
-                                                  .scale(1),
-                                        ),
-                                        child: widget.advanceAction,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Positioned(
-                                  key: const ValueKey('secret-curtain-gesture'),
-                                  bottom: 8,
-                                  left: 24,
-                                  right: 24,
-                                  height: 92,
-                                  child: ExcludeSemantics(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons
-                                              .keyboard_double_arrow_up_rounded,
-                                          size: 24,
-                                          color: PartyColors.lime,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Text(
-                                            strings.curtainInstruction,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                  fontSize: 14,
-                                                  color: PartyColors.muted,
-                                                ),
+                                        const SizedBox(height: 20),
+                                        SizedBox(
+                                          width: math.min(
+                                            constraints.maxWidth - 48,
+                                            200 *
+                                                MediaQuery.textScalerOf(context)
+                                                    .scale(1),
                                           ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            color: PartyColors.lime,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(4),
-                                            ),
-                                          ),
-                                          child: SizedBox(width: 88, height: 5),
+                                          child: widget.advanceAction,
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Positioned(
+                                    key: const ValueKey(
+                                      'secret-curtain-gesture',
+                                    ),
+                                    bottom: 8,
+                                    left: 24,
+                                    right: 24,
+                                    height: 92,
+                                    child: ExcludeSemantics(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons
+                                                .keyboard_double_arrow_up_rounded,
+                                            size: 24,
+                                            color: PartyColors.lime,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              strings.curtainInstruction,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium!
+                                                  .copyWith(
+                                                    fontSize: 14,
+                                                    color: PartyColors.muted,
+                                                  ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              color: PartyColors.lime,
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(4),
+                                              ),
+                                            ),
+                                            child: SizedBox(
+                                              width: 88,
+                                              height: 5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

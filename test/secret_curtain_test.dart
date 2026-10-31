@@ -49,6 +49,88 @@ Future<TestGesture> _hold(WidgetTester tester) async {
 
 void main() {
   testWidgets(
+    'released secrets stay fixed during return, interruptions and handoff still conceal',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await startTestRound(tester);
+      var hints = 0;
+      for (var person = 0; person < 3; person++) {
+        final held = await _hold(tester);
+        final secret = find.text('Popcorn').evaluate().isNotEmpty
+            ? 'Popcorn'
+            : 'Kino';
+        if (secret == 'Kino') hints++;
+        final position = tester.getRect(find.text(secret));
+        final grip = tester.getCenter(_curtain);
+        await held.up();
+        await tester.pump();
+        expect(find.text(secret), findsOneWidget);
+        expect(tester.getRect(find.text(secret)), position);
+        expect(semanticsTree(tester), isNot(contains(secret)));
+        await tester.pump(const Duration(milliseconds: 40));
+        expect(tester.getCenter(_curtain).dy, greaterThan(grip.dy));
+        expect(tester.getRect(find.text(secret)), position);
+        if (person == 0) {
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed!();
+          await tester.pumpAndSettle();
+          expect(find.text('Ben'), findsOneWidget);
+          expectConcealed(tester);
+          continue;
+        }
+        if (person == 1) {
+          tester.binding.handleAppLifecycleStateChanged(
+            AppLifecycleState.inactive,
+          );
+          tester.binding.handleAppLifecycleStateChanged(
+            AppLifecycleState.resumed,
+          );
+          await tester.pump();
+          expectConcealed(tester);
+          await tester.pumpAndSettle();
+          final again = await _hold(tester);
+          await again.up();
+          await tester.pump();
+          await leaveRound(tester);
+          expectConcealed(tester);
+          await tapVisible(tester, 'Weiterspielen');
+          await tester.pump(const Duration(milliseconds: 400));
+          expectConcealed(tester);
+        } else {
+          await tester.pumpAndSettle();
+          expectConcealed(tester);
+        }
+        await tapVisible(tester, 'Weiter');
+      }
+      expect(hints, 1);
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
+      semantics.dispose();
+    },
+  );
+
+  testWidgets('re-grabbing a returning cover cancels its old completion', (
+    tester,
+  ) async {
+    await startTestRound(tester);
+    final held = await _hold(tester);
+    final secret = find.text('Popcorn').evaluate().isNotEmpty
+        ? 'Popcorn'
+        : 'Kino';
+    final position = tester.getRect(find.text(secret));
+    await held.up();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 40));
+    final again = await tester.startGesture(tester.getCenter(_curtain));
+    await again.moveBy(const Offset(0, -80));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text(secret), findsOneWidget);
+    expect(tester.getRect(find.text(secret)), position);
+    await again.up();
+    await tester.pumpAndSettle();
+    expectConcealed(tester);
+  });
+
+  testWidgets(
     'a small accidental drag leaves word and hint fully behind the curve',
     (tester) async {
       await startTestRound(tester);
@@ -359,8 +441,9 @@ void main() {
       await flick.up();
       await tester.pump(const Duration(milliseconds: 16));
       expect(tester.getCenter(_curtain).dy, greaterThanOrEqualTo(releasedAt));
-      expectConcealed(tester);
+      expectPreview(tester);
       await tester.pumpAndSettle();
+      expectConcealed(tester);
       expect(tester.getCenter(_curtain).dy, closeTo(start.dy, 0.1));
       semantics.dispose();
     },
@@ -454,8 +537,14 @@ void main() {
         await gesture.up();
       }
       await tester.pump();
-      expectConcealed(tester);
+      if (i == 1) {
+        expectConcealed(tester);
+      } else {
+        expect(find.text(secret), findsOneWidget);
+        expect(semanticsTree(tester), isNot(contains(secret)));
+      }
       await tester.pumpAndSettle();
+      expectConcealed(tester);
     }
     await tapVisible(tester, 'Weiter');
     expect(find.text('Ben'), findsOneWidget);

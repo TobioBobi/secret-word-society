@@ -32,11 +32,24 @@ Future<void> _tap(WidgetTester tester, Finder target) async {
 TestGesture? _peekGesture;
 int _peekStart = 0;
 
+Future<void> _releasePeek(WidgetTester tester) async {
+  final opening = find.byKey(const ValueKey('secret-curtain-opening'));
+  final content = find
+      .descendant(of: opening, matching: find.byType(Text))
+      .last;
+  final position = tester.getRect(content);
+  await _peekGesture!.up();
+  _peekGesture = null;
+  await tester.pump();
+  expect(opening, findsOneWidget);
+  expect(tester.getRect(content), position);
+  await _settle(tester);
+  expect(opening, findsNothing);
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   if (_peekGesture != null) {
-    await _peekGesture!.up();
-    _peekGesture = null;
-    await _settle(tester);
+    await _releasePeek(tester);
   }
   if (text == 'Geheimnis kurz ansehen') {
     final target = find.byKey(const ValueKey('secret-curtain-gesture'));
@@ -77,8 +90,7 @@ Future<void> _tapText(WidgetTester tester, String text) async {
       // Starting near the top can demonstrate a partial opening, but cannot
       // reach the stop without leaving the physical screen. Release and
       // re-grab the lower grip rather than injecting off-screen pointers.
-      await _peekGesture!.up();
-      await _settle(tester);
+      await _releasePeek(tester);
       expect(preview, findsNothing);
       await tester.ensureVisible(target);
       await _settle(tester);
