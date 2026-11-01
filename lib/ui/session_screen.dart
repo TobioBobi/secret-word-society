@@ -109,6 +109,7 @@ class _SessionScreenState extends State<SessionScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, updateDialog) => AlertDialog(
+          scrollable: true,
           title: Text(strings.renamePlayer),
           content: TextField(
             controller: controller,
@@ -846,6 +847,12 @@ class _SessionScreenState extends State<SessionScreen>
             child: Text(strings.nextRound, textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () {
+              if (_canAct(round)) _returnToGroup();
+            },
+            child: Text(strings.editGroup, textAlign: TextAlign.center),
+          ),
         ],
         if (round.phase == GamePhase.ready) ...[
           FilledButton(
