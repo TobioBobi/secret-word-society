@@ -94,6 +94,30 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('de')];
 
+  /// No description provided for @imposterCount.
+  ///
+  /// In de, this message translates to:
+  /// **'Imposter-Anzahl'**
+  String get imposterCount;
+
+  /// No description provided for @moreImposters.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr Imposter'**
+  String get moreImposters;
+
+  /// No description provided for @fewerImposters.
+  ///
+  /// In de, this message translates to:
+  /// **'Weniger Imposter'**
+  String get fewerImposters;
+
+  /// No description provided for @selectedImposters.
+  ///
+  /// In de, this message translates to:
+  /// **'Imposter-Anzahl: {count}'**
+  String selectedImposters(String count);
+
   /// No description provided for @appTitle.
   ///
   /// In de, this message translates to:

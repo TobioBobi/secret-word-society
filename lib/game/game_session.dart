@@ -16,6 +16,18 @@ final class GameSession {
   GameRound? _round;
   WordDeck? _deck;
   Duration? _manualDuration;
+  ImposterChoice? _manualImposterChoice;
+
+  ImposterChoice get imposterChoice =>
+      _round?.imposterChoice ??
+      _manualImposterChoice ??
+      ImposterChoice.automatic(_players.length);
+
+  void setImposterChoice(ImposterChoice choice) {
+    _requireSetup();
+    choice.validateFor(_players.length);
+    _manualImposterChoice = choice;
+  }
 
   bool get hasManualDuration => _manualDuration != null;
   Duration get discussionDuration =>
@@ -91,6 +103,13 @@ final class GameSession {
   void removePlayer(String id) {
     _requireSetup();
     _players.removeWhere((player) => player.id == id);
+    if (_manualImposterChoice != null &&
+        _players.isNotEmpty &&
+        _manualImposterChoice!.maximum > _players.length) {
+      _manualImposterChoice = ImposterChoice(_players.length, _players.length);
+    } else if (_players.isEmpty) {
+      _manualImposterChoice = null;
+    }
   }
 
   void startRound(WordCatalog catalog, {Random? random}) {
@@ -101,6 +120,7 @@ final class GameSession {
       deck: deck,
       random: random,
       discussionDuration: _manualDuration,
+      imposterChoice: imposterChoice,
     );
     _deck = deck;
   }

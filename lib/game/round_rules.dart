@@ -1,5 +1,37 @@
 import 'dart:math';
 
+/// Public choice; never contains the secretly drawn count.
+final class ImposterChoice {
+  ImposterChoice(this.minimum, this.maximum) {
+    if (minimum < 1 || maximum < minimum || maximum > minimum + 1) {
+      throw ArgumentError('Expected a positive count or adjacent pair.');
+    }
+  }
+
+  final int minimum;
+  final int maximum;
+  int get step => minimum + maximum - 2;
+  String get label => minimum == maximum ? '$minimum' : '$minimum–$maximum';
+
+  factory ImposterChoice.fromStep(int step) {
+    if (step < 0) throw ArgumentError.value(step, 'step');
+    return ImposterChoice(step ~/ 2 + 1, (step + 1) ~/ 2 + 1);
+  }
+
+  factory ImposterChoice.automatic(int players) => ImposterChoice(
+    RoundRules.minimumImposters(players),
+    RoundRules.maximumImposters(players),
+  );
+
+  void validateFor(int players) {
+    RoundRules.validate(players);
+    if (maximum > players) throw ArgumentError('Too many imposters.');
+  }
+
+  int draw(Random random) =>
+      minimum == maximum ? minimum : minimum + random.nextInt(2);
+}
+
 /// Public configuration depends only on group size, never on the secret draw.
 abstract final class RoundRules {
   static const minimumPlayers = 3;
@@ -42,10 +74,6 @@ abstract final class RoundRules {
   }
 
   static int drawImposterCount(int count, Random random) {
-    final minimum = minimumImposters(count);
-    final maximum = maximumImposters(count);
-    return minimum == maximum
-        ? minimum
-        : minimum + random.nextInt(maximum - minimum + 1);
+    return ImposterChoice.automatic(count).draw(random);
   }
 }

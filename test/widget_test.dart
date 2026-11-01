@@ -155,6 +155,8 @@ void main() {
     );
 
     await tester.ensureVisible(find.byTooltip('Ben entfernen'));
+    await tester.ensureVisible(find.byTooltip('Ben entfernen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Ben entfernen'));
     await tester.pumpAndSettle();
     expect(find.text('Ben'), findsNothing);

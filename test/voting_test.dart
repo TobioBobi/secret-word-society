@@ -478,6 +478,7 @@ void main() {
       await _voting(tester, clock);
       await tapVisible(tester, 'Anna');
       final oldConfirm = (await _action(tester)).onPressed!;
+      await tapVisible(tester, 'Anna'); // Free the single selection slot.
       await tapVisible(tester, 'Ben');
       oldConfirm();
       await tester.pumpAndSettle();

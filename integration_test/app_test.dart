@@ -216,6 +216,112 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized().framePolicy =
       LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
+  for (final all in [false, true]) {
+    testWidgets(
+      'manual imposters: range or all=$all, hints and reduced group',
+      (tester) async {
+        var now = DateTime.now();
+        final names = List.generate(6, (i) => 'Gast ${i + 1}');
+        await _launchAndCreateGroup(
+          tester,
+          players: names,
+          now: () => now,
+          beforeStart: () async {
+            // Six people default to 1–2 (step 1).
+            for (var i = 1; i < (all ? 10 : 7); i++) {
+              await _tap(tester, find.byTooltip('Mehr Imposter'));
+            }
+            expect(
+              tester
+                  .widget<Text>(find.byKey(const ValueKey('imposter-count')))
+                  .data,
+              all ? '6' : '4–5',
+            );
+          },
+        );
+        final catalog = await loadWordCatalog();
+        final imposters = <String>[];
+        final hints = <String, int>{};
+        for (final name in names) {
+          await _tapText(tester, 'Geheimnis kurz ansehen');
+          if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
+            imposters.add(name);
+            hints.update(
+              _visibleSecret(catalog),
+              (n) => n + 1,
+              ifAbsent: () => 1,
+            );
+          }
+          await _tapText(tester, 'Weiter');
+          _expectConcealed(catalog);
+        }
+        expect(imposters.length, all ? 6 : inInclusiveRange(4, 5));
+        expect(hints, hasLength(3));
+        expect(hints.values.toSet().difference({1, 2}), isEmpty);
+        expect(
+          find.text('Imposter-Anzahl: ${all ? '6' : '4–5'}'),
+          findsOneWidget,
+        );
+        await _tapText(tester, '03:00 starten');
+        now = now.add(const Duration(minutes: 3));
+        await tester.pump(const Duration(milliseconds: 300));
+        await _settle(tester);
+        Future<void> top() async {
+          tester
+              .widget<CustomScrollView>(find.byType(CustomScrollView))
+              .controller!
+              .jumpTo(0);
+          await _settle(tester);
+        }
+
+        for (final name in imposters) {
+          await top();
+          await _tapText(tester, name);
+        }
+        await _tapText(tester, '${imposters.length} Personen verdächtigen');
+        _expectConcealed(catalog);
+        now = now.add(const Duration(seconds: 3));
+        await tester.pump(const Duration(milliseconds: 300));
+        await _settle(tester);
+        expect(find.text('Die Gruppe gewinnt.'), findsOneWidget);
+        await _tapText(tester, 'Noch eine Runde');
+        for (var i = 0; i < 6; i++) {
+          await _tapText(tester, 'Weiter');
+        }
+        expect(
+          find.text('Imposter-Anzahl: ${all ? '6' : '4–5'}'),
+          findsOneWidget,
+        );
+        await _leaveRound(tester);
+        await _tapText(tester, 'Runde verlassen');
+        for (final name in names.skip(3)) {
+          await top();
+          await _tap(tester, find.byTooltip('$name entfernen'));
+        }
+        await _tap(tester, find.byTooltip('Weniger Imposter'));
+        expect(
+          tester
+              .widget<Text>(find.byKey(const ValueKey('imposter-count')))
+              .data,
+          '2–3',
+        );
+        await _tap(tester, find.byTooltip('Mehr Imposter'));
+        expect(
+          tester
+              .widget<Text>(find.byKey(const ValueKey('imposter-count')))
+              .data,
+          '3',
+        );
+        await _tapText(tester, 'Runde starten');
+        for (var i = 0; i < 3; i++) {
+          await _tapText(tester, 'Weiter');
+        }
+        expect(find.text('Imposter-Anzahl: 3'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('manual timer: real 30-second expiry and retained follow-up', (
     tester,
   ) async {

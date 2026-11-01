@@ -1,4 +1,9 @@
 {
+  "imposterCount": "Imposter-Anzahl",
+  "moreImposters": "Mehr Imposter",
+  "fewerImposters": "Weniger Imposter",
+  "selectedImposters": "Imposter-Anzahl: {count}",
+  "@selectedImposters": {"placeholders": {"count": {"type": "String"}}},
   "@@locale": "de",
   "appTitle": "Secret Word Society",
   "groupPhase": "Eure Gruppe",
