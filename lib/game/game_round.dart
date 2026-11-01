@@ -52,6 +52,7 @@ final class GameRound {
     required this._pair,
     required this._imposterHints,
     required this.discussionDuration,
+    required this.imposterChoice,
     this.phase = GamePhase.handoff,
     this._handoffIndex = 0,
     this.hasViewedSecret = false,
@@ -66,11 +67,13 @@ final class GameRound {
     required WordCatalog catalog,
     Random? random,
     Duration? discussionDuration,
+    ImposterChoice? imposterChoice,
   }) => GameRound.fromDeck(
     players: players,
     deck: WordDeck(catalog),
     random: random,
     discussionDuration: discussionDuration,
+    imposterChoice: imposterChoice,
   );
 
   /// Reuses a session's draw source; only starting a round consumes a word.
@@ -79,6 +82,7 @@ final class GameRound {
     required WordDeck deck,
     Random? random,
     Duration? discussionDuration,
+    ImposterChoice? imposterChoice,
   }) {
     final group = List<Player>.unmodifiable(players);
     RoundRules.validate(group.length);
@@ -91,13 +95,10 @@ final class GameRound {
       throw ArgumentError('Player IDs and names must be unique.');
     }
     final source = random ?? Random();
-    if (deck.catalog.pairs.any(
-      (pair) => pair.hints.length < RoundRules.maximumImposters(group.length),
-    )) {
-      throw ArgumentError('This group needs more distinct hints per word.');
-    }
+    final choice = imposterChoice ?? ImposterChoice.automatic(group.length);
+    choice.validateFor(group.length);
     final pair = deck.draw(source);
-    final count = RoundRules.drawImposterCount(group.length, source);
+    final count = choice.draw(source);
     // Partial Fisher–Yates: unique, uniformly selected players without retries.
     final indices = List.generate(group.length, (index) => index);
     final hints = pair.hints.toList()..shuffle(source);
@@ -107,7 +108,7 @@ final class GameRound {
       final value = indices[chosen];
       indices[chosen] = indices[index];
       indices[index] = value;
-      assignments[value] = hints[index];
+      assignments[value] = hints[index % hints.length];
     }
     return GameRound._(
       players: group,
@@ -116,18 +117,18 @@ final class GameRound {
       pair: pair,
       imposterHints: Map.unmodifiable(assignments),
       discussionDuration: duration,
+      imposterChoice: choice,
     );
   }
 
   static const minimumPlayers = RoundRules.minimumPlayers;
   final Duration discussionDuration;
-  bool get allowsMultipleSuspects =>
-      RoundRules.maximumImposters(players.length) > 1;
-  int get maximumSuspects => RoundRules.maximumImposters(players.length);
+  final ImposterChoice imposterChoice;
+  bool get allowsMultipleSuspects => imposterChoice.maximum > 1;
+  int get maximumSuspects => imposterChoice.maximum;
 
-  /// The public group-size limit never depends on the secret role draw.
+  /// The public choice never depends on the secret role draw.
   bool canSelectSuspect(String playerId) =>
-      !allowsMultipleSuspects ||
       suspects.length < maximumSuspects ||
       suspects.any((player) => player.id == playerId);
   static const revealDuration = Duration(seconds: 3);
@@ -256,11 +257,9 @@ final class GameRound {
     final index = players.indexWhere((player) => player.id == playerId);
     if (index == -1) throw ArgumentError('Suspect must belong to this round.');
     if (!canSelectSuspect(playerId)) return this;
-    final selected = allowsMultipleSuspects
-        ? (suspects.any((player) => player.id == playerId)
-              ? suspects.where((player) => player.id != playerId).toList()
-              : [...suspects, players[index]])
-        : [players[index]];
+    final selected = suspects.any((player) => player.id == playerId)
+        ? suspects.where((player) => player.id != playerId).toList()
+        : [...suspects, players[index]];
     return _copy(phase: phase, suspects: List.unmodifiable(selected));
   }
 
@@ -303,6 +302,7 @@ final class GameRound {
       deck: _deck,
       random: _random,
       discussionDuration: discussionDuration,
+      imposterChoice: imposterChoice,
     );
   }
 
@@ -329,6 +329,7 @@ final class GameRound {
     pair: _pair,
     imposterHints: _imposterHints,
     discussionDuration: discussionDuration ?? this.discussionDuration,
+    imposterChoice: imposterChoice,
     phase: phase,
     handoffIndex: handoffIndex ?? _handoffIndex,
     hasViewedSecret: hasViewedSecret ?? this.hasViewedSecret,

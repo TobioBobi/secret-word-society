@@ -669,6 +669,18 @@ class _SessionScreenState extends State<SessionScreen>
                               ],
                               const SizedBox(height: 24),
                               if (round == null) _buildNameInput(strings),
+                              if (round != null &&
+                                  (round.phase == GamePhase.ready ||
+                                      round.phase == GamePhase.discussion ||
+                                      round.phase == GamePhase.voting)) ...[
+                                Text(
+                                  strings.selectedImposters(
+                                    round.imposterChoice.label,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                               if (round != null)
                                 if (round.phase == GamePhase.ready)
                                   _buildReadyCard(strings)
@@ -709,7 +721,10 @@ class _SessionScreenState extends State<SessionScreen>
                           !round!.allowsMultipleSuspects
                       ? RadioGroup<String>(
                           groupValue: round.suspects.firstOrNull?.id,
-                          onChanged: (id) => _selectSuspect(round, id),
+                          onChanged: (id) => _selectSuspect(
+                            round,
+                            id ?? round.suspects.firstOrNull?.id,
+                          ),
                           child: scrollView,
                         )
                       : scrollView;
@@ -931,6 +946,8 @@ class _SessionScreenState extends State<SessionScreen>
                 )
               : RadioListTile<String>(
                   value: player.id,
+                  toggleable: true,
+                  enabled: round.canSelectSuspect(player.id),
                   title: Text(player.name),
                   secondary: PlayerAvatarView(avatar: player.avatar),
                   selected: selected,
@@ -1129,10 +1146,51 @@ class _SessionScreenState extends State<SessionScreen>
   String _formatTime(int seconds) =>
       '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
 
-  String _imposterRange(int count) {
-    final minimum = RoundRules.minimumImposters(count);
-    final maximum = RoundRules.maximumImposters(count);
-    return minimum == maximum ? '$minimum' : '$minimum–$maximum';
+  Widget _buildImposterPicker(AppLocalizations strings) {
+    final choice = _session.imposterChoice;
+    Widget button(bool increase) => IconButton.outlined(
+      tooltip: increase ? strings.moreImposters : strings.fewerImposters,
+      onPressed:
+          !_starting &&
+              (increase
+                  ? choice.step < (_session.players.length - 2) * 2
+                  : choice.step > 0)
+          ? () {
+              if (_starting || _session.round != null) return;
+              setState(
+                () => _session.setImposterChoice(
+                  ImposterChoice.fromStep(choice.step + (increase ? 1 : -1)),
+                ),
+              );
+            }
+          : null,
+      icon: Icon(increase ? Icons.add : Icons.remove),
+    );
+    return PartyCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(strings.imposterCount, textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Semantics(
+            liveRegion: true,
+            label: strings.selectedImposters(choice.label),
+            excludeSemantics: true,
+            child: Text(
+              choice.label,
+              key: const ValueKey('imposter-count'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [button(false), button(true)],
+          ),
+        ],
+      ),
+    );
   }
 
   void _setDiscussionDuration(Duration duration) {
@@ -1213,7 +1271,7 @@ class _SessionScreenState extends State<SessionScreen>
     Text(
       _session.canStart
           ? strings.roundSummary(
-              _imposterRange(_session.players.length),
+              _session.imposterChoice.label,
               _formatTime(_session.discussionDuration.inSeconds),
             )
           : strings.playersMissing(
@@ -1223,6 +1281,8 @@ class _SessionScreenState extends State<SessionScreen>
       style: const TextStyle(color: PartyColors.muted),
     ),
     if (_session.canStart) ...[
+      const SizedBox(height: 12),
+      _buildImposterPicker(strings),
       const SizedBox(height: 12),
       _buildDurationPicker(strings),
     ],

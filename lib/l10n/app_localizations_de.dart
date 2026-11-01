@@ -10,6 +10,20 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get imposterCount => 'Imposter-Anzahl';
+
+  @override
+  String get moreImposters => 'Mehr Imposter';
+
+  @override
+  String get fewerImposters => 'Weniger Imposter';
+
+  @override
+  String selectedImposters(String count) {
+    return 'Imposter-Anzahl: $count';
+  }
+
+  @override
   String get appTitle => 'Secret Word Society';
 
   @override

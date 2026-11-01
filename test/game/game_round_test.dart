@@ -273,7 +273,9 @@ void main() {
     expect(voting.suspects, isEmpty);
     expect(() => voting.confirmSuspect(_now), throwsStateError);
     expect(() => voting.selectSuspect('outsider'), throwsArgumentError);
-    final selected = voting.selectSuspect('a').selectSuspect('b');
+    final first = voting.selectSuspect('a');
+    expect(first.selectSuspect('b'), same(first));
+    final selected = first.selectSuspect('a').selectSuspect('b');
     expect(selected.suspects.single, same(_players[1]));
     expect(selected.result, isNull);
     expect(

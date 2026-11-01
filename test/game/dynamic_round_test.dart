@@ -238,7 +238,7 @@ void main() {
     },
   );
 
-  test('bad or duplicate hints fail explicitly instead of repeating hints', () {
+  test('invalid hints fail; short catalogs allow balanced repetition', () {
     expect(
       () => WordPair(
         id: '1',
@@ -258,8 +258,11 @@ void main() {
       pairs: [WordPair(id: '1', word: 'Word', hint: 'Hint')],
     );
     expect(
-      () => GameRound.start(players: _players(6), catalog: insufficient),
-      throwsArgumentError,
+      GameRound.start(
+        players: _players(6),
+        catalog: insufficient,
+      ).maximumSuspects,
+      2,
     );
     expect(
       () => WordCatalog.fromJson(
