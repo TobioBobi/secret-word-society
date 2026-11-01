@@ -57,6 +57,42 @@ List<Player> _players(int count) =>
 }
 
 void main() {
+  test('selection cap follows the public maximum, never the secret count', () {
+    for (var size = 6; size <= 14; size++) {
+      for (var seed = 0; seed < 20; seed++) {
+        final (ready, _, _) = _distribute(
+          GameRound.start(
+            players: _players(size),
+            catalog: _catalog,
+            random: Random(seed),
+          ),
+        );
+        var voting = ready
+            .startDiscussion(_now)
+            .advanceTime(_now.add(ready.discussionDuration));
+        final maximum = size <= 10 ? 2 : 3;
+        expect(voting.maximumSuspects, maximum);
+        for (final player in voting.players.take(maximum)) {
+          expect(voting.canSelectSuspect(player.id), isTrue);
+          voting = voting.selectSuspect(player.id);
+        }
+        final extra = voting.players[maximum];
+        expect(voting.canSelectSuspect(extra.id), isFalse);
+        expect(voting.selectSuspect(extra.id), same(voting));
+        expect(voting.suspects, hasLength(maximum));
+        final first = voting.players.first;
+        expect(voting.canSelectSuspect(first.id), isTrue);
+        voting = voting.selectSuspect(first.id);
+        expect(voting.suspects, hasLength(maximum - 1));
+        expect(voting.canSelectSuspect(extra.id), isTrue);
+        voting = voting.selectSuspect(extra.id);
+        expect(voting.suspects, hasLength(maximum));
+        expect(voting.suspects, contains(extra));
+        expect(voting.suspects, isNot(contains(first)));
+      }
+    }
+  });
+
   test('all group sizes, deadlines and random assignment boundaries', () {
     for (var size = 3; size <= 14; size++) {
       final observedCounts = <int>{};
@@ -132,9 +168,9 @@ void main() {
         for (final selection in [
           ids,
           ids.skip(1).toSet(),
-          {...ids, innocent},
+          {...ids.skip(1), innocent},
+          if (ids.length < voting.maximumSuspects) {...ids, innocent},
           {innocent},
-          voting.players.map((p) => p.id).toSet(),
         ]) {
           var selected = voting;
           for (final id in selection) {

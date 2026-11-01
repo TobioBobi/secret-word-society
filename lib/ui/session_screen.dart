@@ -906,7 +906,9 @@ class _SessionScreenState extends State<SessionScreen>
           child: round.allowsMultipleSuspects
               ? CheckboxListTile(
                   value: selected,
-                  onChanged: (_) => _selectSuspect(round, player.id),
+                  onChanged: round.canSelectSuspect(player.id)
+                      ? (_) => _selectSuspect(round, player.id)
+                      : null,
                   title: Text(player.name),
                   secondary: PlayerAvatarView(avatar: player.avatar),
                   activeColor: PartyColors.lime,

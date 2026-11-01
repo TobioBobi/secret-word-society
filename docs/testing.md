@@ -242,11 +242,14 @@ Grundlagen: [Flutter-Integrationstests](https://docs.flutter.dev/testing/integra
 
 ## Dynamische Runden und Mehrfachabstimmung (Issue #25)
 
-Der fünfte native Ablauf legt 14 Personen an, verteilt die echten Assets und
-prüft zwei oder drei Imposter mit unterschiedlichen Hinweisen zum selben Wort.
-Nach 07:00 Startzeit wird nur in diesem Test die injizierte Uhr vorgespult;
-die beiden dreiköpfigen Komplettabläufe warten weiterhin die echten 90 Sekunden.
-Der Test wählt eine unschuldige Person an und wieder ab, bestätigt dann exakt
+Die beiden zusätzlichen nativen Abläufe legen sechs beziehungsweise vierzehn
+Personen an und verteilen die echten Assets mit unterschiedlichen Hinweisen
+zum selben Wort. Die Mehrfachauswahl endet beim öffentlichen Maximum von zwei
+beziehungsweise drei Personen. Weitere Personen sind dann deaktiviert;
+Abwählen gibt wieder einen Platz frei. Die Grenze folgt nicht der gezogenen
+Imposter-Anzahl. Nach 03:00 beziehungsweise 07:00 Startzeit wird in diesen Tests
+die injizierte Uhr vorgespult; die beiden dreiköpfigen Komplettabläufe warten weiterhin die echten 90 Sekunden.
+Jeder Test wählt eine unschuldige Person an und wieder ab, bestätigt dann exakt
 die Imposter, prüft den Gruppensieg nach dem geschützten Countdown und bearbeitet
 die Gruppe auf fünf Personen. Die nächste Runde startet mit 02:30.
 

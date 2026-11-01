@@ -107,6 +107,46 @@ void main() {
           await tapVisible(tester, name);
         }
 
+        final maximum = size == 6 ? 2 : 3;
+        for (final name in names.take(maximum)) {
+          await select(name);
+        }
+        expect(
+          tester
+              .widget<CheckboxListTile>(
+                find.widgetWithText(CheckboxListTile, names[maximum - 1]),
+              )
+              .onChanged,
+          isNotNull,
+        );
+        // A disabled extra person cannot be added, even by tapping their row.
+        await select(names[maximum]);
+        expect(
+          tester
+              .widget<CheckboxListTile>(
+                find.widgetWithText(CheckboxListTile, names[maximum]),
+              )
+              .onChanged,
+          isNull,
+        );
+        await select(names.first);
+        await tester.scrollUntilVisible(
+          find.widgetWithText(CheckboxListTile, names[maximum]),
+          180,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(
+          tester
+              .widget<CheckboxListTile>(
+                find.widgetWithText(CheckboxListTile, names[maximum]),
+              )
+              .onChanged,
+          isNotNull,
+        );
+        for (final name in names.skip(1).take(maximum - 1)) {
+          await select(name);
+        }
+
         final innocent = names.firstWhere((name) => !imposters.contains(name));
         await select(innocent);
         final stale = tester

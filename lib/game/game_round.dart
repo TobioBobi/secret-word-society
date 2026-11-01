@@ -116,6 +116,13 @@ final class GameRound {
       RoundRules.discussionDuration(players.length);
   bool get allowsMultipleSuspects =>
       RoundRules.maximumImposters(players.length) > 1;
+  int get maximumSuspects => RoundRules.maximumImposters(players.length);
+
+  /// The public group-size limit never depends on the secret role draw.
+  bool canSelectSuspect(String playerId) =>
+      !allowsMultipleSuspects ||
+      suspects.length < maximumSuspects ||
+      suspects.any((player) => player.id == playerId);
   static const revealDuration = Duration(seconds: 3);
 
   final List<Player> players;
@@ -235,6 +242,7 @@ final class GameRound {
     _requirePhase(GamePhase.voting);
     final index = players.indexWhere((player) => player.id == playerId);
     if (index == -1) throw ArgumentError('Suspect must belong to this round.');
+    if (!canSelectSuspect(playerId)) return this;
     final selected = allowsMultipleSuspects
         ? (suspects.any((player) => player.id == playerId)
               ? suspects.where((player) => player.id != playerId).toList()

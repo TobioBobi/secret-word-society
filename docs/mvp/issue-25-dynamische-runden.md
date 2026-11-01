@@ -30,8 +30,12 @@ Rundenzustand. Nur die aktuelle Karte gibt ihren eigenen Hinweis frei; sämtlich
 Imposter und der Gewinner sind erst nach dem bestehenden Enthüllungs-Countdown
 zugänglich.
 
-Ab sechs Personen bietet die Abstimmung Kontrollkästchen ohne Auswahlobergrenze.
-Die Oberfläche verrät damit nicht, wie viele Imposter gezogen wurden. Bei drei
+Ab sechs Personen bietet die Abstimmung Kontrollkästchen mit der öffentlich
+bekannten maximal möglichen Imposter-Anzahl als Obergrenze: zwei bei 6–10,
+drei bei 11–14 Personen. Ist die Grenze erreicht, sind weitere Personen
+deaktiviert; ausgewählte Personen bleiben abwählbar. Nach dem Abwählen ist
+ein Platz wieder frei. Auch der Spielkern ignoriert überzählige Auswahlen.
+Die Grenze verrät nicht, wie viele Imposter tatsächlich gezogen wurden. Bei drei
 bis fünf Personen bleibt die bekannte Einzelauswahl. Ergebnisse nennen alle
 Verdächtigen und alle Imposter mit ihren Avataren. Ein- und Mehrzahl werden
 entsprechend der erst dann bekannten tatsächlichen Anzahl formuliert.
@@ -48,13 +52,16 @@ Sitzung korrekt erneuern.
 
 ## Validierung
 
-- 96 Unit-/Widget-Tests erfolgreich, einschließlich Staffelgrenzen, möglicher
+- 97 Unit-/Widget-Tests erfolgreich, einschließlich Staffelgrenzen, möglicher
   Rollenanzahlen, unterschiedlicher Hinweise, exakter Gewinnerbestimmung,
   Geheimnisschutz im Semantikbaum, Gruppenänderung und 200 Prozent Schrift.
 - Flutter-Analyse ohne Befund; Format-/Diff-Prüfung erfolgreich.
-- Alle fünf Android-Abläufe auf API 36.1 bei 320 × 568 und 200 Prozent
+- Vollständige Erstabnahme: fünf Android-Abläufe auf API 36.1 bei 320 × 568 und 200 Prozent
   Schrift erfolgreich, einschließlich echter 90-Sekunden-Runden und einer
   14-Personen-Runde mit vorgespulter Testuhr.
+- Auswahlbegrenzung nach Rückmeldung ergänzt: beide betroffenen Android-Abläufe
+  für sechs und vierzehn Personen bei 320 × 568 und 200 Prozent Schrift erneut
+  erfolgreich, inklusive gesperrter Zusatzwahl und Freigabe nach Abwahl.
 - Roboto-Sichtprüfung der Gruppenzusammenfassung, Karten, Timer,
   Mehrfachauswahl und Ergebnisansichten normal sowie bei 320 × 568 mit
   200 Prozent Schrift erfolgreich.
