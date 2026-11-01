@@ -1,0 +1,5 @@
+Cutouts by DiceBear (https://www.dicebear.com)
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+Style definition: dicebear_styles 10.6.0, lib/cutouts.dart
+Engine: dicebear_core 10.7.0 (MIT; included in Flutter package licenses).
+Only the Cutouts definition is imported. Avatars are generated locally.

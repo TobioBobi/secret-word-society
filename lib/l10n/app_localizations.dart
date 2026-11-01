@@ -495,6 +495,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Runde verlassen'**
   String get leaveRound;
+
+  /// No description provided for @rerollAvatar.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuer Avatar für {name}'**
+  String rerollAvatar(String name);
+
+  /// No description provided for @renamePlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Name ändern'**
+  String get renamePlayer;
+
+  /// No description provided for @cancelEdit.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get cancelEdit;
+
+  /// No description provided for @saveName.
+  ///
+  /// In de, this message translates to:
+  /// **'Übernehmen'**
+  String get saveName;
 }
 
 class _AppLocalizationsDelegate

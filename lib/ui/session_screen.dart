@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import '../data/word_catalog_loader.dart';
 import '../game/game_round.dart';
 import '../game/game_session.dart';
+import '../game/player.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/round_signal.dart';
 import 'party_card.dart';
 import 'party_theme.dart';
+import 'player_avatar.dart';
 import 'secret_curtain.dart';
 import 'time_up_card.dart';
 
@@ -97,6 +99,58 @@ class _SessionScreenState extends State<SessionScreen>
       if (_nameProblem == null) _name.clear();
     });
     _nameFocus.requestFocus();
+  }
+
+  Future<void> _renamePlayer(Player player) async {
+    final strings = AppLocalizations.of(context);
+    final controller = TextEditingController(text: player.name);
+    NameProblem? problem;
+    final route = DialogRoute<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, updateDialog) => AlertDialog(
+          title: Text(strings.renamePlayer),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            autocorrect: false,
+            decoration: InputDecoration(
+              labelText: strings.nameLabel,
+              errorText: problem == null
+                  ? null
+                  : (problem == NameProblem.empty
+                        ? strings.nameEmpty
+                        : strings.nameDuplicate),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.cancelEdit),
+            ),
+            FilledButton(
+              onPressed: () {
+                final result = _session.renamePlayer(
+                  player.id,
+                  controller.text,
+                );
+                if (result != null) {
+                  updateDialog(() => problem = result);
+                } else {
+                  setState(() {});
+                  Navigator.pop(dialogContext);
+                }
+              },
+              child: Text(strings.saveName),
+            ),
+          ],
+        ),
+      ),
+    );
+    await Navigator.of(context).push(route);
+    await route.completed;
+    controller.dispose();
   }
 
   Future<void> _startRound() async {
@@ -478,6 +532,10 @@ class _SessionScreenState extends State<SessionScreen>
                                     key: ValueKey(round!.currentPlayer!.id),
                                     title: title,
                                     name: round.currentPlayer!.name,
+                                    avatar: PlayerAvatarView(
+                                      avatar: round.currentPlayer!.avatar,
+                                      size: 182,
+                                    ),
                                     advanceAction: FilledButton(
                                       onPressed: () => _advanceCard(round),
                                       style: FilledButton.styleFrom(
@@ -813,6 +871,7 @@ class _SessionScreenState extends State<SessionScreen>
           child: RadioListTile<String>(
             value: player.id,
             title: Text(player.name),
+            secondary: PlayerAvatarView(avatar: player.avatar),
             selected: selected,
             activeColor: PartyColors.lime,
             tileColor: PartyColors.surface,
@@ -891,6 +950,20 @@ class _SessionScreenState extends State<SessionScreen>
                           style: const TextStyle(color: PartyColors.muted),
                         ),
                         const SizedBox(height: 4),
+                        if (index < 2) ...[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: PlayerAvatarView(
+                              avatar:
+                                  (index == 0
+                                          ? result.suspect
+                                          : result.imposter)
+                                      .avatar,
+                              size: 64,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                         Text(
                           value,
                           style: const TextStyle(
@@ -932,17 +1005,29 @@ class _SessionScreenState extends State<SessionScreen>
                 ),
                 child: Row(
                   children: [
-                    ExcludeSemantics(
-                      child: Text(
-                        '${index + 1}'.padLeft(2, '0'),
-                        style: const TextStyle(color: PartyColors.muted),
-                      ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        PlayerAvatarView(avatar: player.avatar),
+                        IconButton(
+                          key: ValueKey('reroll-${player.id}'),
+                          tooltip: strings.rerollAvatar(player.name),
+                          onPressed: _starting
+                              ? null
+                              : () => setState(
+                                  () => _session.rerollAvatar(player.id),
+                                ),
+                          icon: const Icon(Icons.casino_outlined),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        player.name,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      child: TextButton(
+                        onPressed: _starting
+                            ? null
+                            : () => _renamePlayer(player),
+                        child: Text(player.name, textAlign: TextAlign.center),
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 import 'l10n/app_localizations.dart';
 import 'ui/party_theme.dart';
 import 'ui/session_screen.dart';
 
 void main() {
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Cutouts (DiceBear)',
+    ], await rootBundle.loadString('assets/licenses/cutouts.txt'));
+  });
   runApp(const MyApp());
 }
 

@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
+import 'package:secret_word_society/ui/player_avatar.dart';
 
 import '../test/support/tap_when_stable.dart';
 import '../test/support/curtain_geometry.dart';
@@ -145,7 +146,27 @@ Future<void> _launchAndCreateGroup(WidgetTester tester) async {
     reason: 'Android keyboard is hidden',
   );
   await _settle(tester);
+  final reroll = find.byKey(const ValueKey('reroll-player-0'));
+  await tester.scrollUntilVisible(reroll, -180, scrollable: _pageScroll);
+  await _settle(tester);
+  final original = tester
+      .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
+      .avatar;
+  await _tap(tester, reroll);
+  final changed = tester
+      .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
+      .avatar;
+  expect(changed.seed, isNot(original.seed));
+  await _tap(tester, reroll);
+  final selected = tester
+      .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
+      .avatar;
+  expect(selected.seed, isNot(changed.seed));
   await _tapText(tester, 'Runde starten');
+  expect(
+    tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
+    same(selected),
+  );
   expect(find.text('Anna'), findsOneWidget);
   expect(find.text('Person 1 von 3'), findsOneWidget);
 }
@@ -187,6 +208,9 @@ void main() {
       'real assets: complete round, correct=$correct, then start next round',
       (tester) async {
         await _launchAndCreateGroup(tester);
+        final firstAvatar = tester
+            .widget<PlayerAvatarView>(find.byType(PlayerAvatarView))
+            .avatar;
         final catalog = await loadWordCatalog();
         final words = <String>[];
         final hints = <String>[];
@@ -296,6 +320,10 @@ void main() {
         expect(find.text('Der Imposter war'), findsOneWidget);
         expect(find.text('Das geheime Wort'), findsOneWidget);
         await _tapText(tester, 'Noch eine Runde');
+        expect(
+          tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
+          same(firstAvatar),
+        );
         expect(find.text('Anna'), findsOneWidget);
         expect(find.text('Person 1 von 3'), findsOneWidget);
         _expectConcealed(catalog);
