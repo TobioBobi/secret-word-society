@@ -69,13 +69,21 @@ void main() {
     final deck = WordDeck(catalog);
     expect(deck.matches(_catalog(3)), isTrue);
     expect(deck.matches(_catalog(2)), isFalse);
-    for (final field in ['language', 'id', 'word', 'hint', 'order']) {
+    for (final field in [
+      'language',
+      'id',
+      'word',
+      'hint',
+      'additionalHint',
+      'order',
+    ]) {
       var pairs = catalog.pairs.toList();
       final pair = pairs.first;
       pairs[0] = WordPair(
         id: field == 'id' ? 'new' : pair.id,
         word: field == 'word' ? 'Neu' : pair.word,
         hint: field == 'hint' ? 'Anders' : pair.hint,
+        additionalHints: field == 'additionalHint' ? ['Ergänzung'] : [],
       );
       if (field == 'order') pairs = pairs.reversed.toList();
       expect(
@@ -90,4 +98,25 @@ void main() {
       );
     }
   });
+
+  test(
+    'a changed additional hint or hint order invalidates a reloaded deck',
+    () {
+      WordCatalog content(List<String> hints) => WordCatalog(
+        languageCode: 'de',
+        pairs: [
+          WordPair(id: '1', word: 'Word', hint: 'Hint', additionalHints: hints),
+        ],
+      );
+      final input = ['First', 'Second'];
+      final catalog = content(input);
+      final deck = WordDeck(catalog);
+      input.clear();
+      expect(catalog.pairs.single.hints, ['Hint', 'First', 'Second']);
+      expect(() => catalog.pairs.single.hints.clear(), throwsUnsupportedError);
+      expect(deck.matches(content(['First', 'Second'])), isTrue);
+      expect(deck.matches(content(['First', 'Changed'])), isFalse);
+      expect(deck.matches(content(['Second', 'First'])), isFalse);
+    },
+  );
 }

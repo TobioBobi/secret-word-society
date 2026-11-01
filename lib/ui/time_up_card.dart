@@ -8,9 +8,14 @@ import 'party_theme.dart';
 
 /// A single finite burst, with the same readable card when motion is disabled.
 class TimeUpCard extends StatefulWidget {
-  const TimeUpCard({super.key, required this.animate});
+  const TimeUpCard({
+    super.key,
+    required this.animate,
+    this.multipleSuspects = false,
+  });
 
   final bool animate;
+  final bool multipleSuspects;
 
   @override
   State<TimeUpCard> createState() => _TimeUpCardState();
@@ -86,7 +91,12 @@ class _TimeUpCardState extends State<TimeUpCard>
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(strings.votingCard, textAlign: TextAlign.center),
+                Text(
+                  widget.multipleSuspects
+                      ? strings.multipleVotingCard
+                      : strings.votingCard,
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),

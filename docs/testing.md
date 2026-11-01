@@ -6,11 +6,11 @@ bedienen die Flutter-Oberfläche in einer laufenden Android-App. Der Wortkatalog
 wird aus den tatsächlich gebündelten Assets geladen, ohne Testkatalog oder
 ersetzte Plattformkanäle.
 
-Seit 25.10.2026 ist die Rundendauer für manuelle Handytests vorübergehend auf
-10 Sekunden verkürzt. Die Tests verwenden diese echte App-Dauer; die MVP-Regel
-bleibt zwei Minuten. Die Rückstellung ist in
-[Issue #22](https://github.com/TobioBobi/secret-word-society/issues/22)
-vorgemerkt und umfasst auch UI-Texte und Test-Erwartungen.
+Seit Issue #25 beträgt die Rundendauer 30 Sekunden pro Person bei 3–14
+Personen. Drei Personen spielen 01:30, vier 02:00, vierzehn 07:00 Minuten.
+Der temporäre Zehn-Sekunden-Timer ist entfernt (damit ist auch Issue #22
+inhaltlich umgesetzt). Rollenstaffelung, Mehrfachabstimmung und unterschiedliche
+Offline-Hinweise stehen in der [Beschreibung von Issue #25](mvp/issue-25-dynamische-runden.md).
 
 Seit Issue #28 erscheint beim Timerende die dauerhafte Karte „Zeit ist um!“
 mit einer einmaligen, bei reduzierten Animationen deaktivierten Bewegung.
@@ -40,18 +40,18 @@ Details: [Weiche Vorhangkante](mvp/issue-32-weiche-vorhangkante.md).
 1. Je ein vollständiger Ablauf für Gruppen- und Imposter-Sieg: Leere Sitzung
    starten, Anna, Ben und Cem über die Oberfläche hinzufügen und
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
-   Genau zwei Personen müssen dasselbe Wort und genau eine Person den dazu
-   passenden Hinweis erhalten. Jede Übergabe ist verdeckt; nach der letzten
-   Karte erscheint die Bereit-Ansicht. Anschließend die echten 10 Sekunden
+   Genau zwei Personen müssen dasselbe Wort und genau eine Person einen der drei
+   dazu passenden Hinweise erhalten. Jede Übergabe ist verdeckt; nach der letzten
+   Karte erscheint die Bereit-Ansicht. Anschließend die echten 90 Sekunden
    starten und bis zur Abstimmungsansicht warten. Wort und Hinweis bleiben
    dabei verborgen. Ohne Auswahl ist die Bestätigung deaktiviert. Danach den
    tatsächlichen Imposter bzw. gezielt eine andere Person auswählen und
    bestätigen; Gewinner, Verdacht, tatsächlichen Imposter und Wort prüfen.
    „Noch eine Runde“ beginnt bei Person 1 mit verdeckter Karte; alle Karten
-   erneut verteilen und einen frischen Countdown bei 00:10 starten. Seit
+   erneut verteilen und einen frischen Countdown bei 01:30 starten. Seit
    Ticket 7 muss die Folgerunde ein anderes Wort mit zugehörigem Hinweis haben.
-   Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 10 Sekunden
-   zusätzlich; die Produktionsuhr wird nicht ersetzt.
+   Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 90 Sekunden
+   für die Diskussion; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über Android-Zurück verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
    aufdecken. Danach bei der zweiten Person die Runde tatsächlich verlassen:
@@ -239,3 +239,23 @@ damit alle Pointer-Ereignisse einschließlich Loslassen im Bildschirm bleiben.
 Grundlagen: [Flutter-Integrationstests](https://docs.flutter.dev/testing/integration-tests),
 [Flutter-Testarten und native Grenzen](https://docs.flutter.dev/testing/overview),
 [Android Emulator Runner](https://github.com/ReactiveCircus/android-emulator-runner).
+
+## Dynamische Runden und Mehrfachabstimmung (Issue #25)
+
+Die beiden zusätzlichen nativen Abläufe legen sechs beziehungsweise vierzehn
+Personen an und verteilen die echten Assets mit unterschiedlichen Hinweisen
+zum selben Wort. Die Mehrfachauswahl endet beim öffentlichen Maximum von zwei
+beziehungsweise drei Personen. Weitere Personen sind dann deaktiviert;
+Abwählen gibt wieder einen Platz frei. Die Grenze folgt nicht der gezogenen
+Imposter-Anzahl. Nach 03:00 beziehungsweise 07:00 Startzeit wird in diesen Tests
+die injizierte Uhr vorgespult; die beiden dreiköpfigen Komplettabläufe warten weiterhin die echten 90 Sekunden.
+Jeder Test wählt eine unschuldige Person an und wieder ab, bestätigt dann exakt
+die Imposter, prüft den Gruppensieg nach dem geschützten Countdown und bearbeitet
+die Gruppe auf fünf Personen. Die nächste Runde startet mit 02:30.
+
+Modelltests prüfen alle zwölf Gruppengrößen, beide Rollenanzahlen an jeder
+variablen Staffel, eindeutige Rollen und Hinweise, exakte Zeitgrenzen sowie
+falsche, unvollständige und überzählige Verdachtsmengen. Widget-Tests prüfen
+zusätzlich sechs und vierzehn Personen, verdeckte Inhalte im Semantikbaum,
+Dialog-/Lifecycle-Schutz, alte Aktionen und Folgerunden; 14 Personen auch bei
+320 × 568 und 200 Prozent Schrift.

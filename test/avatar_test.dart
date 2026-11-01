@@ -37,7 +37,7 @@ void main() {
     session.selectSuspect(original.id);
     session.confirmSuspect(now);
     session.advanceTime(now.add(const Duration(seconds: 3)));
-    expect(session.round!.result!.suspect.avatar, same(avatar));
+    expect(session.round!.result!.suspects.single.avatar, same(avatar));
     session.newRound();
     expect(session.round!.currentPlayer!.avatar, same(avatar));
     session.returnToGroup();

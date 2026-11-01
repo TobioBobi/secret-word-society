@@ -16,7 +16,8 @@ import 'widget_test.dart'
         tapVisible,
         expectConcealed,
         semanticsTree,
-        testCatalog;
+        testCatalog,
+        multiHintCatalog;
 
 const _names = ['Anna', 'Ben', 'Cem'];
 final _soundCalls = <MethodCall>[];
@@ -32,7 +33,8 @@ Future<String> _distribute(WidgetTester tester, List<String> names) async {
   String? imposter;
   for (final name in names) {
     await tapVisible(tester, 'Geheimnis kurz ansehen');
-    if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
+    if (find.text('Du bist der Imposter').evaluate().isNotEmpty ||
+        find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
       imposter = name;
     }
     await tapVisible(tester, 'Weiter');
@@ -40,10 +42,16 @@ Future<String> _distribute(WidgetTester tester, List<String> names) async {
   return imposter!;
 }
 
-Future<void> _reachVoting(WidgetTester tester, _Clock clock) async {
-  await tapVisible(tester, '10 Sekunden starten');
-  expect(find.text('00:10'), findsOneWidget);
-  clock.value = clock.value.add(const Duration(seconds: 10));
+Future<void> _reachVoting(
+  WidgetTester tester,
+  _Clock clock, {
+  int seconds = 90,
+}) async {
+  final time =
+      "${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}";
+  await tapVisible(tester, '$time starten');
+  expect(find.text(time), findsOneWidget);
+  clock.value = clock.value.add(Duration(seconds: seconds));
   await tester.pump(const Duration(milliseconds: 250));
   await tester.pumpAndSettle();
   expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
@@ -233,7 +241,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(interrupted, isTrue);
     expect(_reveals.single.arguments['audible'], isFalse);
-    await tester.pump(const Duration(seconds: 10));
+    await tester.pump(const Duration(seconds: 90));
     expect(_reveals, hasLength(1));
   });
 
@@ -398,7 +406,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 10));
+      await tester.pump(const Duration(seconds: 90));
       expect(_reveals, hasLength(1));
       expect(
         find.text(correct ? 'Erwischt!' : 'Gut geblufft!'),
@@ -544,7 +552,7 @@ void main() {
     final clock = _Clock();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpWidget(
-      MyApp(catalogLoader: () async => testCatalog, now: clock.now),
+      MyApp(catalogLoader: () async => multiHintCatalog, now: clock.now),
     );
     const longName = 'AlexandramitbesonderslangemNamen';
     final names = [for (var i = 1; i < 12; i++) 'Person $i', longName];
@@ -554,7 +562,7 @@ void main() {
     await showStart(tester);
     await tapVisible(tester, 'Runde starten');
     await _distribute(tester, names);
-    await _reachVoting(tester, clock);
+    await _reachVoting(tester, clock, seconds: 360);
     await tapVisible(tester, longName);
     await tapVisible(tester, '$longName verdächtigen');
     await _finishReveal(tester, clock);

@@ -51,7 +51,7 @@ void main() {
   }
 
   Future<void> expire(WidgetTester tester) async {
-    now = now.add(const Duration(seconds: 10));
+    now = now.add(const Duration(seconds: 90));
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pump();
   }
@@ -61,11 +61,11 @@ void main() {
     (tester) async {
       final semantics = tester.ensureSemantics();
       await ready(tester);
-      await tapVisible(tester, '10 Sekunden starten');
+      await tapVisible(tester, '01:30 starten');
       final arm = calls.singleWhere((c) => c.method == 'arm');
       expect(
         arm.arguments['deadlineMillis'],
-        now.add(const Duration(seconds: 10)).millisecondsSinceEpoch,
+        now.add(const Duration(seconds: 90)).millisecondsSinceEpoch,
       );
       expect(calls.where((c) => c.method == 'finish'), isEmpty);
       await expire(tester);
@@ -95,7 +95,7 @@ void main() {
       await tester.pumpAndSettle();
       await tapVisible(tester, 'Noch eine Runde');
       await distribute(tester);
-      await tapVisible(tester, '10 Sekunden starten');
+      await tapVisible(tester, '01:30 starten');
       await expire(tester);
       await tester.pumpAndSettle();
       final arms = calls.where((c) => c.method == 'arm').toList();
@@ -112,9 +112,9 @@ void main() {
     'late background return stays silent and shows a static end card',
     (tester) async {
       await ready(tester);
-      await tapVisible(tester, '10 Sekunden starten');
+      await tapVisible(tester, '01:30 starten');
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-      now = now.add(const Duration(minutes: 1));
+      now = now.add(const Duration(minutes: 2));
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       await tester.pump();
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
@@ -134,7 +134,7 @@ void main() {
     tester,
   ) async {
     await ready(tester);
-    await tapVisible(tester, '10 Sekunden starten');
+    await tapVisible(tester, '01:30 starten');
     await leaveRound(tester);
     await tapVisible(tester, 'Runde verlassen');
     expect(calls.last.method, 'cancel');
@@ -148,13 +148,13 @@ void main() {
     tester,
   ) async {
     await ready(tester);
-    await tapVisible(tester, '10 Sekunden starten');
+    await tapVisible(tester, '01:30 starten');
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     now = now.add(const Duration(seconds: 4));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.text('00:06'), findsOneWidget);
-    now = now.add(const Duration(seconds: 6));
+    expect(find.text('01:26'), findsOneWidget);
+    now = now.add(const Duration(seconds: 86));
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pumpAndSettle();
     expect(calls.where((c) => c.method == 'arm'), hasLength(1));
@@ -176,7 +176,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await ready(tester);
-    await tapVisible(tester, '10 Sekunden starten');
+    await tapVisible(tester, '01:30 starten');
     await expire(tester);
     await tester.ensureVisible(find.byType(TimeUpCard));
     await tester.pumpAndSettle();

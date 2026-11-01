@@ -22,8 +22,11 @@ final class WordDeck {
       final second = other.pairs[index];
       if (first.id != second.id ||
           first.word != second.word ||
-          first.hint != second.hint) {
+          first.hints.length != second.hints.length) {
         return false;
+      }
+      for (var hint = 0; hint < first.hints.length; hint++) {
+        if (first.hints[hint] != second.hints[hint]) return false;
       }
     }
     return true;

@@ -70,9 +70,9 @@ void main() {
             await tapVisible(tester, 'Weiter');
           }
           await _checkAndroidControls(tester);
-          await tapVisible(tester, '10 Sekunden starten');
+          await tapVisible(tester, '01:30 starten');
           await _checkAndroidControls(tester);
-          now = now.add(const Duration(seconds: 10));
+          now = now.add(const Duration(seconds: 90));
           await tester.pump(const Duration(milliseconds: 250));
           await tester.pumpAndSettle();
           await _checkAndroidControls(tester);

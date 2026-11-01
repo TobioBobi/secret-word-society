@@ -12,6 +12,18 @@ final testCatalog = WordCatalog(
   pairs: [WordPair(id: 'test', word: 'Popcorn', hint: 'Kino')],
 );
 
+final multiHintCatalog = WordCatalog(
+  languageCode: 'de',
+  pairs: [
+    WordPair(
+      id: 'test',
+      word: 'Popcorn',
+      hint: 'Kino',
+      additionalHints: ['Filmabend', 'Knallender Mais'],
+    ),
+  ],
+);
+
 Future<void> addName(WidgetTester tester, String name) async {
   await tester.ensureVisible(find.byType(TextField));
   await tester.enterText(find.byType(TextField), name);
@@ -273,7 +285,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.view.resetViewInsets);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
+      await tester.pumpWidget(
+        MyApp(catalogLoader: () async => multiHintCatalog),
+      );
       const longName = 'AlexandramitbesonderslangemNamen';
       await addName(tester, longName);
       tester.view.viewInsets = const FakeViewPadding(bottom: 240);
