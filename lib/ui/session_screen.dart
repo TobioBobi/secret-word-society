@@ -1153,7 +1153,7 @@ class _SessionScreenState extends State<SessionScreen>
       onPressed:
           !_starting &&
               (increase
-                  ? choice.step < (_session.players.length - 1) * 2
+                  ? choice.step < (_session.players.length - 2) * 2
                   : choice.step > 0)
           ? () {
               if (_starting || _session.round != null) return;

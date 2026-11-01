@@ -216,9 +216,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized().framePolicy =
       LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
-  for (final all in [false, true]) {
+  for (final fixed in [false, true]) {
     testWidgets(
-      'manual imposters: range or all=$all, hints and reduced group',
+      'manual imposters: range or fixed=$fixed, hints and reduced group',
       (tester) async {
         var now = DateTime.now();
         final names = List.generate(6, (i) => 'Gast ${i + 1}');
@@ -228,14 +228,14 @@ void main() {
           now: () => now,
           beforeStart: () async {
             // Six people default to 1–2 (step 1).
-            for (var i = 1; i < (all ? 10 : 7); i++) {
+            for (var i = 1; i < (fixed ? 8 : 7); i++) {
               await _tap(tester, find.byTooltip('Mehr Imposter'));
             }
             expect(
               tester
                   .widget<Text>(find.byKey(const ValueKey('imposter-count')))
                   .data,
-              all ? '6' : '4–5',
+              fixed ? '5' : '4–5',
             );
           },
         );
@@ -255,11 +255,11 @@ void main() {
           await _tapText(tester, 'Weiter');
           _expectConcealed(catalog);
         }
-        expect(imposters.length, all ? 6 : inInclusiveRange(4, 5));
+        expect(imposters.length, fixed ? 5 : inInclusiveRange(4, 5));
         expect(hints, hasLength(3));
         expect(hints.values.toSet().difference({1, 2}), isEmpty);
         expect(
-          find.text('Imposter-Anzahl: ${all ? '6' : '4–5'}'),
+          find.text('Imposter-Anzahl: ${fixed ? '5' : '4–5'}'),
           findsOneWidget,
         );
         await _tapText(tester, '03:00 starten');
@@ -289,7 +289,7 @@ void main() {
           await _tapText(tester, 'Weiter');
         }
         expect(
-          find.text('Imposter-Anzahl: ${all ? '6' : '4–5'}'),
+          find.text('Imposter-Anzahl: ${fixed ? '5' : '4–5'}'),
           findsOneWidget,
         );
         await _leaveRound(tester);
@@ -303,20 +303,20 @@ void main() {
           tester
               .widget<Text>(find.byKey(const ValueKey('imposter-count')))
               .data,
-          '2–3',
+          '1–2',
         );
         await _tap(tester, find.byTooltip('Mehr Imposter'));
         expect(
           tester
               .widget<Text>(find.byKey(const ValueKey('imposter-count')))
               .data,
-          '3',
+          '2',
         );
         await _tapText(tester, 'Runde starten');
         for (var i = 0; i < 3; i++) {
           await _tapText(tester, 'Weiter');
         }
-        expect(find.text('Imposter-Anzahl: 3'), findsOneWidget);
+        expect(find.text('Imposter-Anzahl: 2'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

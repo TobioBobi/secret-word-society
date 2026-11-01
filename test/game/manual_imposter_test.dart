@@ -49,7 +49,20 @@ void main() {
   );
   test('every fixed count and range, balanced hints, voting and follow-up', () {
     for (var size = 3; size <= 14; size++) {
-      for (var step = 0; step <= (size - 1) * 2; step++) {
+      for (final invalid in [
+        ImposterChoice(size, size),
+        ImposterChoice(size - 1, size),
+      ]) {
+        expect(
+          () => GameRound.start(
+            players: List.generate(size, (i) => Player(id: '$i', name: 'P$i')),
+            catalog: catalog,
+            imposterChoice: invalid,
+          ),
+          throwsArgumentError,
+        );
+      }
+      for (var step = 0; step <= (size - 2) * 2; step++) {
         final choice = ImposterChoice.fromStep(step);
         final observed = <int>{};
         for (var seed = 0; seed < 20; seed++) {
@@ -116,7 +129,7 @@ void main() {
     }
     expect(session.imposterChoice.label, '2–3');
     session.removePlayer(session.players.last.id);
-    session.setImposterChoice(ImposterChoice(12, 13));
+    session.setImposterChoice(ImposterChoice(11, 12));
     session.startRound(catalog);
     expect(
       () => session.setImposterChoice(ImposterChoice(1, 1)),
@@ -124,18 +137,18 @@ void main() {
     );
     session.returnToGroup();
     session.removePlayer(session.players.last.id);
-    expect(session.imposterChoice.label, '12');
+    expect(session.imposterChoice.label, '11');
     session.removePlayer(session.players.last.id);
-    expect(session.imposterChoice.label, '11');
+    expect(session.imposterChoice.label, '10');
     session.addPlayer('New');
-    expect(session.imposterChoice.label, '11');
+    expect(session.imposterChoice.label, '10');
     final fresh = GameSession();
     for (var i = 0; i < 6; i++) {
       fresh.addPlayer('P$i');
     }
     expect(fresh.imposterChoice.label, '1–2');
     expect(
-      () => fresh.setImposterChoice(ImposterChoice(7, 7)),
+      () => fresh.setImposterChoice(ImposterChoice(6, 6)),
       throwsArgumentError,
     );
     expect(() => ImposterChoice(1, 3), throwsArgumentError);

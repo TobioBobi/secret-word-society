@@ -105,8 +105,11 @@ final class GameSession {
     _players.removeWhere((player) => player.id == id);
     if (_manualImposterChoice != null &&
         _players.isNotEmpty &&
-        _manualImposterChoice!.maximum > _players.length) {
-      _manualImposterChoice = ImposterChoice(_players.length, _players.length);
+        _manualImposterChoice!.maximum >= _players.length) {
+      _manualImposterChoice = ImposterChoice(
+        max(1, _players.length - 1),
+        max(1, _players.length - 1),
+      );
     } else if (_players.isEmpty) {
       _manualImposterChoice = null;
     }

@@ -25,7 +25,7 @@ final class ImposterChoice {
 
   void validateFor(int players) {
     RoundRules.validate(players);
-    if (maximum > players) throw ArgumentError('Too many imposters.');
+    if (maximum >= players) throw ArgumentError('Too many imposters.');
   }
 
   int draw(Random random) =>
