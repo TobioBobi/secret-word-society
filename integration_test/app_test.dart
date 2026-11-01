@@ -123,6 +123,7 @@ Future<void> _launchAndCreateGroup(
   WidgetTester tester, {
   List<String> players = _players,
   DateTime Function()? now,
+  Future<void> Function()? beforeStart,
 }) async {
   // Remove the previous app's State even when tests run in one process.
   await tester.pumpWidget(const SizedBox.shrink());
@@ -170,6 +171,7 @@ Future<void> _launchAndCreateGroup(
       .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
       .avatar;
   expect(selected.seed, isNot(changed.seed));
+  await beforeStart?.call();
   await _tapText(tester, 'Runde starten');
   expect(
     tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
@@ -213,6 +215,46 @@ String _visibleSecret(WordCatalog catalog) {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized().framePolicy =
       LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+
+  testWidgets('manual timer: real 30-second expiry and retained follow-up', (
+    tester,
+  ) async {
+    await _launchAndCreateGroup(
+      tester,
+      beforeStart: () async {
+        await _tap(tester, find.byTooltip('30 Sekunden länger'));
+        expect(find.text('02:00'), findsOneWidget);
+        for (var i = 0; i < 3; i++) {
+          await _tap(tester, find.byTooltip('30 Sekunden kürzer'));
+        }
+        expect(find.text('00:30'), findsOneWidget);
+      },
+    );
+    for (var i = 0; i < 3; i++) {
+      await _tapText(tester, 'Weiter');
+    }
+    await _tapText(tester, '00:30 starten');
+    expect(find.byTooltip('30 Sekunden länger'), findsNothing);
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.text('00:30'), findsNothing);
+    await tester.pump(const Duration(seconds: 29));
+    await _settle(tester);
+    expect(find.text('Zeit ist um!'), findsOneWidget);
+    await _tapText(tester, 'Anna');
+    await _tapText(tester, 'Anna verdächtigen');
+    await tester.pump(const Duration(seconds: 3));
+    await _settle(tester);
+    await _tapText(tester, 'Noch eine Runde');
+    for (var i = 0; i < 3; i++) {
+      await _tapText(tester, 'Weiter');
+    }
+    await _tap(tester, find.byTooltip('30 Sekunden länger'));
+    expect(find.text('01:00'), findsOneWidget);
+    await _tapText(tester, 'Automatisch');
+    await _tapText(tester, '01:30 starten');
+    expect(find.text('01:30'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final correct in [true, false]) {
     testWidgets(

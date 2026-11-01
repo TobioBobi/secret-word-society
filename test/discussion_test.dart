@@ -48,7 +48,7 @@ void main() {
     clock.advance(const Duration(minutes: 3));
     await tester.pump(const Duration(minutes: 3));
     expect(find.text('Alle eingeweiht?'), findsOneWidget);
-    expect(find.text('01:30'), findsNothing);
+    expect(find.text('01:30'), findsOneWidget);
 
     await tester.ensureVisible(find.text('01:30 starten'));
     final start = tester

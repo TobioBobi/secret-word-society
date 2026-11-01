@@ -184,6 +184,36 @@ abstract class AppLocalizations {
   /// **'Runde starten'**
   String get startRound;
 
+  /// No description provided for @roundDuration.
+  ///
+  /// In de, this message translates to:
+  /// **'Rundendauer'**
+  String get roundDuration;
+
+  /// No description provided for @shortenDuration.
+  ///
+  /// In de, this message translates to:
+  /// **'30 Sekunden kürzer'**
+  String get shortenDuration;
+
+  /// No description provided for @extendDuration.
+  ///
+  /// In de, this message translates to:
+  /// **'30 Sekunden länger'**
+  String get extendDuration;
+
+  /// No description provided for @automaticDuration.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatisch'**
+  String get automaticDuration;
+
+  /// No description provided for @selectedDuration.
+  ///
+  /// In de, this message translates to:
+  /// **'Rundendauer: {duration} Minuten'**
+  String selectedDuration(String duration);
+
   /// No description provided for @startingRound.
   ///
   /// In de, this message translates to:

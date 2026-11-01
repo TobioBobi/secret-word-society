@@ -240,6 +240,8 @@ void main() {
         find.textContaining('Die Wörter konnten nicht geladen werden.'),
         findsOneWidget,
       );
+      await tester.scrollUntilVisible(find.text('3 Personen'), -180);
+      await tester.pumpAndSettle();
       expect(find.text('3 Personen'), findsOneWidget);
       await showStart(tester);
       await tester.tap(find.text('Runde starten'));
@@ -249,7 +251,20 @@ void main() {
         tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNull,
       );
+      await tester.scrollUntilVisible(find.byType(TextField), -180);
+      await tester.pumpAndSettle();
       expect(tester.widget<TextField>(find.byType(TextField)).enabled, isFalse);
+      await tester.scrollUntilVisible(
+        find.text('Runde wird vorbereitet …'),
+        180,
+        scrollable: find
+            .descendant(
+              of: find.byType(CustomScrollView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Runde wird vorbereitet …'));
       await tester.pump();
       expect(calls, 2);

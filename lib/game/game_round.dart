@@ -51,6 +51,7 @@ final class GameRound {
     required this._random,
     required this._pair,
     required this._imposterHints,
+    required this.discussionDuration,
     this.phase = GamePhase.handoff,
     this._handoffIndex = 0,
     this.hasViewedSecret = false,
@@ -64,10 +65,12 @@ final class GameRound {
     required Iterable<Player> players,
     required WordCatalog catalog,
     Random? random,
+    Duration? discussionDuration,
   }) => GameRound.fromDeck(
     players: players,
     deck: WordDeck(catalog),
     random: random,
+    discussionDuration: discussionDuration,
   );
 
   /// Reuses a session's draw source; only starting a round consumes a word.
@@ -75,9 +78,13 @@ final class GameRound {
     required Iterable<Player> players,
     required WordDeck deck,
     Random? random,
+    Duration? discussionDuration,
   }) {
     final group = List<Player>.unmodifiable(players);
     RoundRules.validate(group.length);
+    final duration =
+        discussionDuration ?? RoundRules.discussionDuration(group.length);
+    RoundRules.validateDuration(duration);
     if (group.map((player) => player.id).toSet().length != group.length ||
         group.map((player) => player.name.toLowerCase()).toSet().length !=
             group.length) {
@@ -108,12 +115,12 @@ final class GameRound {
       random: source,
       pair: pair,
       imposterHints: Map.unmodifiable(assignments),
+      discussionDuration: duration,
     );
   }
 
   static const minimumPlayers = RoundRules.minimumPlayers;
-  Duration get discussionDuration =>
-      RoundRules.discussionDuration(players.length);
+  final Duration discussionDuration;
   bool get allowsMultipleSuspects =>
       RoundRules.maximumImposters(players.length) > 1;
   int get maximumSuspects => RoundRules.maximumImposters(players.length);
@@ -212,6 +219,12 @@ final class GameRound {
     );
   }
 
+  GameRound withDiscussionDuration(Duration duration) {
+    _requirePhase(GamePhase.ready);
+    RoundRules.validateDuration(duration);
+    return _copy(phase: phase, discussionDuration: duration);
+  }
+
   /// Derives remaining time from a deadline, including time spent off screen.
   Duration remainingDiscussionTime(DateTime now) {
     if (phase == GamePhase.voting ||
@@ -285,7 +298,12 @@ final class GameRound {
   /// Retains the group and word deck; the imposter is drawn independently anew.
   GameRound newRound() {
     _requirePhase(GamePhase.result);
-    return GameRound.fromDeck(players: players, deck: _deck, random: _random);
+    return GameRound.fromDeck(
+      players: players,
+      deck: _deck,
+      random: _random,
+      discussionDuration: discussionDuration,
+    );
   }
 
   void _requirePhase(GamePhase expected) {
@@ -303,12 +321,14 @@ final class GameRound {
     DateTime? revealEndsAt,
     Duration? revealRemaining,
     bool pauseReveal = false,
+    Duration? discussionDuration,
   }) => GameRound._(
     players: players,
     deck: _deck,
     random: _random,
     pair: _pair,
     imposterHints: _imposterHints,
+    discussionDuration: discussionDuration ?? this.discussionDuration,
     phase: phase,
     handoffIndex: handoffIndex ?? _handoffIndex,
     hasViewedSecret: hasViewedSecret ?? this.hasViewedSecret,

@@ -78,6 +78,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get startRound => 'Runde starten';
 
   @override
+  String get roundDuration => 'Rundendauer';
+
+  @override
+  String get shortenDuration => '30 Sekunden kürzer';
+
+  @override
+  String get extendDuration => '30 Sekunden länger';
+
+  @override
+  String get automaticDuration => 'Automatisch';
+
+  @override
+  String selectedDuration(String duration) {
+    return 'Rundendauer: $duration Minuten';
+  }
+
+  @override
   String get startingRound => 'Runde wird vorbereitet …';
 
   @override

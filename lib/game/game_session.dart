@@ -15,6 +15,26 @@ final class GameSession {
   int _nextPlayerId = 0;
   GameRound? _round;
   WordDeck? _deck;
+  Duration? _manualDuration;
+
+  bool get hasManualDuration => _manualDuration != null;
+  Duration get discussionDuration =>
+      _round?.discussionDuration ??
+      _manualDuration ??
+      RoundRules.discussionDuration(_players.length);
+
+  /// A manual choice lasts for this session, including group edits.
+  /// Null restores the automatic group-size duration.
+  void setDiscussionDuration(Duration? duration) {
+    if (_round != null && _round!.phase != GamePhase.ready) {
+      throw StateError('Duration can only change before the timer starts.');
+    }
+    if (duration != null) RoundRules.validateDuration(duration);
+    final selected = duration ?? RoundRules.discussionDuration(_players.length);
+    final updatedRound = _round?.withDiscussionDuration(selected);
+    _manualDuration = duration;
+    _round = updatedRound;
+  }
 
   List<Player> get players => List.unmodifiable(_players);
   GameRound? get round => _round;
@@ -76,7 +96,12 @@ final class GameSession {
   void startRound(WordCatalog catalog, {Random? random}) {
     _requireSetup();
     final deck = _deck?.matches(catalog) == true ? _deck! : WordDeck(catalog);
-    _round = GameRound.fromDeck(players: _players, deck: deck, random: random);
+    _round = GameRound.fromDeck(
+      players: _players,
+      deck: deck,
+      random: random,
+      discussionDuration: _manualDuration,
+    );
     _deck = deck;
   }
 
