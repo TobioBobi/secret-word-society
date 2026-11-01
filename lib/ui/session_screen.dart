@@ -1135,7 +1135,7 @@ class _SessionScreenState extends State<SessionScreen>
     return minimum == maximum ? '$minimum' : '$minimum–$maximum';
   }
 
-  void _setDiscussionDuration(Duration? duration) {
+  void _setDiscussionDuration(Duration duration) {
     if (_starting ||
         (_session.round != null && _session.round!.phase != GamePhase.ready)) {
       return;
@@ -1203,13 +1203,6 @@ class _SessionScreenState extends State<SessionScreen>
                 ],
               ),
             ],
-          ),
-          TextButton.icon(
-            onPressed: !_starting && _session.hasManualDuration
-                ? () => _setDiscussionDuration(null)
-                : null,
-            icon: const Icon(Icons.restart_alt),
-            label: Text(strings.automaticDuration),
           ),
         ],
       ),

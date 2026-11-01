@@ -250,9 +250,9 @@ void main() {
     }
     await _tap(tester, find.byTooltip('30 Sekunden länger'));
     expect(find.text('01:00'), findsOneWidget);
-    await _tapText(tester, 'Automatisch');
-    await _tapText(tester, '01:30 starten');
-    expect(find.text('01:30'), findsOneWidget);
+    expect(find.text('Automatisch'), findsNothing);
+    await _tapText(tester, '01:00 starten');
+    expect(find.text('01:00'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -87,9 +87,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get extendDuration => '30 Sekunden länger';
 
   @override
-  String get automaticDuration => 'Automatisch';
-
-  @override
   String selectedDuration(String duration) {
     return 'Rundendauer: $duration Minuten';
   }

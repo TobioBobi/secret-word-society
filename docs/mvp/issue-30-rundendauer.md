@@ -9,8 +9,8 @@ Dauer über Minus/Plus in Schritten von 30 Sekunden ändern. Erlaubt sind
 Die gewählte Dauer und der Startbutton zeigen denselben Wert.
 
 Eine manuelle Dauer bleibt in der laufenden Sitzung für Folgerunden und beim
-Bearbeiten der Gruppe erhalten. „Automatisch“ stellt die Berechnung nach
-Gruppengröße wieder her. Es gibt keine Speicherung über App-Neustarts hinweg.
+Bearbeiten der Gruppe erhalten. Es gibt keinen „Automatisch“-Button.
+Es gibt keine Speicherung über App-Neustarts hinweg.
 Die Rollenstaffelung hängt weiterhin ausschließlich von der Personenzahl ab.
 
 Nach dem Timerstart sind keine Anpassungen möglich. Jede Runde hält ihre
@@ -32,13 +32,13 @@ Rundensignal und Enthüllungs-Countdown verwenden ihre bisherigen Abläufe.
 `test/game/manual_duration_test.dart` prüft dynamische Standardwerte,
 Gruppenänderung, Rückkehr zur Automatik, Grenzen, ungültige Werte, feste
 Deadline, Unterbrechung und Folgerunde. Die Widget-Tests prüfen die Bedienung
-auf 320 × 568 bei 200 Prozent Schrift, beide Grenzen, Rücksetzen und das
+auf 320 × 568 bei 200 Prozent Schrift, beide Grenzen, manuelle Folgerunden und das
 Plattformsignal bei Ablauf im Vordergrund bzw. später Rückkehr.
 
 Der Android-Test „manual timer: real 30-second expiry and retained follow-up“
 ändert die Zeit bereits vor der Kartenverteilung, wartet echte 30 Sekunden bis
 zur Abstimmung und prüft die Übernahme in die Folgerunde samt erneuter
-Anpassung und Rückkehr zur Automatik. Er verwendet den gebündelten Katalog
+Anpassung. Er verwendet den gebündelten Katalog
 und die Produktionsuhr.
 
 Echtes TalkBack und ein physischer Handytest bleiben gesonderte Praxisprüfungen.

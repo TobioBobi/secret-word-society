@@ -14,9 +14,8 @@ Offline-Hinweise stehen in der [Beschreibung von Issue #25](mvp/issue-25-dynamis
 
 Seit Issue #30 kann die Dauer vor dem Start in 30-Sekunden-Schritten zwischen
 00:30 und 15:00 manuell gewählt werden. Die Auswahl bleibt für Folgerunden in
-der Sitzung erhalten; „Automatisch“ stellt den Standard nach Gruppengröße
-wieder her. Ein zusätzlicher Android-Ablauf prüft die manuelle Wahl, echten
-30-Sekunden-Ablauf, Folgerunde und Rücksetzen. Details:
+der Sitzung erhalten. Ein zusätzlicher Android-Ablauf prüft die manuelle Wahl,
+echten 30-Sekunden-Ablauf und die erneute Anpassung in der Folgerunde. Details:
 [Rundendauer anpassen](mvp/issue-30-rundendauer.md).
 
 Seit Issue #28 erscheint beim Timerende die dauerhafte Karte „Zeit ist um!“

@@ -202,12 +202,6 @@ abstract class AppLocalizations {
   /// **'30 Sekunden länger'**
   String get extendDuration;
 
-  /// No description provided for @automaticDuration.
-  ///
-  /// In de, this message translates to:
-  /// **'Automatisch'**
-  String get automaticDuration;
-
   /// No description provided for @selectedDuration.
   ///
   /// In de, this message translates to:

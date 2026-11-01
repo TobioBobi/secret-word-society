@@ -21,7 +21,6 @@
   "roundDuration": "Rundendauer",
   "shortenDuration": "30 Sekunden kürzer",
   "extendDuration": "30 Sekunden länger",
-  "automaticDuration": "Automatisch",
   "selectedDuration": "Rundendauer: {duration} Minuten",
   "@selectedDuration": {"placeholders": {"duration": {"type": "String"}}},
   "startingRound": "Runde wird vorbereitet …",

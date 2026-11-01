@@ -118,15 +118,14 @@ void main() {
         expect(find.text('00:30'), findsOneWidget);
         await _change(tester, '30 Sekunden länger');
         expect(find.text('01:00'), findsOneWidget);
-        await tapVisible(tester, 'Automatisch');
-        expect(find.text('01:30'), findsOneWidget);
+        expect(find.text('Automatisch'), findsNothing);
         expect(tester.takeException(), isNull);
         semantics.dispose();
       },
     );
   }
 
-  testWidgets('maximum and reset to automatic in setup', (tester) async {
+  testWidgets('maximum and manual duration at round start', (tester) async {
     await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
     await readyGroup(tester);
     await showStart(tester);
@@ -147,11 +146,10 @@ void main() {
     );
     await _change(tester, '30 Sekunden kürzer');
     expect(find.text('14:30'), findsOneWidget);
-    await tapVisible(tester, 'Automatisch');
-    expect(find.text('01:30'), findsOneWidget);
+    expect(find.text('Automatisch'), findsNothing);
     await tapVisible(tester, 'Runde starten');
     await _distribute(tester);
-    await tapVisible(tester, '01:30 starten');
-    expect(find.text('01:30'), findsOneWidget);
+    await tapVisible(tester, '14:30 starten');
+    expect(find.text('14:30'), findsOneWidget);
   });
 }
