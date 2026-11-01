@@ -70,7 +70,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get roundSummary => '1 Imposter · 10 Sekunden';
+  String roundSummary(String imposters, String duration) {
+    return '$imposters Imposter · $duration Minuten';
+  }
 
   @override
   String get startRound => 'Runde starten';
@@ -154,7 +156,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timeUpTitle => 'Zeit ist um!';
 
   @override
-  String get startDiscussion => '10 Sekunden starten';
+  String startDiscussion(String duration) {
+    return '$duration starten';
+  }
 
   @override
   String get discussionPhase => 'Hinweise & Bluff';
@@ -225,22 +229,54 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imposterWinTitle => 'Gut geblufft!';
 
   @override
-  String get groupWinIntro => 'Ihr habt den Imposter entlarvt.';
+  String groupWinIntro(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ihr habt alle Imposter entlarvt.',
+      one: 'Ihr habt den Imposter entlarvt.',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get imposterWinIntro => 'Der Imposter hat euch ausgetrickst.';
+  String imposterWinIntro(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Die Imposter haben euch ausgetrickst.',
+      one: 'Der Imposter hat euch ausgetrickst.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get groupWins => 'Die Gruppe gewinnt.';
 
   @override
-  String get imposterWins => 'Der Imposter gewinnt.';
+  String imposterWins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Die Imposter gewinnen.',
+      one: 'Der Imposter gewinnt.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get resultSuspect => 'Euer Verdacht';
 
   @override
-  String get resultImposter => 'Der Imposter war';
+  String resultImposter(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Die Imposter waren',
+      one: 'Der Imposter war',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get resultWord => 'Das geheime Wort';
@@ -274,4 +310,23 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get saveName => 'Übernehmen';
+
+  @override
+  String get groupFull => 'Eure Gruppe ist mit 14 Personen vollständig.';
+
+  @override
+  String get multipleImposterRole => 'Du bist ein Imposter';
+
+  @override
+  String get multipleVotingIntro =>
+      'Findet alle Imposter. Stimmt mündlich ab und wählt nur die Personen aus, die ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab.';
+
+  @override
+  String get multipleVotingCard =>
+      'Die Zeit ist um. Für den Gruppensieg müsst ihr alle Imposter und keine andere Person auswählen.';
+
+  @override
+  String confirmSuspects(int count) {
+    return '$count Personen verdächtigen';
+  }
 }

@@ -37,7 +37,7 @@ GameRound _ready(GameRound round) {
 GameRound _voting(GameRound round) =>
     _ready(round)
         .startDiscussion(_now)
-        .advanceTime(_now.add(GameRound.discussionDuration));
+        .advanceTime(_now.add(round.discussionDuration));
 
 String _imposterId(GameRound round) {
   String? id;
@@ -97,7 +97,7 @@ void main() {
       later.add(const Duration(milliseconds: 1750)),
     );
     expect(result.phase, GamePhase.result);
-    expect(result.result!.suspect.id, 'a');
+    expect(result.result!.suspects.single.id, 'a');
     expect(result.newRound().revealRemaining, GameRound.revealDuration);
     expect(result.newRound().revealEndsAt, isNull);
   });
@@ -139,7 +139,7 @@ void main() {
   });
 
   test(
-    'takes an immutable roster snapshot and has no arbitrary player cap',
+    'takes an immutable roster snapshot and rejects groups above fourteen',
     () {
       final input = List.of(_players);
       final round = _start(players: input);
@@ -150,14 +150,14 @@ void main() {
         100,
         (i) => Player(id: '$i', name: 'Person $i'),
       );
-      expect(_start(players: largeGroup).players, hasLength(100));
+      expect(() => _start(players: largeGroup), throwsArgumentError);
     },
   );
 
   test('every group gets one imposter and one consistent word/hint pair', () {
     final selectedImposters = <String>{};
     final selectedWords = <String>{};
-    for (final groupSize in [3, 4, 20]) {
+    for (final groupSize in [3, 4, 5]) {
       for (var seed = 0; seed < 40; seed++) {
         final group = List.generate(
           groupSize,
@@ -234,20 +234,20 @@ void main() {
     'deadline starts only on ready and accounts for a long interruption',
     () {
       final ready = _ready(_start());
-      expect(ready.remainingDiscussionTime(_now), const Duration(seconds: 10));
+      expect(ready.remainingDiscussionTime(_now), const Duration(seconds: 120));
       expect(ready.discussionEndsAt, isNull);
       final running = ready.startDiscussion(_now);
-      expect(running.discussionEndsAt, _now.add(const Duration(seconds: 10)));
+      expect(running.discussionEndsAt, _now.add(const Duration(seconds: 120)));
       expect(
         running.remainingDiscussionTime(_now.add(const Duration(seconds: 3))),
-        const Duration(seconds: 7),
+        const Duration(seconds: 117),
       );
       expect(
-        running.advanceTime(_now.add(const Duration(seconds: 9))),
+        running.advanceTime(_now.add(const Duration(seconds: 119))),
         same(running),
       );
       expect(
-        running.advanceTime(_now.add(const Duration(seconds: 10))).phase,
+        running.advanceTime(_now.add(const Duration(seconds: 120))).phase,
         GamePhase.voting,
       );
       final resumed = running.advanceTime(_now.add(const Duration(hours: 1)));
@@ -259,7 +259,7 @@ void main() {
         running.remainingDiscussionTime(
           _now.subtract(const Duration(seconds: 1)),
         ),
-        GameRound.discussionDuration,
+        ready.discussionDuration,
       );
       expect(
         running.remainingDiscussionTime(_now.add(const Duration(hours: 1))),
@@ -270,18 +270,19 @@ void main() {
 
   test('only a round member can be selected; selection can change before confirmation', () {
     final voting = _voting(_start());
-    expect(voting.suspect, isNull);
+    expect(voting.suspects, isEmpty);
     expect(() => voting.confirmSuspect(_now), throwsStateError);
     expect(() => voting.selectSuspect('outsider'), throwsArgumentError);
     final selected = voting.selectSuspect('a').selectSuspect('b');
-    expect(selected.suspect, same(_players[1]));
+    expect(selected.suspects.single, same(_players[1]));
     expect(selected.result, isNull);
     expect(
       selected
           .confirmSuspect(_now)
           .advanceTime(_now.add(GameRound.revealDuration))
           .result!
-          .suspect,
+          .suspects
+          .single,
       same(_players[1]),
     );
   });
@@ -296,7 +297,7 @@ void main() {
           .confirmSuspect(_now)
           .advanceTime(_now.add(GameRound.revealDuration));
       expect(finished.phase, GamePhase.result);
-      expect(finished.result!.imposter.id, imposterId);
+      expect(finished.result!.imposters.single.id, imposterId);
       expect(
         finished.result!.winner,
         suspect.id == imposterId ? Winner.group : Winner.imposter,
@@ -325,7 +326,7 @@ void main() {
           .confirmSuspect(_now)
           .advanceTime(_now.add(GameRound.revealDuration));
       expect(finished.result!.word, 'Pizza');
-      expect(finished.result!.imposter.id, 'a');
+      expect(finished.result!.imposters.single.id, 'a');
       final next = finished.newRound();
       expect(next.players, orderedEquals(_players));
       expect(next.languageCode, 'de');
@@ -333,10 +334,10 @@ void main() {
       expect(next.currentPlayerNumber, 1);
       expect(next.currentPlayer, same(_players.first));
       expect(next.currentSecret, isNull);
-      expect(next.suspect, isNull);
+      expect(next.suspects, isEmpty);
       expect(next.result, isNull);
       expect(next.discussionEndsAt, isNull);
-      expect(next.remainingDiscussionTime(_now), GameRound.discussionDuration);
+      expect(next.remainingDiscussionTime(_now), next.discussionDuration);
       expect(_imposterId(next), 'd');
       expect(next.revealSecret().currentSecret!.text, 'Kino');
     },
@@ -358,7 +359,10 @@ void main() {
         .confirmSuspect(_now)
         .advanceTime(_now.add(GameRound.revealDuration))
         .result!;
-    expect(nextResult.imposter.id, finished.result!.imposter.id);
+    expect(
+      nextResult.imposters.single.id,
+      finished.result!.imposters.single.id,
+    );
     expect(nextResult.word, isNot(finished.result!.word));
   });
 

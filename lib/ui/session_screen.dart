@@ -6,6 +6,7 @@ import '../data/word_catalog_loader.dart';
 import '../game/game_round.dart';
 import '../game/game_session.dart';
 import '../game/player.dart';
+import '../game/round_rules.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/round_signal.dart';
@@ -50,7 +51,7 @@ class _SessionScreenState extends State<SessionScreen>
   String? _revealToken;
   int _audioRevision = 0;
   bool _animateTimeUp = false;
-  int _remainingSeconds = GameRound.discussionDuration.inSeconds;
+  int _remainingSeconds = 0;
   int _revealSeconds = GameRound.revealDuration.inSeconds;
 
   @override
@@ -236,7 +237,7 @@ class _SessionScreenState extends State<SessionScreen>
     }
     setState(() {
       _session.startDiscussion(widget.now());
-      _remainingSeconds = GameRound.discussionDuration.inSeconds;
+      _remainingSeconds = _session.round!.discussionDuration.inSeconds;
     });
     _signalToken = '${DateTime.now().microsecondsSinceEpoch}';
     unawaited(
@@ -266,7 +267,7 @@ class _SessionScreenState extends State<SessionScreen>
   void _confirmSuspect(GameRound expected) {
     if (!_canAct(expected) ||
         expected.phase != GamePhase.voting ||
-        expected.suspect == null) {
+        expected.suspects.isEmpty) {
       return;
     }
     _cancelSignal();
@@ -286,7 +287,7 @@ class _SessionScreenState extends State<SessionScreen>
     _stopPhaseTimer();
     setState(() {
       _session.newRound();
-      _remainingSeconds = GameRound.discussionDuration.inSeconds;
+      _remainingSeconds = _session.round!.discussionDuration.inSeconds;
     });
     _focusNewPhase();
   }
@@ -488,10 +489,15 @@ class _SessionScreenState extends State<SessionScreen>
       GamePhase.handoff => strings.handoffIntro,
       GamePhase.secret => strings.privateIntro,
       GamePhase.ready || GamePhase.discussion => strings.readyIntro,
-      GamePhase.voting => strings.votingIntro,
+      GamePhase.voting =>
+        round!.allowsMultipleSuspects
+            ? strings.multipleVotingIntro
+            : strings.votingIntro,
       GamePhase.reveal => strings.revealIntro,
       GamePhase.result =>
-        groupWon ? strings.groupWinIntro : strings.imposterWinIntro,
+        groupWon
+            ? strings.groupWinIntro(result!.imposters.length)
+            : strings.imposterWinIntro(result!.imposters.length),
     };
     return PopScope(
       canPop: round == null,
@@ -699,9 +705,10 @@ class _SessionScreenState extends State<SessionScreen>
                       ),
                     ],
                   );
-                  return round?.phase == GamePhase.voting
+                  return round?.phase == GamePhase.voting &&
+                          !round!.allowsMultipleSuspects
                       ? RadioGroup<String>(
-                          groupValue: round!.suspect?.id,
+                          groupValue: round.suspects.firstOrNull?.id,
                           onChanged: (id) => _selectSuspect(round, id),
                           child: scrollView,
                         )
@@ -748,6 +755,7 @@ class _SessionScreenState extends State<SessionScreen>
     final error = switch (_nameProblem) {
       NameProblem.empty => strings.nameEmpty,
       NameProblem.duplicate => strings.nameDuplicate,
+      NameProblem.groupFull => strings.groupFull,
       null => null,
     };
     return Column(
@@ -760,7 +768,9 @@ class _SessionScreenState extends State<SessionScreen>
               child: TextField(
                 controller: _name,
                 focusNode: _nameFocus,
-                enabled: !_starting,
+                enabled:
+                    !_starting &&
+                    _session.players.length < RoundRules.maximumPlayers,
                 textCapitalization: TextCapitalization.words,
                 textInputAction: TextInputAction.done,
                 autocorrect: false,
@@ -781,7 +791,11 @@ class _SessionScreenState extends State<SessionScreen>
             const SizedBox(width: 8),
             IconButton.filledTonal(
               tooltip: strings.addName,
-              onPressed: _starting ? null : _addPlayer,
+              onPressed:
+                  _starting ||
+                      _session.players.length >= RoundRules.maximumPlayers
+                  ? null
+                  : _addPlayer,
               style: IconButton.styleFrom(
                 minimumSize: const Size(56, 56),
                 backgroundColor: PartyColors.purple,
@@ -794,6 +808,11 @@ class _SessionScreenState extends State<SessionScreen>
             ),
           ],
         ),
+        if (_session.players.length == RoundRules.maximumPlayers)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(strings.groupFull),
+          ),
         if (error != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -829,13 +848,15 @@ class _SessionScreenState extends State<SessionScreen>
       children: [
         if (round.phase == GamePhase.voting) ...[
           FilledButton(
-            onPressed: round.suspect == null
+            onPressed: round.suspects.isEmpty
                 ? null
                 : () => _confirmSuspect(round),
             child: Text(
-              round.suspect == null
+              round.suspects.isEmpty
                   ? strings.selectSuspect
-                  : strings.confirmSuspect(round.suspect!.name),
+                  : (round.suspects.length == 1
+                        ? strings.confirmSuspect(round.suspects.single.name)
+                        : strings.confirmSuspects(round.suspects.length)),
               textAlign: TextAlign.center,
             ),
           ),
@@ -857,7 +878,12 @@ class _SessionScreenState extends State<SessionScreen>
         if (round.phase == GamePhase.ready) ...[
           FilledButton(
             onPressed: () => _startDiscussion(round),
-            child: Text(strings.startDiscussion, textAlign: TextAlign.center),
+            child: Text(
+              strings.startDiscussion(
+                _formatTime(round.discussionDuration.inSeconds),
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -871,30 +897,54 @@ class _SessionScreenState extends State<SessionScreen>
       itemCount: round.players.length,
       itemBuilder: (context, index) {
         final player = round.players[index];
-        final selected = round.suspect?.id == player.id;
+        final selected = round.suspects.any(
+          (suspect) => suspect.id == player.id,
+        );
         return Padding(
           key: ValueKey(player.id),
           padding: const EdgeInsets.only(bottom: 8),
-          child: RadioListTile<String>(
-            value: player.id,
-            title: Text(player.name),
-            secondary: PlayerAvatarView(avatar: player.avatar),
-            selected: selected,
-            activeColor: PartyColors.lime,
-            tileColor: PartyColors.surface,
-            selectedTileColor: PartyColors.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: selected ? PartyColors.lime : PartyColors.outline,
-                width: selected ? 2 : 1,
-              ),
-            ),
-          ),
+          child: round.allowsMultipleSuspects
+              ? CheckboxListTile(
+                  value: selected,
+                  onChanged: (_) => _selectSuspect(round, player.id),
+                  title: Text(player.name),
+                  secondary: PlayerAvatarView(avatar: player.avatar),
+                  activeColor: PartyColors.lime,
+                  checkColor: PartyColors.background,
+                  selected: selected,
+                  tileColor: PartyColors.surface,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: selected ? PartyColors.lime : PartyColors.outline,
+                      width: selected ? 2 : 1,
+                    ),
+                  ),
+                )
+              : RadioListTile<String>(
+                  value: player.id,
+                  title: Text(player.name),
+                  secondary: PlayerAvatarView(avatar: player.avatar),
+                  selected: selected,
+                  activeColor: PartyColors.lime,
+                  tileColor: PartyColors.surface,
+                  selectedTileColor: PartyColors.surface,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: selected ? PartyColors.lime : PartyColors.outline,
+                      width: selected ? 2 : 1,
+                    ),
+                  ),
+                ),
         );
       },
     ),
@@ -925,7 +975,9 @@ class _SessionScreenState extends State<SessionScreen>
               ),
               const SizedBox(height: 12),
               Text(
-                groupWon ? strings.groupWins : strings.imposterWins,
+                groupWon
+                    ? strings.groupWins
+                    : strings.imposterWins(result.imposters.length),
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
@@ -940,9 +992,12 @@ class _SessionScreenState extends State<SessionScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final (index, (label, value)) in [
-                (strings.resultSuspect, result.suspect.name),
-                (strings.resultImposter, result.imposter.name),
-                (strings.resultWord, result.word),
+                (strings.resultSuspect, result.suspects),
+                (
+                  strings.resultImposter(result.imposters.length),
+                  result.imposters,
+                ),
+                (strings.resultWord, <Player>[]),
               ].indexed)
                 Padding(
                   padding: EdgeInsets.only(top: index == 0 ? 0 : 20),
@@ -957,27 +1012,37 @@ class _SessionScreenState extends State<SessionScreen>
                           style: const TextStyle(color: PartyColors.muted),
                         ),
                         const SizedBox(height: 4),
-                        if (index < 2) ...[
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: PlayerAvatarView(
-                              avatar:
-                                  (index == 0
-                                          ? result.suspect
-                                          : result.imposter)
-                                      .avatar,
-                              size: 64,
+                        if (index < 2)
+                          for (final player in value)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  PlayerAvatarView(
+                                    avatar: player.avatar,
+                                    size: 64,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      player.name,
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                        else
+                          Text(
+                            result.word,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                        ],
-                        Text(
-                          value,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -1057,10 +1122,25 @@ class _SessionScreenState extends State<SessionScreen>
     );
   }
 
+  String _formatTime(int seconds) =>
+      '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
+
+  String _imposterRange(int count) {
+    final minimum = RoundRules.minimumImposters(count);
+    final maximum = RoundRules.maximumImposters(count);
+    return minimum == maximum ? '$minimum' : '$minimum–$maximum';
+  }
+
   List<Widget> _buildStartActions(AppLocalizations strings) => [
     Text(
       _session.canStart
-          ? strings.roundSummary
+          ? strings.roundSummary(
+              _imposterRange(_session.players.length),
+              _formatTime(
+                RoundRules.discussionDuration(_session.players.length)
+                    .inSeconds,
+              ),
+            )
           : strings.playersMissing(
               GameRound.minimumPlayers - _session.players.length,
             ),
@@ -1095,7 +1175,9 @@ class _SessionScreenState extends State<SessionScreen>
         children: [
           if (secret.role == PlayerRole.imposter) ...[
             Text(
-              strings.imposterRole,
+              _session.round!.allowsMultipleSuspects
+                  ? strings.multipleImposterRole
+                  : strings.imposterRole,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 16),
@@ -1145,12 +1227,17 @@ class _SessionScreenState extends State<SessionScreen>
   Widget _buildVotingCard(AppLocalizations strings) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      TimeUpCard(animate: _animateTimeUp),
+      TimeUpCard(
+        animate: _animateTimeUp,
+        multipleSuspects: _session.round!.allowsMultipleSuspects,
+      ),
       if (MediaQuery.sizeOf(context).height < 650 ||
           MediaQuery.textScalerOf(context).scale(1) > 1.3) ...[
         const SizedBox(height: 16),
         Text(
-          strings.votingIntro,
+          _session.round!.allowsMultipleSuspects
+              ? strings.multipleVotingIntro
+              : strings.votingIntro,
           style: const TextStyle(color: PartyColors.muted),
         ),
       ],

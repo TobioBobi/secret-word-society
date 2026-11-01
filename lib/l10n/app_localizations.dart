@@ -175,8 +175,8 @@ abstract class AppLocalizations {
   /// No description provided for @roundSummary.
   ///
   /// In de, this message translates to:
-  /// **'1 Imposter · 10 Sekunden'**
-  String get roundSummary;
+  /// **'{imposters} Imposter · {duration} Minuten'**
+  String roundSummary(String imposters, String duration);
 
   /// No description provided for @startRound.
   ///
@@ -325,8 +325,8 @@ abstract class AppLocalizations {
   /// No description provided for @startDiscussion.
   ///
   /// In de, this message translates to:
-  /// **'10 Sekunden starten'**
-  String get startDiscussion;
+  /// **'{duration} starten'**
+  String startDiscussion(String duration);
 
   /// No description provided for @discussionPhase.
   ///
@@ -427,14 +427,14 @@ abstract class AppLocalizations {
   /// No description provided for @groupWinIntro.
   ///
   /// In de, this message translates to:
-  /// **'Ihr habt den Imposter entlarvt.'**
-  String get groupWinIntro;
+  /// **'{count, plural, =1{Ihr habt den Imposter entlarvt.} other{Ihr habt alle Imposter entlarvt.}}'**
+  String groupWinIntro(int count);
 
   /// No description provided for @imposterWinIntro.
   ///
   /// In de, this message translates to:
-  /// **'Der Imposter hat euch ausgetrickst.'**
-  String get imposterWinIntro;
+  /// **'{count, plural, =1{Der Imposter hat euch ausgetrickst.} other{Die Imposter haben euch ausgetrickst.}}'**
+  String imposterWinIntro(int count);
 
   /// No description provided for @groupWins.
   ///
@@ -445,8 +445,8 @@ abstract class AppLocalizations {
   /// No description provided for @imposterWins.
   ///
   /// In de, this message translates to:
-  /// **'Der Imposter gewinnt.'**
-  String get imposterWins;
+  /// **'{count, plural, =1{Der Imposter gewinnt.} other{Die Imposter gewinnen.}}'**
+  String imposterWins(int count);
 
   /// No description provided for @resultSuspect.
   ///
@@ -457,8 +457,8 @@ abstract class AppLocalizations {
   /// No description provided for @resultImposter.
   ///
   /// In de, this message translates to:
-  /// **'Der Imposter war'**
-  String get resultImposter;
+  /// **'{count, plural, =1{Der Imposter war} other{Die Imposter waren}}'**
+  String resultImposter(int count);
 
   /// No description provided for @resultWord.
   ///
@@ -519,6 +519,36 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Übernehmen'**
   String get saveName;
+
+  /// No description provided for @groupFull.
+  ///
+  /// In de, this message translates to:
+  /// **'Eure Gruppe ist mit 14 Personen vollständig.'**
+  String get groupFull;
+
+  /// No description provided for @multipleImposterRole.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist ein Imposter'**
+  String get multipleImposterRole;
+
+  /// No description provided for @multipleVotingIntro.
+  ///
+  /// In de, this message translates to:
+  /// **'Findet alle Imposter. Stimmt mündlich ab und wählt nur die Personen aus, die ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab.'**
+  String get multipleVotingIntro;
+
+  /// No description provided for @multipleVotingCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Zeit ist um. Für den Gruppensieg müsst ihr alle Imposter und keine andere Person auswählen.'**
+  String get multipleVotingCard;
+
+  /// No description provided for @confirmSuspects.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} Personen verdächtigen'**
+  String confirmSuspects(int count);
 }
 
 class _AppLocalizationsDelegate

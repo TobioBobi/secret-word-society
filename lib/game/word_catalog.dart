@@ -1,21 +1,35 @@
 import 'dart:convert';
 
 final class WordPair {
-  WordPair({required String id, required String word, required String hint})
-    : id = id.trim(),
-      word = word.trim(),
-      hint = hint.trim() {
+  WordPair({
+    required String id,
+    required String word,
+    required String hint,
+    Iterable<String> additionalHints = const [],
+  }) : id = id.trim(),
+       word = word.trim(),
+       hints = List.unmodifiable(
+         [hint, ...additionalHints].map((s) => s.trim()),
+       ) {
     if (this.id.isEmpty || this.word.isEmpty || this.hint.isEmpty) {
       throw ArgumentError('Word pair fields must not be empty.');
     }
-    if (this.word.toLowerCase() == this.hint.toLowerCase()) {
-      throw ArgumentError('A hint must differ from its word.');
+    if (hints.any(
+          (hint) =>
+              hint.isEmpty || this.word.toLowerCase() == hint.toLowerCase(),
+        ) ||
+        hints.map((hint) => hint.toLowerCase()).toSet().length !=
+            hints.length) {
+      throw ArgumentError(
+        'Hints must be nonempty, distinct and differ from the word.',
+      );
     }
   }
 
   final String id;
   final String word;
-  final String hint;
+  final List<String> hints;
+  String get hint => hints.first;
 }
 
 /// Localized content, independent of Flutter and UI translations.
@@ -56,6 +70,14 @@ final class WordCatalog {
             id: entry['id'] as String,
             word: entry['word'] as String,
             hint: entry['hint'] as String,
+            additionalHints: switch (entry['additionalHints']) {
+              null => const <String>[],
+              List<dynamic> hints when hints.every((hint) => hint is String) =>
+                hints.cast<String>(),
+              _ => throw const FormatException(
+                'Expected additional hint strings.',
+              ),
+            },
           );
         }),
       );

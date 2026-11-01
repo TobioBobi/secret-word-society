@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'player.dart';
+import 'round_rules.dart';
 import 'word_catalog.dart';
 import 'word_deck.dart';
 
@@ -19,18 +20,24 @@ final class PlayerSecret {
 }
 
 final class RoundResult {
-  const RoundResult({
-    required this.imposter,
-    required this.suspect,
+  RoundResult({
+    required Iterable<Player> imposters,
+    required Iterable<Player> suspects,
     required this.word,
-  });
+  }) : imposters = List.unmodifiable(imposters),
+       suspects = List.unmodifiable(suspects);
 
-  final Player imposter;
-  final Player suspect;
+  final List<Player> imposters;
+  final List<Player> suspects;
   final String word;
 
   Winner get winner =>
-      suspect.id == imposter.id ? Winner.group : Winner.imposter;
+      suspects.length == imposters.length &&
+          suspects.every(
+            (suspect) => imposters.any((imposter) => imposter.id == suspect.id),
+          )
+      ? Winner.group
+      : Winner.imposter;
 }
 
 /// Immutable round state. UI callers replace their snapshot after each action.
@@ -43,12 +50,12 @@ final class GameRound {
     required this._deck,
     required this._random,
     required this._pair,
-    required this._imposterIndex,
+    required this._imposterHints,
     this.phase = GamePhase.handoff,
     this._handoffIndex = 0,
     this.hasViewedSecret = false,
     this.discussionEndsAt,
-    this.suspect,
+    this.suspects = const [],
     this.revealEndsAt,
     this.revealRemaining = revealDuration,
   });
@@ -70,27 +77,45 @@ final class GameRound {
     Random? random,
   }) {
     final group = List<Player>.unmodifiable(players);
-    if (group.length < minimumPlayers) {
-      throw ArgumentError('At least three players are required.');
-    }
+    RoundRules.validate(group.length);
     if (group.map((player) => player.id).toSet().length != group.length ||
         group.map((player) => player.name.toLowerCase()).toSet().length !=
             group.length) {
       throw ArgumentError('Player IDs and names must be unique.');
     }
     final source = random ?? Random();
+    if (deck.catalog.pairs.any(
+      (pair) => pair.hints.length < RoundRules.maximumImposters(group.length),
+    )) {
+      throw ArgumentError('This group needs more distinct hints per word.');
+    }
+    final pair = deck.draw(source);
+    final count = RoundRules.drawImposterCount(group.length, source);
+    // Partial Fisher–Yates: unique, uniformly selected players without retries.
+    final indices = List.generate(group.length, (index) => index);
+    final hints = pair.hints.toList()..shuffle(source);
+    final assignments = <int, String>{};
+    for (var index = 0; index < count; index++) {
+      final chosen = index + source.nextInt(group.length - index);
+      final value = indices[chosen];
+      indices[chosen] = indices[index];
+      indices[index] = value;
+      assignments[value] = hints[index];
+    }
     return GameRound._(
       players: group,
       deck: deck,
       random: source,
-      pair: deck.draw(source),
-      imposterIndex: source.nextInt(group.length),
+      pair: pair,
+      imposterHints: Map.unmodifiable(assignments),
     );
   }
 
-  static const minimumPlayers = 3;
-  // Temporary manual-test duration. Restore two minutes in local Ticket 19.
-  static const discussionDuration = Duration(seconds: 10);
+  static const minimumPlayers = RoundRules.minimumPlayers;
+  Duration get discussionDuration =>
+      RoundRules.discussionDuration(players.length);
+  bool get allowsMultipleSuspects =>
+      RoundRules.maximumImposters(players.length) > 1;
   static const revealDuration = Duration(seconds: 3);
 
   final List<Player> players;
@@ -100,13 +125,13 @@ final class GameRound {
   bool get canAdvanceCard =>
       phase == GamePhase.handoff || phase == GamePhase.secret;
   final DateTime? discussionEndsAt;
-  final Player? suspect;
+  final List<Player> suspects;
   final DateTime? revealEndsAt;
   final Duration revealRemaining;
   final WordDeck _deck;
   final Random _random;
   final WordPair _pair;
-  final int _imposterIndex;
+  final Map<int, String> _imposterHints;
   final int _handoffIndex;
 
   String get languageCode => _deck.catalog.languageCode;
@@ -122,17 +147,21 @@ final class GameRound {
 
   PlayerSecret? get currentSecret {
     if (phase != GamePhase.secret) return null;
-    final isImposter = _handoffIndex == _imposterIndex;
+    final hint = _imposterHints[_handoffIndex];
+    final isImposter = hint != null;
     return PlayerSecret(
       role: isImposter ? PlayerRole.imposter : PlayerRole.group,
-      text: isImposter ? _pair.hint : _pair.word,
+      text: hint ?? _pair.word,
     );
   }
 
   RoundResult? get result => phase == GamePhase.result
       ? RoundResult(
-          imposter: players[_imposterIndex],
-          suspect: suspect!,
+          imposters: [
+            for (var i = 0; i < players.length; i++)
+              if (_imposterHints.containsKey(i)) players[i],
+          ],
+          suspects: suspects,
           word: _pair.word,
         )
       : null;
@@ -206,12 +235,17 @@ final class GameRound {
     _requirePhase(GamePhase.voting);
     final index = players.indexWhere((player) => player.id == playerId);
     if (index == -1) throw ArgumentError('Suspect must belong to this round.');
-    return _copy(phase: phase, suspect: players[index]);
+    final selected = allowsMultipleSuspects
+        ? (suspects.any((player) => player.id == playerId)
+              ? suspects.where((player) => player.id != playerId).toList()
+              : [...suspects, players[index]])
+        : [players[index]];
+    return _copy(phase: phase, suspects: List.unmodifiable(selected));
   }
 
   GameRound confirmSuspect(DateTime now) {
     _requirePhase(GamePhase.voting);
-    if (suspect == null) throw StateError('Select a suspect first.');
+    if (suspects.isEmpty) throw StateError('Select a suspect first.');
     return _copy(
       phase: GamePhase.reveal,
       revealEndsAt: now.add(revealDuration),
@@ -257,7 +291,7 @@ final class GameRound {
     int? handoffIndex,
     bool? hasViewedSecret,
     DateTime? discussionEndsAt,
-    Player? suspect,
+    List<Player>? suspects,
     DateTime? revealEndsAt,
     Duration? revealRemaining,
     bool pauseReveal = false,
@@ -266,12 +300,12 @@ final class GameRound {
     deck: _deck,
     random: _random,
     pair: _pair,
-    imposterIndex: _imposterIndex,
+    imposterHints: _imposterHints,
     phase: phase,
     handoffIndex: handoffIndex ?? _handoffIndex,
     hasViewedSecret: hasViewedSecret ?? this.hasViewedSecret,
     discussionEndsAt: discussionEndsAt ?? this.discussionEndsAt,
-    suspect: suspect ?? this.suspect,
+    suspects: suspects ?? this.suspects,
     revealEndsAt: pauseReveal ? null : revealEndsAt ?? this.revealEndsAt,
     revealRemaining: revealRemaining ?? this.revealRemaining,
   );

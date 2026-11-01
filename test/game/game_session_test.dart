@@ -27,7 +27,7 @@ void main() {
     }
     final now = DateTime.utc(2026, 10, 25);
     session.startDiscussion(now);
-    session.advanceTime(now.add(GameRound.discussionDuration));
+    session.advanceTime(now.add(session.round!.discussionDuration));
     session.selectSuspect(session.players.first.id);
     session.confirmSuspect(now);
     session.advanceTime(now.add(GameRound.revealDuration));
@@ -184,13 +184,16 @@ void main() {
     expect(GameSession().players, isEmpty);
   });
 
-  test('does not impose an arbitrary player limit', () {
+  test('enforces fourteen players and allows starting after removing one', () {
     final session = GameSession();
-    for (var index = 0; index < 60; index++) {
+    for (var index = 0; index < 14; index++) {
       expect(session.addPlayer('Person $index'), isNull);
     }
-    session.startRound(catalog);
-    expect(session.round!.players, hasLength(60));
+    expect(session.addPlayer('Overflow'), NameProblem.groupFull);
+    session.removePlayer(session.players.last.id);
+    expect(session.addPlayer('Replacement'), isNull);
+    expect(session.players, hasLength(14));
+    expect(session.canStart, isTrue);
   });
 
   test('session actions preserve secrets on concealment and finish without a timer', () {

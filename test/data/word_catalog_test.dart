@@ -15,11 +15,16 @@ void main() {
   test('every bundled German hint contains one or two words', () async {
     final catalog = await loadWordCatalog();
     for (final pair in catalog.pairs) {
-      expect(
-        pair.hint.split(RegExp(r'\s+')).length,
-        inInclusiveRange(1, 2),
-        reason: '${pair.id} (${pair.word}): "${pair.hint}"',
-      );
+      expect(pair.hints, hasLength(3));
+      expect(pair.hints.toSet(), hasLength(3));
+      for (final hint in pair.hints) {
+        expect(
+          hint.split(RegExp(r'\s+')).length,
+          inInclusiveRange(1, 2),
+          reason: '${pair.id} (${pair.word}): "$hint"',
+        );
+        expect(hint.toLowerCase(), isNot(contains(pair.word.toLowerCase())));
+      }
     }
   });
 
@@ -94,8 +99,8 @@ void main() {
         final word = words.toSet().single;
         expect(seen.add(word), isTrue);
         expect(
-          catalog.pairs.singleWhere((pair) => pair.word == word).hint,
-          hints.single,
+          catalog.pairs.singleWhere((pair) => pair.word == word).hints,
+          contains(hints.single),
         );
         final now = DateTime.utc(2026, 10, 25);
         final correct = index.isEven;
@@ -104,7 +109,7 @@ void main() {
             : round.players.firstWhere((player) => player.id != imposterId).id;
         round = round
             .startDiscussion(now)
-            .advanceTime(now.add(GameRound.discussionDuration))
+            .advanceTime(now.add(round.discussionDuration))
             .selectSuspect(suspect)
             .confirmSuspect(now)
             .advanceTime(now.add(GameRound.revealDuration));
@@ -113,10 +118,7 @@ void main() {
         round = round.newRound();
         expect(round.currentSecret, isNull);
         expect(round.discussionEndsAt, isNull);
-        expect(
-          round.remainingDiscussionTime(now),
-          GameRound.discussionDuration,
-        );
+        expect(round.remainingDiscussionTime(now), round.discussionDuration);
       }
       expect(seen, catalog.pairs.map((pair) => pair.word).toSet());
     },

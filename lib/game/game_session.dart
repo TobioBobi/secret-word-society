@@ -2,11 +2,12 @@ import 'dart:math';
 
 import 'game_round.dart';
 import 'player.dart';
+import 'round_rules.dart';
 import 'player_avatar.dart';
 import 'word_catalog.dart';
 import 'word_deck.dart';
 
-enum NameProblem { empty, duplicate }
+enum NameProblem { empty, duplicate, groupFull }
 
 /// In-memory group and current round. A new app session always starts empty.
 final class GameSession {
@@ -18,7 +19,9 @@ final class GameSession {
   List<Player> get players => List.unmodifiable(_players);
   GameRound? get round => _round;
   bool get canStart =>
-      _round == null && _players.length >= GameRound.minimumPlayers;
+      _round == null &&
+      _players.length >= GameRound.minimumPlayers &&
+      _players.length <= RoundRules.maximumPlayers;
 
   NameProblem? addPlayer(String input) {
     _requireSetup();
@@ -28,6 +31,9 @@ final class GameSession {
       (player) => player.name.toLowerCase() == name.toLowerCase(),
     )) {
       return NameProblem.duplicate;
+    }
+    if (_players.length >= RoundRules.maximumPlayers) {
+      return NameProblem.groupFull;
     }
     _players.add(Player(id: 'player-${_nextPlayerId++}', name: name));
     return null;
