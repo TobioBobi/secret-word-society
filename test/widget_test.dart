@@ -71,7 +71,9 @@ Future<void> tapVisible(WidgetTester tester, String label) async {
 }
 
 Future<void> leaveRound(WidgetTester tester) async {
-  expect(find.text('Gruppe bearbeiten'), findsNothing);
+  if (find.text('Die Auflösung').evaluate().isEmpty) {
+    expect(find.text('Gruppe bearbeiten'), findsNothing);
+  }
   await tester.binding.handlePopRoute();
   await tester.pumpAndSettle();
 }

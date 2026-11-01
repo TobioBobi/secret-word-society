@@ -13,7 +13,9 @@ import 'widget_test.dart'
 
 Future<void> _checkAndroidControls(WidgetTester tester) async {
   expect(tester.takeException(), isNull);
-  expect(find.text('Gruppe bearbeiten'), findsNothing);
+  if (find.text('Die Auflösung').evaluate().isEmpty) {
+    expect(find.text('Gruppe bearbeiten'), findsNothing);
+  }
   await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
   await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
   await expectLater(tester, meetsGuideline(textContrastGuideline));

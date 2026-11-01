@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/platform/round_signal.dart';
+import 'package:secret_word_society/ui/player_avatar.dart';
 
 import 'widget_test.dart'
     show
@@ -237,6 +238,125 @@ void main() {
   });
 
   for (final correct in [true, false]) {
+    testWidgets('edit result group and restart at 200%: correct=$correct', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final clock = _Clock();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpWidget(
+        MyApp(catalogLoader: () async => testCatalog, now: clock.now),
+      );
+      await readyGroup(tester);
+      await showStart(tester);
+      await tapVisible(tester, 'Runde starten');
+      final avatar = tester
+          .widget<PlayerAvatarView>(find.byType(PlayerAvatarView))
+          .avatar;
+      final imposter = await _distribute(tester, _names);
+      await _reachVoting(tester, clock);
+      final suspect = correct
+          ? imposter
+          : _names.firstWhere((name) => name != imposter);
+      await tapVisible(tester, suspect);
+      await tapVisible(tester, '$suspect verdächtigen');
+      await _finishReveal(tester, clock);
+      await tester.scrollUntilVisible(
+        find.text('Gruppe bearbeiten'),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.ensureVisible(find.text('Gruppe bearbeiten'));
+      await tester.pumpAndSettle();
+      final edit = tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(OutlinedButton, 'Gruppe bearbeiten'),
+          )
+          .onPressed!;
+      final bounds = tester.getRect(find.text('Gruppe bearbeiten'));
+      expect(bounds.top, greaterThanOrEqualTo(0));
+      expect(bounds.bottom, lessThanOrEqualTo(568));
+      await tapVisible(tester, 'Gruppe bearbeiten');
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Wer ist dabei?'), findsOneWidget);
+      expectConcealed(tester);
+      await tapVisible(tester, 'Anna');
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, 'Anni');
+      await tester.tap(find.text('Übernehmen'));
+      tester.view.resetViewInsets();
+      await tester.pumpAndSettle();
+      final annaRow = find.byKey(const ValueKey('player-0'));
+      expect(
+        tester
+            .widget<PlayerAvatarView>(
+              find.descendant(
+                of: annaRow,
+                matching: find.byType(PlayerAvatarView),
+              ),
+            )
+            .avatar,
+        same(avatar),
+      );
+      final remove = find.byTooltip('Cem entfernen');
+      await tester.scrollUntilVisible(
+        remove,
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.ensureVisible(remove);
+      await tester.tap(remove);
+      await tester.pumpAndSettle();
+      await showStart(tester);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Runde starten'),
+            )
+            .onPressed,
+        isNull,
+      );
+      await tester.scrollUntilVisible(
+        find.byType(TextField),
+        -180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await addName(tester, 'Dora');
+      await showStart(tester);
+      await tapVisible(tester, 'Runde starten');
+      edit(); // A callback from the old result cannot discard the new round.
+      await tester.pumpAndSettle();
+      expect(find.text('Anni'), findsOneWidget);
+      expect(
+        tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
+        same(avatar),
+      );
+      expect(find.text('Person 1 von 3'), findsOneWidget);
+      expectConcealed(tester);
+      await _distribute(tester, ['Anni', 'Ben', 'Dora']);
+      await _reachVoting(tester, clock);
+      expect(find.text('Cem'), findsNothing);
+      for (final name in ['Anni', 'Ben', 'Dora']) {
+        await tester.scrollUntilVisible(
+          find.text(name),
+          180,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(
+          find.widgetWithText(RadioListTile<String>, name),
+          findsOneWidget,
+        );
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
     testWidgets('vote, reveal and fresh complete round: correct=$correct', (
       tester,
     ) async {

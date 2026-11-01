@@ -319,7 +319,41 @@ void main() {
         expect(find.text('Euer Verdacht'), findsOneWidget);
         expect(find.text('Der Imposter war'), findsOneWidget);
         expect(find.text('Das geheime Wort'), findsOneWidget);
-        await _tapText(tester, 'Noch eine Runde');
+        await tester.scrollUntilVisible(
+          find.text('Gruppe bearbeiten'),
+          180,
+          scrollable: _pageScroll,
+        );
+        await tester.ensureVisible(find.text('Gruppe bearbeiten'));
+        await _settle(tester);
+        expect(find.text('Gruppe bearbeiten').hitTestable(), findsOneWidget);
+        if (correct) {
+          await _tapText(tester, 'Gruppe bearbeiten');
+          expect(find.text('3 Personen'), findsOneWidget);
+          await _tapText(tester, 'Ben');
+          await tester.enterText(find.byType(TextField).last, 'Benny');
+          await _tapText(tester, 'Übernehmen');
+          await _tap(tester, find.byTooltip('Cem entfernen'));
+          await tester.scrollUntilVisible(
+            find.byType(TextField),
+            -180,
+            scrollable: _pageScroll,
+          );
+          await tester.ensureVisible(find.byType(TextField));
+          await tester.enterText(find.byType(TextField), 'Dora');
+          await _tap(tester, find.byTooltip('Name hinzufügen'));
+          FocusManager.instance.primaryFocus?.unfocus();
+          await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+          final keyboardWait = Stopwatch()..start();
+          while (tester.view.viewInsets.bottom > 0 &&
+              keyboardWait.elapsed < const Duration(seconds: 15)) {
+            await tester.pump(const Duration(milliseconds: 100));
+          }
+          expect(tester.view.viewInsets.bottom, 0);
+          await _tapText(tester, 'Runde starten');
+        } else {
+          await _tapText(tester, 'Noch eine Runde');
+        }
         expect(
           tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
           same(firstAvatar),
@@ -330,6 +364,10 @@ void main() {
         final nextWords = <String>{};
         final nextHints = <String>[];
         for (var index = 0; index < _players.length; index++) {
+          expect(
+            find.text((correct ? ['Anna', 'Benny', 'Dora'] : _players)[index]),
+            findsOneWidget,
+          );
           await _tapText(tester, 'Geheimnis kurz ansehen');
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
