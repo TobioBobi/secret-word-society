@@ -876,6 +876,8 @@ class _SessionScreenState extends State<SessionScreen>
           ),
         ],
         if (round.phase == GamePhase.ready) ...[
+          _buildDurationPicker(strings),
+          const SizedBox(height: 16),
           FilledButton(
             onPressed: () => _startDiscussion(round),
             child: Text(
@@ -1133,15 +1135,86 @@ class _SessionScreenState extends State<SessionScreen>
     return minimum == maximum ? '$minimum' : '$minimum–$maximum';
   }
 
+  void _setDiscussionDuration(Duration duration) {
+    if (_starting ||
+        (_session.round != null && _session.round!.phase != GamePhase.ready)) {
+      return;
+    }
+    setState(() => _session.setDiscussionDuration(duration));
+  }
+
+  Widget _buildDurationPicker(AppLocalizations strings) {
+    final duration = _session.discussionDuration;
+    final width = MediaQuery.sizeOf(context).width.clamp(0.0, 560.0);
+    final inset = width < 360 ? 16.0 : 24.0;
+    final stacked =
+        MediaQuery.textScalerOf(context).scale(28) * 5 + 112 >
+        width - inset * 2 - 32;
+    final value = Semantics(
+      liveRegion: true,
+      label: strings.selectedDuration(_formatTime(duration.inSeconds)),
+      excludeSemantics: true,
+      child: Text(
+        _formatTime(duration.inSeconds),
+        key: const ValueKey('round-duration'),
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w800,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+    Widget stepButton({required bool increase}) {
+      final enabled =
+          !_starting &&
+          (increase
+              ? duration < RoundRules.maximumDuration
+              : duration > RoundRules.minimumDuration);
+      return IconButton.outlined(
+        tooltip: increase ? strings.extendDuration : strings.shortenDuration,
+        onPressed: enabled
+            ? () => _setDiscussionDuration(
+                increase
+                    ? duration + RoundRules.durationStep
+                    : duration - RoundRules.durationStep,
+              )
+            : null,
+        icon: Icon(increase ? Icons.add : Icons.remove),
+      );
+    }
+
+    return PartyCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(strings.roundDuration, textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Column(
+            children: [
+              if (stacked) value,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  stepButton(increase: false),
+                  if (!stacked) Expanded(child: value),
+                  stepButton(increase: true),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   List<Widget> _buildStartActions(AppLocalizations strings) => [
     Text(
       _session.canStart
           ? strings.roundSummary(
               _imposterRange(_session.players.length),
-              _formatTime(
-                RoundRules.discussionDuration(_session.players.length)
-                    .inSeconds,
-              ),
+              _formatTime(_session.discussionDuration.inSeconds),
             )
           : strings.playersMissing(
               GameRound.minimumPlayers - _session.players.length,
@@ -1149,6 +1222,10 @@ class _SessionScreenState extends State<SessionScreen>
       textAlign: TextAlign.center,
       style: const TextStyle(color: PartyColors.muted),
     ),
+    if (_session.canStart) ...[
+      const SizedBox(height: 12),
+      _buildDurationPicker(strings),
+    ],
     if (_catalogFailed)
       Padding(
         padding: const EdgeInsets.only(top: 12),

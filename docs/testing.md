@@ -12,6 +12,12 @@ Der temporäre Zehn-Sekunden-Timer ist entfernt (damit ist auch Issue #22
 inhaltlich umgesetzt). Rollenstaffelung, Mehrfachabstimmung und unterschiedliche
 Offline-Hinweise stehen in der [Beschreibung von Issue #25](mvp/issue-25-dynamische-runden.md).
 
+Seit Issue #30 kann die Dauer vor dem Start in 30-Sekunden-Schritten zwischen
+00:30 und 15:00 manuell gewählt werden. Die Auswahl bleibt für Folgerunden in
+der Sitzung erhalten. Ein zusätzlicher Android-Ablauf prüft die manuelle Wahl,
+echten 30-Sekunden-Ablauf und die erneute Anpassung in der Folgerunde. Details:
+[Rundendauer anpassen](mvp/issue-30-rundendauer.md).
+
 Seit Issue #28 erscheint beim Timerende die dauerhafte Karte „Zeit ist um!“
 mit einer einmaligen, bei reduzierten Animationen deaktivierten Bewegung.
 Der Bildschirm bleibt während des sichtbaren Rundentimers automatisch wach.

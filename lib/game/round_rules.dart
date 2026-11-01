@@ -4,6 +4,21 @@ import 'dart:math';
 abstract final class RoundRules {
   static const minimumPlayers = 3;
   static const maximumPlayers = 14;
+  static const durationStep = Duration(seconds: 30);
+  static const minimumDuration = durationStep;
+  static const maximumDuration = Duration(minutes: 15);
+
+  static void validateDuration(Duration duration) {
+    if (duration < minimumDuration ||
+        duration > maximumDuration ||
+        duration.inMicroseconds % durationStep.inMicroseconds != 0) {
+      throw ArgumentError.value(
+        duration,
+        'duration',
+        'Expected 30s–15m in 30s steps.',
+      );
+    }
+  }
 
   static void validate(int count) {
     if (count < minimumPlayers || count > maximumPlayers) {
