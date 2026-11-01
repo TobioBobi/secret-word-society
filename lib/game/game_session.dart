@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'game_round.dart';
 import 'player.dart';
+import 'player_avatar.dart';
 import 'word_catalog.dart';
 import 'word_deck.dart';
 
@@ -30,6 +31,35 @@ final class GameSession {
     }
     _players.add(Player(id: 'player-${_nextPlayerId++}', name: name));
     return null;
+  }
+
+  NameProblem? renamePlayer(String id, String input) {
+    _requireSetup();
+    final index = _players.indexWhere((player) => player.id == id);
+    if (index < 0) throw ArgumentError('Unknown player.');
+    final name = input.trim();
+    if (name.isEmpty) return NameProblem.empty;
+    if (_players.any(
+      (player) =>
+          player.id != id && player.name.toLowerCase() == name.toLowerCase(),
+    )) {
+      return NameProblem.duplicate;
+    }
+    final player = _players[index];
+    _players[index] = Player(id: id, name: name, avatar: player.avatar);
+    return null;
+  }
+
+  void rerollAvatar(String id) {
+    _requireSetup();
+    final index = _players.indexWhere((player) => player.id == id);
+    if (index < 0) throw ArgumentError('Unknown player.');
+    final player = _players[index];
+    _players[index] = Player(
+      id: id,
+      name: player.name,
+      avatar: PlayerAvatar.random(),
+    );
   }
 
   void removePlayer(String id) {

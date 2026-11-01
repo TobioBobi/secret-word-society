@@ -260,4 +260,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get leaveRound => 'Runde verlassen';
+
+  @override
+  String rerollAvatar(String name) {
+    return 'Neuer Avatar für $name';
+  }
+
+  @override
+  String get renamePlayer => 'Name ändern';
+
+  @override
+  String get cancelEdit => 'Abbrechen';
+
+  @override
+  String get saveName => 'Übernehmen';
 }

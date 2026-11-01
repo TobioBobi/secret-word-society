@@ -75,5 +75,16 @@
   "leaveRoundTitle": "Runde verlassen?",
   "leaveRoundBody": "Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.",
   "keepPlaying": "Weiterspielen",
-  "leaveRound": "Runde verlassen"
+  "leaveRound": "Runde verlassen",
+  "rerollAvatar": "Neuer Avatar für {name}",
+  "@rerollAvatar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "renamePlayer": "Name ändern",
+  "cancelEdit": "Abbrechen",
+  "saveName": "Übernehmen"
 }

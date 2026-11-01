@@ -16,6 +16,7 @@ class SecretCurtain extends StatefulWidget {
     super.key,
     required this.title,
     required this.name,
+    this.avatar,
     required this.advanceAction,
     required this.headingFocus,
     required this.revealed,
@@ -27,6 +28,7 @@ class SecretCurtain extends StatefulWidget {
 
   final String title;
   final String name;
+  final Widget? avatar;
   final Widget advanceAction;
   final FocusNode headingFocus;
   final bool revealed;
@@ -406,13 +408,15 @@ class _SecretCurtainState extends State<SecretCurtain>
           color: PartyColors.purple,
           border: Border.all(color: const Color(0xFF423068), width: 9),
         ),
-        child: const ExcludeSemantics(
-          child: Icon(
-            Icons.person_outline_rounded,
-            size: 32,
-            color: PartyColors.text,
-          ),
-        ),
+        child:
+            widget.avatar ??
+            const ExcludeSemantics(
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 32,
+                color: PartyColors.text,
+              ),
+            ),
       ),
       const SizedBox(height: 24),
       Focus(
