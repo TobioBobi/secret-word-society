@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -35,7 +36,11 @@ class DeferredProcessing extends PhotoProcessing {
   PhotoSource? input;
   PhotoEffect? effect;
   @override
-  Future<PlayerPhoto> render(PhotoSource source, PhotoEffect effect) {
+  Future<PlayerPhoto> render(
+    PhotoSource source,
+    PhotoEffect effect, {
+    PhotoVariation? variation,
+  }) {
     input = source;
     this.effect = effect;
     return result.future;
@@ -53,6 +58,52 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  test(
+    'random strengths stay in range and both mirror directions are reachable',
+    () {
+      final random = Random(18);
+      final draws = List.generate(1000, (_) => PhotoVariation.random(random));
+      expect(
+        draws.every(
+          (v) =>
+              v.strength >= PhotoVariation.minimumStrength &&
+              v.strength < PhotoVariation.maximumStrength,
+        ),
+        isTrue,
+      );
+      expect(draws.map((v) => v.strength).toSet().length, greaterThan(990));
+      expect(draws.map((v) => v.mirrorRight).toSet(), {false, true});
+    },
+  );
+  test('all 14 effects vary with strength without changing the source', () {
+    final original = source();
+    final before = List<int>.of(original.bytes);
+    expect(PhotoEffect.values, hasLength(14));
+    for (final effect in PhotoEffect.values) {
+      final low = renderPhoto(
+        (original, effect),
+        variation: const PhotoVariation(
+          strength: PhotoVariation.minimumStrength,
+        ),
+      );
+      final high = renderPhoto(
+        (original, effect),
+        variation: const PhotoVariation(
+          strength: PhotoVariation.maximumStrength,
+        ),
+      );
+      expect(low, isNot(orderedEquals(high)), reason: effect.name);
+      expect(img.decodeJpg(low)!.width, 384);
+      expect(img.decodeJpg(high)!.height, 384);
+      expect(original.bytes, before);
+    }
+    final left = renderPhoto((original, PhotoEffect.mirror));
+    final right = renderPhoto((
+      original,
+      PhotoEffect.mirror,
+    ), variation: const PhotoVariation(mirrorRight: true));
+    expect(left, isNot(orderedEquals(right)));
+  });
   test(
     'native detector failure is distinct from a bad photo and cleans files',
     () async {
@@ -285,7 +336,7 @@ void main() {
       expect(original.bytes, before);
       results.add(bytes.toString());
     }
-    expect(results, hasLength(4));
+    expect(results, hasLength(14));
   });
 
   test('EXIF orientation is baked, mirrored once, metadata removed', () {

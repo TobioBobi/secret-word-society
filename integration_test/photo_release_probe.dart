@@ -27,10 +27,26 @@ Future<void> _probe() async {
     final source = await processing.prepare(input.path);
     if (await input.exists()) throw StateError('Capture not cleaned');
     for (final effect in PhotoEffect.values) {
-      final result = await processing.render(source, effect);
-      final image = img.decodeJpg(result.bytes);
-      if (image == null || image.width != 384 || image.height != 384) {
-        throw StateError('Invalid ${effect.name} output');
+      for (final strength in [
+        PhotoVariation.minimumStrength,
+        PhotoVariation.maximumStrength,
+      ]) {
+        final variation = PhotoVariation(
+          strength: strength,
+          mirrorRight: strength == PhotoVariation.maximumStrength,
+        );
+        final result = await processing.render(
+          source,
+          effect,
+          variation: variation,
+        );
+        final image = img.decodeJpg(result.bytes);
+        if (image == null ||
+            image.width != 384 ||
+            image.height != 384 ||
+            !identical(result.variation, variation)) {
+          throw StateError('Invalid ${effect.name} output at $strength');
+        }
       }
     }
     // ignore: avoid_print

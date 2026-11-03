@@ -765,6 +765,66 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.'**
   String get photoEffectFailed;
+
+  /// No description provided for @effectAlien.
+  ///
+  /// In de, this message translates to:
+  /// **'Alien'**
+  String get effectAlien;
+
+  /// No description provided for @effectCheeks.
+  ///
+  /// In de, this message translates to:
+  /// **'Hamsterbacken'**
+  String get effectCheeks;
+
+  /// No description provided for @effectGrin.
+  ///
+  /// In de, this message translates to:
+  /// **'Riesengrinsen'**
+  String get effectGrin;
+
+  /// No description provided for @effectEgghead.
+  ///
+  /// In de, this message translates to:
+  /// **'Eierkopf'**
+  String get effectEgghead;
+
+  /// No description provided for @effectSquashed.
+  ///
+  /// In de, this message translates to:
+  /// **'Quetschkopf'**
+  String get effectSquashed;
+
+  /// No description provided for @effectAsymmetric.
+  ///
+  /// In de, this message translates to:
+  /// **'Schiefgesicht'**
+  String get effectAsymmetric;
+
+  /// No description provided for @effectMini.
+  ///
+  /// In de, this message translates to:
+  /// **'Mini-Gesicht'**
+  String get effectMini;
+
+  /// No description provided for @effectMirror.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiegelgesicht'**
+  String get effectMirror;
+
+  /// No description provided for @effectJelly.
+  ///
+  /// In de, this message translates to:
+  /// **'Wackelpudding'**
+  String get effectJelly;
+
+  /// No description provided for @effectFisheye.
+  ///
+  /// In de, this message translates to:
+  /// **'Fischauge'**
+  String get effectFisheye;
 }
 
 class _AppLocalizationsDelegate

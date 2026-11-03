@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +50,8 @@ class PhotoProcessing {
         throw const PhotoProblem('landmarks');
       }
       final box = face.boundingBox;
+      final mouthLeft = face.landmarks[FaceLandmarkType.leftMouth]?.position;
+      final mouthRight = face.landmarks[FaceLandmarkType.rightMouth]?.position;
       return PhotoSource(
         bytes,
         [box.left, box.top, box.width, box.height],
@@ -57,6 +60,12 @@ class PhotoProcessing {
           [left.x.toDouble(), left.y.toDouble()],
           [right.x.toDouble(), right.y.toDouble()],
         ],
+        mouth: mouthLeft != null && mouthRight != null
+            ? [
+                (mouthLeft.x + mouthRight.x) / 2,
+                (mouthLeft.y + mouthRight.y) / 2,
+              ]
+            : null,
       );
     } finally {
       try {
@@ -73,6 +82,17 @@ class PhotoProcessing {
     }
   }
 
-  Future<PlayerPhoto> render(PhotoSource source, PhotoEffect effect) async =>
-      PlayerPhoto(source, await compute(renderPhoto, (source, effect)), effect);
+  Future<PlayerPhoto> render(
+    PhotoSource source,
+    PhotoEffect effect, {
+    PhotoVariation? variation,
+  }) async {
+    final chosen = variation ?? PhotoVariation.random(Random());
+    return PlayerPhoto(
+      source,
+      await compute(renderPhotoVariant, (source, effect, chosen)),
+      effect,
+      variation: chosen,
+    );
+  }
 }

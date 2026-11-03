@@ -455,4 +455,34 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get photoEffectFailed =>
       'Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.';
+
+  @override
+  String get effectAlien => 'Alien';
+
+  @override
+  String get effectCheeks => 'Hamsterbacken';
+
+  @override
+  String get effectGrin => 'Riesengrinsen';
+
+  @override
+  String get effectEgghead => 'Eierkopf';
+
+  @override
+  String get effectSquashed => 'Quetschkopf';
+
+  @override
+  String get effectAsymmetric => 'Schiefgesicht';
+
+  @override
+  String get effectMini => 'Mini-Gesicht';
+
+  @override
+  String get effectMirror => 'Spiegelgesicht';
+
+  @override
+  String get effectJelly => 'Wackelpudding';
+
+  @override
+  String get effectFisheye => 'Fischauge';
 }

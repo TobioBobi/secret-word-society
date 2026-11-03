@@ -19,49 +19,180 @@ Uint8List normalizePhoto(Uint8List bytes) {
   return img.encodeJpg(img.flipHorizontal(scaled), quality: 90);
 }
 
-Uint8List renderPhoto((PhotoSource, PhotoEffect) request) {
-  final (source, effect) = request;
+/// Deterministic entrypoint: the same source, effect and variation give the same
+/// result. UI randomness never enters the pixel loop or the source image.
+Uint8List renderPhoto(
+  (PhotoSource, PhotoEffect) request, {
+  PhotoVariation variation = const PhotoVariation(),
+}) => renderPhotoVariant((request.$1, request.$2, variation));
+
+Uint8List renderPhotoVariant(
+  (PhotoSource, PhotoEffect, PhotoVariation) request,
+) {
+  final (source, effect, variation) = request;
+  final strength = variation.strength;
+  if (!strength.isFinite ||
+      strength < PhotoVariation.minimumStrength ||
+      strength > PhotoVariation.maximumStrength) {
+    throw ArgumentError.value(strength, 'strength');
+  }
   final original = img.decodeJpg(source.bytes)!;
   final output = original.clone();
   final [left, top, width, height] = source.face;
   final cx = left + width / 2;
   final cy = top + height / 2;
-  // Inverse mapping always samples the pristine original, including both eyes.
+  final mouth = source.mouthCenter;
+  final cheekY = (source.nose[1] + mouth[1]) / 2;
+  final side = variation.mirrorRight ? 1.0 : -1.0;
+  final eyeAxis = (source.eyes[0][0] + source.eyes[1][0]) / 2;
+
+  // Smooth inverse maps; every pixel samples the pristine source once, even
+  // when a recipe combines eyes, mouth and jaw. No cumulative reroll damage.
   for (final pixel in output) {
     var x = pixel.x.toDouble();
     var y = pixel.y.toDouble();
-    void bulge(List<double> center, double radius, double strength) {
-      final dx = x - center[0], dy = y - center[1];
-      final distance = sqrt(dx * dx + dy * dy) / radius;
-      if (distance < 1) {
-        final factor = 1 - strength * pow(1 - distance * distance, 2);
-        x = center[0] + dx * factor;
-        y = center[1] + dy * factor;
+    double falloff(double centerX, double centerY, double rx, double ry) {
+      final dx = (x - centerX) / rx, dy = (y - centerY) / ry;
+      final d = dx * dx + dy * dy;
+      return d < 1 ? (1 - d) * (1 - d) : 0;
+    }
+
+    void scaleAt(
+      double centerX,
+      double centerY,
+      double rx,
+      double ry,
+      double scaleX,
+      double scaleY,
+    ) {
+      final weight = falloff(centerX, centerY, rx, ry);
+      x = centerX + (x - centerX) * (1 + (scaleX - 1) * weight);
+      y = centerY + (y - centerY) * (1 + (scaleY - 1) * weight);
+    }
+
+    void bulge(List<double> center, double radius, double amount) =>
+        scaleAt(center[0], center[1], radius, radius, 1 - amount, 1 - amount);
+    void bigEyes(double amount) {
+      for (final eye in source.eyes) {
+        bulge(eye, width * .25, amount);
       }
     }
 
     switch (effect) {
       case PhotoEffect.nose:
-        bulge(source.nose, width * .38, .68);
+        bulge(source.nose, width * .38, .68 * strength);
       case PhotoEffect.eyes:
-        for (final eye in source.eyes) {
-          bulge(eye, width * .25, .62);
-        }
+        bigEyes(.62 * strength);
       case PhotoEffect.wide:
-        final d =
-            pow((x - cx) / (width * .85), 2) +
-            pow((y - cy) / (height * .75), 2);
-        if (d < 1) x = cx + (x - cx) * (1 - .42 * pow(1 - d, 2));
+        scaleAt(cx, cy, width * .85, height * .75, 1 - .42 * strength, 1);
       case PhotoEffect.swirl:
         final dx = x - cx, dy = y - cy;
         final d = sqrt(
           pow(dx / (width * .65), 2) + pow(dy / (height * .65), 2),
         );
         if (d < 1) {
-          final angle = 1.8 * pow(1 - d, 2);
+          final angle = 1.8 * strength * (1 - d) * (1 - d);
           x = cx + dx * cos(angle) - dy * sin(angle);
           y = cy + dx * sin(angle) + dy * cos(angle);
         }
+      case PhotoEffect.alien:
+        bigEyes(.72 * strength);
+        scaleAt(
+          mouth[0],
+          mouth[1],
+          width * .34,
+          height * .18,
+          1 + .65 * strength,
+          1 + .3 * strength,
+        );
+        scaleAt(
+          cx,
+          top + height * .86,
+          width * .7,
+          height * .35,
+          1 + .55 * strength,
+          1,
+        );
+      case PhotoEffect.cheeks:
+        bulge([cx - width * .29, cheekY], width * .38, .57 * strength);
+        bulge([cx + width * .29, cheekY], width * .38, .57 * strength);
+        scaleAt(
+          mouth[0],
+          mouth[1],
+          width * .30,
+          height * .17,
+          1 + .55 * strength,
+          1 + .3 * strength,
+        );
+      case PhotoEffect.grin:
+        scaleAt(
+          mouth[0],
+          mouth[1],
+          width * .57,
+          height * .25,
+          1 - .68 * strength,
+          1 - .06 * strength,
+        );
+      case PhotoEffect.egghead:
+        scaleAt(
+          cx,
+          cy,
+          width * .95,
+          height * 1.05,
+          1 + .30 * strength,
+          1 - .40 * strength,
+        );
+      case PhotoEffect.squashed:
+        scaleAt(
+          cx,
+          cy,
+          width * .95,
+          height * 1.05,
+          1 - .40 * strength,
+          1 + .42 * strength,
+        );
+      case PhotoEffect.asymmetric:
+        final weight = falloff(cx, cy, width * .8, height * .8);
+        final dx = x - cx;
+        // Smoothly change scale across the midline, without a hard split.
+        final balance = dx / sqrt(dx * dx + width * width * .04);
+        x = cx + dx * (1 - .40 * strength * side * balance * weight);
+        y -= height * .18 * strength * side * balance * weight;
+        final eye = source.eyes[variation.mirrorRight ? 1 : 0];
+        bulge(eye, width * .25, .45 * strength);
+      case PhotoEffect.mini:
+        scaleAt(
+          cx,
+          cy + height * .04,
+          width * .66,
+          height * .57,
+          1 + .90 * strength,
+          1 + .90 * strength,
+        );
+      case PhotoEffect.mirror:
+        // Keep an exact left/left or right/right reflection; the gentle prior
+        // horizontal warp varies the strength without dissolving the mirror.
+        scaleAt(eyeAxis, cy, width * .8, height * .8, 1 - .20 * strength, 1);
+        x = eyeAxis + side * (x - eyeAxis).abs();
+      case PhotoEffect.jelly:
+        final weight = falloff(cx, cy, width * .8, height * .85);
+        final originalX = x;
+        x += width * .18 * strength * sin((y - top) / height * pi * 3) * weight;
+        y +=
+            height *
+            .06 *
+            strength *
+            sin((originalX - left) / width * pi * 3) *
+            weight;
+      case PhotoEffect.fisheye:
+        scaleAt(
+          cx,
+          cy,
+          width * .72,
+          height * .82,
+          1 - .72 * strength,
+          1 - .72 * strength,
+        );
     }
     pixel.set(
       original.getPixelInterpolate(
@@ -71,18 +202,16 @@ Uint8List renderPhoto((PhotoSource, PhotoEffect) request) {
       ),
     );
   }
-  // Square face-centered avatar, with generous framing; no hard boundary at
-  // the distortion radius. Keep the whole result bounded for all player views.
-  final side = min(
+  final cropSide = min(
     min(original.width, original.height),
     (max(width, height) * 1.65).round(),
   );
   final cropped = img.copyCrop(
     output,
-    x: (cx - side / 2).round().clamp(0, original.width - side),
-    y: (cy - side / 2).round().clamp(0, original.height - side),
-    width: side,
-    height: side,
+    x: (cx - cropSide / 2).round().clamp(0, original.width - cropSide),
+    y: (cy - cropSide / 2).round().clamp(0, original.height - cropSide),
+    width: cropSide,
+    height: cropSide,
   );
   return img.encodeJpg(
     img.copyResize(cropped, width: 384, height: 384),

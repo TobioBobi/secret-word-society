@@ -143,5 +143,15 @@
   "photoCaptureFailed": "Die Kamera konnte kein Foto aufnehmen. Bitte erneut versuchen.",
   "photoDecodeFailed": "Das aufgenommene Bild konnte nicht gelesen werden. Bitte neu aufnehmen.",
   "photoDetectionFailed": "Die Gesichtserkennung konnte nicht gestartet werden. Bitte erneut versuchen.",
-  "photoEffectFailed": "Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen."
+  "photoEffectFailed": "Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.",
+  "effectAlien": "Alien",
+  "effectCheeks": "Hamsterbacken",
+  "effectGrin": "Riesengrinsen",
+  "effectEgghead": "Eierkopf",
+  "effectSquashed": "Quetschkopf",
+  "effectAsymmetric": "Schiefgesicht",
+  "effectMini": "Mini-Gesicht",
+  "effectMirror": "Spiegelgesicht",
+  "effectJelly": "Wackelpudding",
+  "effectFisheye": "Fischauge"
 }

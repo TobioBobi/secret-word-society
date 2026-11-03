@@ -32,6 +32,13 @@ void main() {
         final photo = await processing.render(source, effect);
         expect(img.decodeJpg(photo.bytes)!.width, 384);
         expect(identical(photo.source, source), isTrue);
+        expect(
+          photo.variation.strength,
+          inInclusiveRange(
+            PhotoVariation.minimumStrength,
+            PhotoVariation.maximumStrength,
+          ),
+        );
         // ignore: avoid_print
         print(
           'PHOTO_EFFECT=${effect.name}:${watch.elapsedMilliseconds}ms:${photo.bytes.length}bytes',

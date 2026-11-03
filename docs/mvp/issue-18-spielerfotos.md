@@ -2,8 +2,8 @@
 
 Ein Fotobutton pro Person öffnet die Frontkamera mit einem festen ovalen
 Positionierungsrahmen. Die Aufnahme erfolgt bewusst per Button. Danach zeigt
-die Vorschau einen zufälligen Effekt: große Nase, große Augen, breites Gesicht
-oder Strudel. Der auffällige Würfelbutton wählt einen anderen Effekt aus dem
+die Vorschau einen zufälligen Effekt aus dem erweiterten Set mit 14 Varianten.
+Der auffällige Würfelbutton wählt einen anderen Effekt aus dem
 gleichen Set; jede Berechnung verwendet erneut das unverzerrte Ausgangsfoto.
 „Neu aufnehmen“ öffnet die Kamera erneut. Erst „Übernehmen“ ersetzt das Bild
 in der Gruppe. Zurück und Abbrechen behalten die bisherige Darstellung.
@@ -165,3 +165,54 @@ nochmals ausgeführt. Der erneute Praxistest auf dem gemeldeten Handy bleibt off
 
 Aktualisierte Release-APK: 89.649.218 Byte; SHA256:
 `40853B3715AFAEC607AA6F99D800A9B7F9144087F38A0D2A76F14F7FFE756025`.
+
+## Erweiterung auf 14 Effekte und zufällige Stärken
+
+Am 03.11.2026 vollständig beauftragt: zusätzlich zu großer Nase, großen Augen,
+breitem Gesicht und Strudel alle zehn vorgeschlagenen Effekte implementieren:
+
+| Effekt | Umsetzung |
+| --- | --- |
+| Alien | Große Augen, kleiner Mund, schmaleres Kinn |
+| Hamsterbacken | Aufgeblähte Wangen mit kleinerem Mund |
+| Riesengrinsen | Horizontal stark verbreiterter Mund |
+| Eierkopf | Langes, schmales Gesicht |
+| Quetschkopf | Kurzes, breites Gesicht |
+| Schiefgesicht | Asymmetrische Gesichtshälften und ein größeres Auge |
+| Mini-Gesicht | Verkleinerte Gesichtszüge innerhalb des Kopfes |
+| Spiegelgesicht | Linke oder rechte Gesichtshälfte doppelt gespiegelt |
+| Wackelpudding | Weiche wellenförmige Verzerrung |
+| Fischauge | Großflächige Wölbung der Gesichtsmitte |
+
+Bei jedem Vorschlag wird für alle 14 Effekte gleichverteilt eine Stärke zwischen
+75 und 125 Prozent der effektspezifischen Grundstärke gezogen. Spiegel- und
+Schiefgesicht variieren zusätzlich die Seite. Stärke und Seite bleiben als
+`PhotoVariation` beim gerenderten Vorschlag gespeichert. Übernehmen, Umbenennen,
+Rundenwechsel und die Darstellung in verschiedenen Ansichten ändern den Effekt
+nicht. Es gibt weiterhin keinen zusätzlichen Regler oder Editor.
+
+Mundbezogene Effekte verwenden nach Möglichkeit die erkannten Mundwinkel.
+Falls diese fehlen, wird die Position aus der vorhandenen Gesichtsgeometrie
+abgeleitet; weitere notwendige Erkennungsmerkmale kommen nicht hinzu.
+Alle Rezepte sind weiche inverse Koordinatentransformationen. Jeder Pixel wird
+einmal aus dem unveränderten Ausgangsfoto abgetastet, auch bei kombinierten
+Augen-/Mund-/Kinn-Effekten. Ausgabeauflösung und Sitzungsspeicherung bleiben gleich.
+
+Tests prüfen alle 14 Effekte bei beiden Stärkegrenzen, unterschiedliche Ergebnisse,
+Wiederholbarkeit gleicher Einstellungen, unveränderte Ausgangsdaten, beide
+Spiegelrichtungen sowie Reichweite und Variation der Zufallswerte. Die native
+Pipeline prüft die zufällige Verarbeitung jedes Effekts. Die AOT-/R8-Release-Probe
+prüft alle 28 Kombinationen aus Effekt und Grenzstärke und beide Spiegelrichtungen.
+Die Effekte wurden bei 75, 100 und 125 Prozent visuell geprüft; die Vorschau
+zusätzlich bei normaler und 200-Prozent-Schrift mit beschrifteten Touchflächen.
+
+Abnahme der Erweiterung: 119 Unit-/Widget-Tests, Analyse, Format-/Diff-Prüfung,
+28 Offline-Kombinationen in der AOT-/R8-Release-Probe und nativer Foto-Pipelinetest
+mit allen 14 zufälligen Varianten erfolgreich. Die normale Release-App wurde
+gebaut und auf Kaltstart/Fensterschutz geprüft. Die unveränderten neun
+Spielabläufe wurden nicht nochmals ausgeführt. Remote-CI, tatsächliches
+TalkBack und der erneute Test der neuen Effekte auf dem physischen Handy
+bleiben getrennte Prüfungen. Keine zusätzlichen Abhängigkeiten oder Berechtigungen.
+
+Release-APK: 89.731.138 Byte; SHA256:
+`A74526BD60056B075B1976BBD185229B6531B50CA7C1CFA6231E02CAE6B479BD`.
