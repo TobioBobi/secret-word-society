@@ -58,6 +58,29 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  test('selectable recipes exclude wizard motifs and always pair filters', () {
+    expect(
+      PhotoEffect.values.any((e) => e.name.toLowerCase().contains('wizard')),
+      isFalse,
+    );
+    final filters = PhotoEffect.values.where((e) => e.hasFilter).toList();
+    expect(filters, hasLength(9));
+    for (final effect in filters) {
+      expect(
+        effect.distortion != null || effect.accessory != null,
+        isTrue,
+        reason: '${effect.name} must never render as a filter alone',
+      );
+    }
+    expect(PhotoEffect.green.distortion, PhotoEffect.alien);
+    expect(PhotoEffect.ice.distortion, PhotoEffect.eyes);
+    expect(PhotoEffect.pink.distortion, PhotoEffect.cheeks);
+    expect(PhotoEffect.mono.distortion, PhotoEffect.fisheye);
+    expect(PhotoEffect.comic.distortion, PhotoEffect.grin);
+    expect(PhotoEffect.sepia.accessory, PhotoEffect.moustache);
+    expect(PhotoEffect.retro.accessory, PhotoEffect.sunglasses);
+    expect(PhotoEffect.sunset.accessory, PhotoEffect.partyHat);
+  });
   test('color looks and accessories preserve the distortion photo crop', () {
     final original = source();
     // Existing distortion framing for this 240x320 source is x=0,y=25,side=240.
@@ -197,7 +220,7 @@ void main() {
   test('all effects vary with strength without changing the source', () {
     final original = source();
     final before = List<int>.of(original.bytes);
-    expect(PhotoEffect.values, hasLength(40));
+    expect(PhotoEffect.values, hasLength(38));
     for (final effect in PhotoEffect.values) {
       final low = renderPhoto(
         (original, effect),
@@ -455,7 +478,7 @@ void main() {
       expect(original.bytes, before);
       results.add(bytes.toString());
     }
-    expect(results, hasLength(40));
+    expect(results, hasLength(38));
   });
 
   test('EXIF orientation is baked, mirrored once, metadata removed', () {

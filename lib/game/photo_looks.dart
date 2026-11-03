@@ -48,13 +48,15 @@ void applyPhotoLook(
         (b + (target[2] - b) * mix).clamp(0, 255),
       );
     }
-    if (effect != PhotoEffect.discoAlien) {
+    if (effect.accessory == null) {
       return;
     }
   }
 
   final art = _FaceArt(image, source, cropX, cropY, cropSide, strength);
-  switch (effect) {
+  switch (effect == PhotoEffect.discoAlien
+      ? effect
+      : effect.accessory ?? effect) {
     case PhotoEffect.sunglasses:
       art.glasses();
     case PhotoEffect.moustache:
@@ -71,8 +73,6 @@ void applyPhotoLook(
       art.ears(false);
     case PhotoEffect.bunnyEars:
       art.ears(true);
-    case PhotoEffect.wizardHat:
-      art.wizardHat();
     case PhotoEffect.flower:
       art.flower();
     case PhotoEffect.stars:
@@ -85,10 +85,6 @@ void applyPhotoLook(
       art.pirate();
       art.patch();
       art.collar(art.red);
-    case PhotoEffect.wizard:
-      art.wizardHat();
-      art.collar(art.purple);
-      art.frame(0);
     case PhotoEffect.astronaut:
       art.astronaut();
     case PhotoEffect.royal:
@@ -281,11 +277,11 @@ class _FaceArt {
       [-.44, -.35],
       [0, -1.10 * size],
       [.44, -.35],
-    ], purple);
-    line(-.25, -.65, .25, -.65, pink, .08);
+    ], pink);
+    line(-.25, -.65, .25, -.65, yellow, .08);
     oval(0, -1.10 * size, .095, .095, yellow);
     for (final x in [-.20, 0.0, .20]) {
-      star(x, -.47, .055, cyan);
+      oval(x, -.47, .045, .045, cyan);
     }
   }
 
@@ -311,18 +307,6 @@ class _FaceArt {
         );
       }
     }
-  }
-
-  void wizardHat() {
-    polygon([
-      [-.43, -.40],
-      [-.10, -1.12 * size],
-      [.25, -1.02],
-      [.08, -.93],
-      [.43, -.40],
-    ], purple);
-    oval(0, -.39, .60, .09, purple);
-    star(-.05, -.72, .12, yellow);
   }
 
   void flower() {

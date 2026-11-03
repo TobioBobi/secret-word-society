@@ -487,28 +487,28 @@ class AppLocalizationsDe extends AppLocalizations {
   String get effectFisheye => 'Fischauge';
 
   @override
-  String get effectGreen => 'Alien-Grün';
+  String get effectGreen => 'Grüner Alien';
 
   @override
-  String get effectIce => 'Eisblau';
+  String get effectIce => 'Eisaugen';
 
   @override
-  String get effectPink => 'Pink';
+  String get effectPink => 'Pinke Hamsterbacken';
 
   @override
-  String get effectMono => 'Schwarzweiß';
+  String get effectMono => 'Schwarzweiß-Fischauge';
 
   @override
-  String get effectSepia => 'Sepia';
+  String get effectSepia => 'Sepia-Schnurrbart';
 
   @override
-  String get effectRetro => 'Retro';
+  String get effectRetro => 'Retro-Brille';
 
   @override
-  String get effectSunset => 'Sonnenuntergang';
+  String get effectSunset => 'Sonnenparty';
 
   @override
-  String get effectComic => 'Poster-Look';
+  String get effectComic => 'Comicgrinsen';
 
   @override
   String get effectSunglasses => 'Riesensonnenbrille';
@@ -535,9 +535,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get effectBunnyEars => 'Hasenohren';
 
   @override
-  String get effectWizardHat => 'Zauberhut';
-
-  @override
   String get effectFlower => 'Blume';
 
   @override
@@ -551,9 +548,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get effectPirate => 'Pirat';
-
-  @override
-  String get effectWizard => 'Zauberer';
 
   @override
   String get effectAstronaut => 'Astronaut';

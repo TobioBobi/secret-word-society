@@ -4,17 +4,18 @@ Umsetzung von Issue #45 auf der gemergten Foto-Grundlage aus PR #44.
 
 ## Vorschläge
 
-Die Auswahl enthält insgesamt 40 gleichberechtigte Rezepte: die bisherigen
-14 Verzerrungen und 26 neue Vorschläge.
+Die Auswahl enthält insgesamt 38 gleichberechtigte Rezepte: die bisherigen
+14 Verzerrungen und 24 neue Vorschläge. Farb-/Posterfilter werden ausschließlich
+zusammen mit einer Verzerrung oder einem Accessoire ausgewählt.
 
 | Bereich | Neue Vorschläge |
 | --- | --- |
-| Farb-/Grafiklooks | Alien-Grün, Eisblau, Pink, Schwarzweiß, Sepia, Retro, Sonnenuntergang, Poster-Look |
-| Accessoires | Riesensonnenbrille, Schnurrbart, Clownsnase, Augenklappe, Krone, Partyhut, Katzenohren, Hasenohren, Zauberhut, Blume |
+| Farb-/Grafikkombinationen | Grüner Alien, Eisaugen, Pinke Hamsterbacken, Schwarzweiß-Fischauge, Sepia-Schnurrbart, Retro-Brille, Sonnenparty, Comicgrinsen |
+| Accessoires | Riesensonnenbrille, Schnurrbart, Clownsnase, Augenklappe, Krone, Partyhut, Katzenohren, Hasenohren, Blume |
 | Rahmen | Sterne, Konfetti, große Comicsterne |
-| Themenlooks | Pirat, Zauberer, Astronaut, Königlich, Disco-Alien |
+| Themenlooks | Pirat, Astronaut, Königlich, Disco-Alien |
 
-Pirat kombiniert Hut, Augenklappe und Kragen; Zauberer Hut, Kragen und Sterne;
+Pirat kombiniert Hut, Augenklappe und Kragen;
 Astronaut einen offenen Helm mit Kragen; Königlich Krone und Kragen;
 Disco-Alien die vorhandene Alien-Verzerrung, Grünlook, Brille und Konfetti.
 Die Motive sind bewusst bunte Fotomontagen. Der ursprüngliche Hintergrund
@@ -121,3 +122,45 @@ Korrigierte normale Release-APK: 89.895.222 Byte. SHA256:
 
 Korrigierte normale Release-App installiert und kalt gestartet; `FLAG_SECURE`
 aktiv, keine App-Fehler in den geprüften Prozesslogs.
+
+## Korrektur: keine Zauberer, Filter immer kombiniert
+
+Am 03.11.2026 beauftragt: Zauberer-Accessoires entfernen und Filter nie allein
+anbieten. Zauberhut und Zauberer-Themenlook samt Zeichencode und sichtbaren
+Bezeichnungen sind entfernt. Es bleiben 38 komplette Rezepte. Die Auswahl würfelt
+weiterhin unabhängige vollständige Rezepte und schließt bei erneutem Würfeln nur
+das vorherige Rezept aus.
+
+| Filter | Fester zusätzlicher Effekt |
+| --- | --- |
+| Grün | Alien-Verzerrung |
+| Eisblau | Große Augen |
+| Pink | Hamsterbacken |
+| Schwarzweiß | Fischauge |
+| Sepia | Schnurrbart |
+| Retro | Sonnenbrille |
+| Sonnenuntergang | Partyhut |
+| Poster | Riesengrinsen |
+
+Disco-Alien behält seine Kombination aus Verzerrung, Grünlook, Brille und
+Konfetti. Alle Kombinationen beginnen beim Ausgangsfoto und verwenden denselben
+Fotoausschnitt wie bisher. Die gespeicherte Rezeptwahl und Stärke bestimmen das
+gesamte Ergebnis; es entstehen keine zufälligen Einzel-Layer oder reinen Filter.
+
+Ein neuer Test prüft die auswählbaren Rezepte ohne Zauberer-Motive und den
+zusätzlichen Effekt für jeden Filter. 124 Unit-/Widget-Tests, Analyse und
+Sichtprüfung der Kombinationen bei drei Stärken erfolgreich.
+
+Der verbleibende Partyhut trägt nun bunte Punkte statt Sterne und ist rosa/gelb
+gestaltet, um ihn vom entfernten Zauberer-Motiv abzugrenzen. Auch die Vorschau
+mit dem längeren Namen Schwarzweiß-Fischauge besteht bei 200 Prozent Schrift
+inklusive beschrifteter Android-Touchflächen.
+
+Optimierte Offline-AOT-/R8-Probe: alle 76 Kombinationen aus 38 Rezepten und
+beiden Stärkegrenzen erfolgreich. Unveränderte Kamera-/Spielabläufe wurden
+nicht erneut nativ geprüft. Physischer Praxistest, TalkBack und Remote-CI bleiben
+offen. Normale Release-APK: 89.895.222 Byte. SHA256:
+`BE8C3D138773A503EB4FDF58D2AAE6CB4B6B8DD1A6E4AE5B00369B3F693CF1F2`.
+
+Normale Release-App installiert und kalt gestartet; `FLAG_SECURE` aktiv,
+keine App-Fehler in den geprüften Prozesslogs.

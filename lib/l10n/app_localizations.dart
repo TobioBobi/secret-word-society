@@ -829,49 +829,49 @@ abstract class AppLocalizations {
   /// No description provided for @effectGreen.
   ///
   /// In de, this message translates to:
-  /// **'Alien-Grün'**
+  /// **'Grüner Alien'**
   String get effectGreen;
 
   /// No description provided for @effectIce.
   ///
   /// In de, this message translates to:
-  /// **'Eisblau'**
+  /// **'Eisaugen'**
   String get effectIce;
 
   /// No description provided for @effectPink.
   ///
   /// In de, this message translates to:
-  /// **'Pink'**
+  /// **'Pinke Hamsterbacken'**
   String get effectPink;
 
   /// No description provided for @effectMono.
   ///
   /// In de, this message translates to:
-  /// **'Schwarzweiß'**
+  /// **'Schwarzweiß-Fischauge'**
   String get effectMono;
 
   /// No description provided for @effectSepia.
   ///
   /// In de, this message translates to:
-  /// **'Sepia'**
+  /// **'Sepia-Schnurrbart'**
   String get effectSepia;
 
   /// No description provided for @effectRetro.
   ///
   /// In de, this message translates to:
-  /// **'Retro'**
+  /// **'Retro-Brille'**
   String get effectRetro;
 
   /// No description provided for @effectSunset.
   ///
   /// In de, this message translates to:
-  /// **'Sonnenuntergang'**
+  /// **'Sonnenparty'**
   String get effectSunset;
 
   /// No description provided for @effectComic.
   ///
   /// In de, this message translates to:
-  /// **'Poster-Look'**
+  /// **'Comicgrinsen'**
   String get effectComic;
 
   /// No description provided for @effectSunglasses.
@@ -922,12 +922,6 @@ abstract class AppLocalizations {
   /// **'Hasenohren'**
   String get effectBunnyEars;
 
-  /// No description provided for @effectWizardHat.
-  ///
-  /// In de, this message translates to:
-  /// **'Zauberhut'**
-  String get effectWizardHat;
-
   /// No description provided for @effectFlower.
   ///
   /// In de, this message translates to:
@@ -957,12 +951,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Pirat'**
   String get effectPirate;
-
-  /// No description provided for @effectWizard.
-  ///
-  /// In de, this message translates to:
-  /// **'Zauberer'**
-  String get effectWizard;
 
   /// No description provided for @effectAstronaut.
   ///

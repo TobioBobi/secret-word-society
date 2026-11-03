@@ -50,7 +50,8 @@ Uint8List renderPhotoVariant(
   // Smooth inverse maps; every pixel samples the pristine source once, even
   // when a recipe combines eyes, mouth and jaw. No cumulative reroll damage.
   final decorated = effect.index > PhotoEffect.fisheye.index;
-  if (!decorated || effect == PhotoEffect.discoAlien) {
+  final distortion = effect.distortion;
+  if (distortion != null) {
     for (final pixel in output) {
       var x = pixel.x.toDouble();
       var y = pixel.y.toDouble();
@@ -81,7 +82,7 @@ Uint8List renderPhotoVariant(
         }
       }
 
-      switch (effect == PhotoEffect.discoAlien ? PhotoEffect.alien : effect) {
+      switch (distortion) {
         case PhotoEffect.nose:
           bulge(source.nose, width * .38, .68 * strength);
         case PhotoEffect.eyes:
