@@ -101,8 +101,8 @@ und Diff-Prüfung erfolgreich. Alle neun bestehenden Android-Spielabläufe auf
 API 36.1 bei 320 × 568 und 200 Prozent Schrift bestanden, einschließlich zweier
 vollständiger 90-Sekunden-Diskussionen mit Produktionsuhr.
 
-Universelle Release-APK: 89.649.338 Byte, gegenüber 54.630.667 Byte vorher
-+35.018.671 Byte (+64,10 Prozent). Der Zuwachs enthält insbesondere die native
+Universelle Release-APK: 89.649.218 Byte, gegenüber 54.630.667 Byte vorher
++35.018.551 Byte (+64,10 Prozent). Der Zuwachs enthält insbesondere die native
 Gesichtserkennung für alle drei Android-ABIs und die gebündelten Modelle.
 Release-Manifest: Kamera, Netzwerkstatus/Internet für SDK-Komponenten und die
 interne AndroidX-Receiver-Berechtigung; kein Mikrofon- oder externer Speicherzugriff.
@@ -115,4 +115,4 @@ wurde mit eigenen verwaisten Aufnahme-/Detektordateien und einer unveränderten
 fremden Cache-Testdatei geprüft. Release installiert und kalt gestartet;
 Fensterschutz aktiv, geprüfte Prozesslogs ohne App-Fehler.
 
-SHA256: `5DD69CEBB8B5AC1F012FB0B57225F3AE88DDECADE72A8ABC5492C235C7B43AA2`.
+SHA256: `B6A7E7B01E38BA015F730DC0E327379CCDE591008D661F5462DB983DEC08C5BA`.

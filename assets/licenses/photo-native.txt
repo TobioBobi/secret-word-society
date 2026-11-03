@@ -85,27 +85,27 @@ com.google.android.gms:play-services-basement:18.4.0 | Android Software Developm
 com.google.android.gms:play-services-mlkit-face-detection:17.1.0 | ML Kit Terms of Service https://developers.google.com/ml-kit/terms
 com.google.android.gms:play-services-tasks:18.2.0 | Android Software Development Kit License https://developer.android.com/studio/terms.html
 com.google.android.odml:image:1.0.0-beta1 | Android Software Development Kit License https://developer.android.com/studio/terms.html
-com.google.auto.value:auto-value-annotations:1.6.3 | 
+com.google.auto.value:auto-value-annotations:1.6.3 |
 com.google.dagger:dagger:2.59 | Apache 2.0 https://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.errorprone:error_prone_annotations:2.41.0 | Apache 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.firebase:firebase-annotations:16.0.0 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.firebase:firebase-components:16.1.0 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.firebase:firebase-encoders-json:17.1.0 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.firebase:firebase-encoders:16.1.0 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
-com.google.guava:failureaccess:1.0.3 | 
-com.google.guava:guava:33.5.0-android | 
-com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava | 
+com.google.guava:failureaccess:1.0.3 |
+com.google.guava:guava:33.5.0-android |
+com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava |
 com.google.j2objc:j2objc-annotations:3.1 | Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 com.google.mlkit:common:18.11.0 | ML Kit Terms of Service https://developers.google.com/ml-kit/terms
 com.google.mlkit:face-detection:16.1.7 | ML Kit Terms of Service https://developers.google.com/ml-kit/terms
 com.google.mlkit:vision-common:17.3.0 | ML Kit Terms of Service https://developers.google.com/ml-kit/terms
 com.google.mlkit:vision-interfaces:16.1.0 | ML Kit Terms of Service https://developers.google.com/ml-kit/terms
-io.flutter:arm64_v8a_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca | 
-io.flutter:armeabi_v7a_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca | 
-io.flutter:flutter_embedding_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca | 
-io.flutter:x86_64_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca | 
+io.flutter:arm64_v8a_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca |
+io.flutter:armeabi_v7a_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca |
+io.flutter:flutter_embedding_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca |
+io.flutter:x86_64_release:1.0.0-deb287481e3ce9468f3434937ced4240a70539ca |
 jakarta.inject:jakarta.inject-api:2.0.1 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
-javax.inject:javax.inject:1 | 
+javax.inject:javax.inject:1 |
 org.jetbrains.kotlin:kotlin-bom:1.8.0 | The Apache Software License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 | The Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
 org.jetbrains.kotlin:kotlin-stdlib:2.4.0 | Apache-2.0 http://www.apache.org/licenses/LICENSE-2.0.txt
@@ -1497,7 +1497,7 @@ requirements of this License are fulfilled for the Covered Code or any portion
 thereof.
 
 5.	Limitations on Patent License.   Except as expressly stated in Section 2, no
-other patent rights, express or implied, are granted by Apple herein. 
+other patent rights, express or implied, are granted by Apple herein.
 Modifications and/or Larger Works may require additional patent licenses from
 Apple which Apple may grant in its sole discretion.
 
@@ -1593,7 +1593,7 @@ for patent infringement against You in that instance.
 12.2	Effect of Termination.  Upon termination, You agree to immediately stop
 any further use, reproduction, modification, sublicensing and distribution of
 the Covered Code.  All sublicenses to the Covered Code which have been properly
-granted prior to termination shall survive any termination of this License. 
+granted prior to termination shall survive any termination of this License.
 Provisions which, by their nature, should remain in effect beyond the
 termination of this License shall survive, including but not limited to Sections
 3, 5, 8, 9, 10, 11, 12.2 and 13.  No party will be liable to any other for
@@ -1673,7 +1673,7 @@ on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
 AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES, INCLUDING WITHOUT LIMITATION,
 ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, QUIET
 ENJOYMENT OR NON-INFRINGEMENT.  Please see the License for the specific language
-governing rights and limitations under the License." 
+governing rights and limitations under the License."
 
 ICU License - ICU 1.8.1 and later
 
@@ -1746,7 +1746,7 @@ written authorization of the copyright holder.
 
  #     The Google Chrome software developed by Google is licensed under
  # the BSD license. Other software included in this distribution is
- # provided under other licenses, as set forth below. 
+ # provided under other licenses, as set forth below.
  #
  #  The BSD License
  #  http://opensource.org/licenses/bsd-license.php
@@ -1757,7 +1757,7 @@ written authorization of the copyright holder.
  #  The word list in cjdict.txt are generated by combining three word lists
  # listed below with further processing for compound word breaking. The
  # frequency is generated with an iterative training against Google web
- # corpora. 
+ # corpora.
  #
  #  * Libtabe (Chinese)
  #    - https://sourceforge.net/project/?group_id=1519
@@ -1904,10 +1904,10 @@ written authorization of the copyright holder.
  #              (copied below)
  #
  #  This file is derived from the above dictionary, with slight
- #  modifications. 
+ #  modifications.
 
  #  Redistribution and use in source and binary forms, with or without
- #  modification, 
+ #  modification,
  #  are permitted provided that the following conditions are met:
  #
  #
@@ -2028,7 +2028,7 @@ Contributor if it was added to the Program by such Contributor itself or anyone
 acting on such Contributor's behalf. Contributions do not include additions to
 the Program which: (i) are separate modules of software distributed in
 conjunction with the Program under their own license agreement, and (ii) are
-not derivative works of the Program. 
+not derivative works of the Program.
 
 "Contributor" means any person or entity that distributes the Program.
 
@@ -2058,7 +2058,7 @@ Contribution and the Program if, at the time the Contribution is added by the
 Contributor, such addition of the Contribution causes such combination to be
 covered by the Licensed Patents. The patent license shall not apply to any
 other combinations which include the Contribution. No hardware per se is
-licensed hereunder. 
+licensed hereunder.
 
       c) Recipient understands that although each Contributor grants the
 licenses to its Contributions set forth herein, no assurances are provided by
@@ -2074,7 +2074,7 @@ acquire that license before distributing the Program.
 
       d) Each Contributor represents that to its knowledge it has sufficient
 copyright rights in its Contribution, if any, to grant the copyright license
-set forth in this Agreement. 
+set forth in this Agreement.
 
 3. REQUIREMENTS
 
@@ -2088,25 +2088,25 @@ its own license agreement, provided that:
       i) effectively disclaims on behalf of all Contributors all warranties and
 conditions, express and implied, including warranties or conditions of title
 and non-infringement, and implied warranties or conditions of merchantability
-and fitness for a particular purpose; 
+and fitness for a particular purpose;
 
       ii) effectively excludes on behalf of all Contributors all liability for
 damages, including direct, indirect, special, incidental and consequential
-damages, such as lost profits; 
+damages, such as lost profits;
 
       iii) states that any provisions which differ from this Agreement are
 offered by that Contributor alone and not by any other party; and
 
       iv) states that source code for the Program is available from such
 Contributor, and informs licensees how to obtain it in a reasonable manner on
-or through a medium customarily used for software exchange. 
+or through a medium customarily used for software exchange.
 
 When the Program is made available in source code form:
 
-      a) it must be made available under this Agreement; and 
+      a) it must be made available under this Agreement; and
 
       b) a copy of this Agreement must be included with each copy of the
-Program. 
+Program.
 
 Contributors may not remove or alter any copyright notices contained within the
 Program.
@@ -2227,28 +2227,28 @@ All rights reserved.
 
 http://www.opensource.org/licenses/bsd-license.php
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, 
+    * Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, 
-      this list of conditions and the following disclaimer in the documentation 
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
       and/or other materials provided with the distribution.
-    * Neither the name of the JSR305 expert group nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+    * Neither the name of the JSR305 expert group nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 Notices for: com.google.android.gms:play-services-base:18.5.0 / JsInterop Annotations, com.google.android.gms:play-services-basement:18.4.0 / JsInterop Annotations, com.google.android.gms:play-services-mlkit-face-detection:17.1.0 / JsInterop Annotations, com.google.android.gms:play-services-tasks:18.2.0 / JsInterop Annotations, com.google.android.odml:image:1.0.0-beta1 / JsInterop Annotations, com.google.mlkit:common:18.11.0 / JsInterop Annotations, com.google.mlkit:face-detection:16.1.7 / JsInterop Annotations, com.google.mlkit:vision-common:17.3.0 / JsInterop Annotations, com.google.mlkit:vision-interfaces:16.1.0 / JsInterop Annotations
@@ -2723,7 +2723,8 @@ modified by someone else and passed on, the recipients should know
 that what they have is not the original version, so that the original
 author's reputation will not be affected by problems that might be
 introduced by others.
-
+
+
   Finally, software patents pose a constant threat to the existence of
 any free program.  We wish to make sure that a company cannot
 effectively restrict the users of a free program by obtaining a
@@ -2779,7 +2780,8 @@ modification follow.  Pay close attention to the difference between a
 "work based on the library" and a "work that uses the library".  The
 former contains code derived from the library, whereas the latter must
 be combined with the library in order to run.
-
+
+
           GNU LESSER GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -2826,7 +2828,8 @@ Library.
   You may charge a fee for the physical act of transferring a copy,
 and you may at your option offer warranty protection in exchange for a
 fee.
-
+
+
   2. You may modify your copy or copies of the Library or any portion
 of it, thus forming a work based on the Library, and copy and
 distribute such modifications or work under the terms of Section 1
@@ -2884,7 +2887,8 @@ instead of to this License.  (If a newer version than version 2 of the
 ordinary GNU General Public License has appeared, then you can specify
 that version instead if you wish.)  Do not make any other change in
 these notices.
-
+
+
   Once this change is made in a given copy, it is irreversible for
 that copy, so the ordinary GNU General Public License applies to all
 subsequent copies and derivative works made from that copy.
@@ -2935,7 +2939,8 @@ Library will still fall under Section 6.)
 distribute the object code for the work under the terms of Section 6.
 Any executables containing that work also fall under Section 6,
 whether or not they are linked directly with the Library itself.
-
+
+
   6. As an exception to the Sections above, you may also combine or
 link a "work that uses the Library" with the Library to produce a
 work containing portions of the Library, and distribute that work
@@ -2997,7 +3002,8 @@ restrictions of other proprietary libraries that do not normally
 accompany the operating system.  Such a contradiction means you cannot
 use both them and the Library together in an executable that you
 distribute.
-
+
+
   7. You may place library facilities that are a work based on the
 Library side-by-side in a single library together with other library
 facilities not covered by this License, and distribute such a combined
@@ -3038,7 +3044,8 @@ subject to these terms and conditions.  You may not impose any further
 restrictions on the recipients' exercise of the rights granted herein.
 You are not responsible for enforcing compliance by third parties with
 this License.
-
+
+
   11. If, as a consequence of a court judgment or allegation of patent
 infringement or for any other reason (not limited to patent issues),
 conditions are imposed on you (whether by court order, agreement or
@@ -3090,7 +3097,8 @@ conditions either of that version or of any later version published by
 the Free Software Foundation.  If the Library does not specify a
 license version number, you may choose any version ever published by
 the Free Software Foundation.
-
+
+
   14. If you wish to incorporate parts of the Library into other free
 programs whose distribution conditions are incompatible with these,
 write to the author to ask for permission.  For software which is
@@ -3124,7 +3132,8 @@ SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
              END OF TERMS AND CONDITIONS
-
+
+
            How to Apply These Terms to Your New Libraries
 
   If you develop a new library, and you want it to be of the greatest
@@ -4147,7 +4156,7 @@ EXHIBIT A -Mozilla Public License.
 
 ------------------
 
-Files: 
+Files:
 
 Copyright (c) 2005-2010 Sam Stephenson
 
@@ -4194,7 +4203,7 @@ THE SOFTWARE.
 
 ------------------
 
-Files: 
+Files:
 
 
  ASM: a very small and fast Java bytecode manipulation framework
@@ -4482,7 +4491,7 @@ Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 
 Developed at SunSoft, a Sun Microsystems, Inc. business.
 Permission to use, copy, modify, and distribute this
-software is freely granted, provided that this notice 
+software is freely granted, provided that this notice
 is preserved.
 
 ------------------
@@ -6227,7 +6236,8 @@ modified by someone else and passed on, the recipients should know
 that what they have is not the original version, so that the original
 author's reputation will not be affected by problems that might be
 introduced by others.
-
+
+
   Finally, software patents pose a constant threat to the existence of
 any free program.  We wish to make sure that a company cannot
 effectively restrict the users of a free program by obtaining a
@@ -6283,7 +6293,8 @@ modification follow.  Pay close attention to the difference between a
 "work based on the library" and a "work that uses the library".  The
 former contains code derived from the library, whereas the latter must
 be combined with the library in order to run.
-
+
+
           GNU LESSER GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -6330,7 +6341,8 @@ Library.
   You may charge a fee for the physical act of transferring a copy,
 and you may at your option offer warranty protection in exchange for a
 fee.
-
+
+
   2. You may modify your copy or copies of the Library or any portion
 of it, thus forming a work based on the Library, and copy and
 distribute such modifications or work under the terms of Section 1
@@ -6388,7 +6400,8 @@ instead of to this License.  (If a newer version than version 2 of the
 ordinary GNU General Public License has appeared, then you can specify
 that version instead if you wish.)  Do not make any other change in
 these notices.
-
+
+
   Once this change is made in a given copy, it is irreversible for
 that copy, so the ordinary GNU General Public License applies to all
 subsequent copies and derivative works made from that copy.
@@ -6439,7 +6452,8 @@ Library will still fall under Section 6.)
 distribute the object code for the work under the terms of Section 6.
 Any executables containing that work also fall under Section 6,
 whether or not they are linked directly with the Library itself.
-
+
+
   6. As an exception to the Sections above, you may also combine or
 link a "work that uses the Library" with the Library to produce a
 work containing portions of the Library, and distribute that work
@@ -6501,7 +6515,8 @@ restrictions of other proprietary libraries that do not normally
 accompany the operating system.  Such a contradiction means you cannot
 use both them and the Library together in an executable that you
 distribute.
-
+
+
   7. You may place library facilities that are a work based on the
 Library side-by-side in a single library together with other library
 facilities not covered by this License, and distribute such a combined
@@ -6542,7 +6557,8 @@ subject to these terms and conditions.  You may not impose any further
 restrictions on the recipients' exercise of the rights granted herein.
 You are not responsible for enforcing compliance by third parties with
 this License.
-
+
+
   11. If, as a consequence of a court judgment or allegation of patent
 infringement or for any other reason (not limited to patent issues),
 conditions are imposed on you (whether by court order, agreement or
@@ -6594,7 +6610,8 @@ conditions either of that version or of any later version published by
 the Free Software Foundation.  If the Library does not specify a
 license version number, you may choose any version ever published by
 the Free Software Foundation.
-
+
+
   14. If you wish to incorporate parts of the Library into other free
 programs whose distribution conditions are incompatible with these,
 write to the author to ask for permission.  For software which is
@@ -6628,7 +6645,8 @@ SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
              END OF TERMS AND CONDITIONS
-
+
+
            How to Apply These Terms to Your New Libraries
 
   If you develop a new library, and you want it to be of the greatest
@@ -7677,7 +7695,7 @@ THE SOFTWARE.
 
 ------------------
 
-Files: 
+Files:
 
 
  ASM: a very small and fast Java bytecode manipulation framework
@@ -7965,7 +7983,7 @@ Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 
 Developed at SunSoft, a Sun Microsystems, Inc. business.
 Permission to use, copy, modify, and distribute this
-software is freely granted, provided that this notice 
+software is freely granted, provided that this notice
 is preserved.
 
 Notices for: com.google.android.gms:play-services-mlkit-face-detection:17.1.0 / TensorFlow Lite Support, com.google.android.odml:image:1.0.0-beta1 / TensorFlow Lite Support, com.google.mlkit:face-detection:16.1.7 / TensorFlow Lite Support, com.google.mlkit:vision-common:17.3.0 / TensorFlow Lite Support
@@ -8442,7 +8460,8 @@ modified by someone else and passed on, the recipients should know
 that what they have is not the original version, so that the original
 author's reputation will not be affected by problems that might be
 introduced by others.
-
+
+
   Finally, software patents pose a constant threat to the existence of
 any free program.  We wish to make sure that a company cannot
 effectively restrict the users of a free program by obtaining a
@@ -8498,7 +8517,8 @@ modification follow.  Pay close attention to the difference between a
 "work based on the library" and a "work that uses the library".  The
 former contains code derived from the library, whereas the latter must
 be combined with the library in order to run.
-
+
+
           GNU LESSER GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -8545,7 +8565,8 @@ Library.
   You may charge a fee for the physical act of transferring a copy,
 and you may at your option offer warranty protection in exchange for a
 fee.
-
+
+
   2. You may modify your copy or copies of the Library or any portion
 of it, thus forming a work based on the Library, and copy and
 distribute such modifications or work under the terms of Section 1
@@ -8603,7 +8624,8 @@ instead of to this License.  (If a newer version than version 2 of the
 ordinary GNU General Public License has appeared, then you can specify
 that version instead if you wish.)  Do not make any other change in
 these notices.
-
+
+
   Once this change is made in a given copy, it is irreversible for
 that copy, so the ordinary GNU General Public License applies to all
 subsequent copies and derivative works made from that copy.
@@ -8654,7 +8676,8 @@ Library will still fall under Section 6.)
 distribute the object code for the work under the terms of Section 6.
 Any executables containing that work also fall under Section 6,
 whether or not they are linked directly with the Library itself.
-
+
+
   6. As an exception to the Sections above, you may also combine or
 link a "work that uses the Library" with the Library to produce a
 work containing portions of the Library, and distribute that work
@@ -8716,7 +8739,8 @@ restrictions of other proprietary libraries that do not normally
 accompany the operating system.  Such a contradiction means you cannot
 use both them and the Library together in an executable that you
 distribute.
-
+
+
   7. You may place library facilities that are a work based on the
 Library side-by-side in a single library together with other library
 facilities not covered by this License, and distribute such a combined
@@ -8757,7 +8781,8 @@ subject to these terms and conditions.  You may not impose any further
 restrictions on the recipients' exercise of the rights granted herein.
 You are not responsible for enforcing compliance by third parties with
 this License.
-
+
+
   11. If, as a consequence of a court judgment or allegation of patent
 infringement or for any other reason (not limited to patent issues),
 conditions are imposed on you (whether by court order, agreement or
@@ -8809,7 +8834,8 @@ conditions either of that version or of any later version published by
 the Free Software Foundation.  If the Library does not specify a
 license version number, you may choose any version ever published by
 the Free Software Foundation.
-
+
+
   14. If you wish to incorporate parts of the Library into other free
 programs whose distribution conditions are incompatible with these,
 write to the author to ask for permission.  For software which is
@@ -8843,7 +8869,8 @@ SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
              END OF TERMS AND CONDITIONS
-
+
+
            How to Apply These Terms to Your New Libraries
 
   If you develop a new library, and you want it to be of the greatest
@@ -9866,7 +9893,7 @@ EXHIBIT A -Mozilla Public License.
 
 ------------------
 
-Files: 
+Files:
 
 Copyright (c) 2005-2010 Sam Stephenson
 
@@ -9913,7 +9940,7 @@ THE SOFTWARE.
 
 ------------------
 
-Files: 
+Files:
 
 
  ASM: a very small and fast Java bytecode manipulation framework
@@ -10201,7 +10228,7 @@ Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 
 Developed at SunSoft, a Sun Microsystems, Inc. business.
 Permission to use, copy, modify, and distribute this
-software is freely granted, provided that this notice 
+software is freely granted, provided that this notice
 is preserved.
 
 ------------------
@@ -10266,7 +10293,7 @@ and publicly distribute the Work under its terms, with knowledge of his or her
 Copyright and Related Rights in the Work and the meaning and intended legal
 effect of CC0 on those rights.
 
-1. Copyright and Related Rights. A Work made available under CC0 may be protected by copyright and related or neighboring rights ("Copyright and Related Rights"). Copyright and Related Rights include, but are not limited to, the following: 
+1. Copyright and Related Rights. A Work made available under CC0 may be protected by copyright and related or neighboring rights ("Copyright and Related Rights"). Copyright and Related Rights include, but are not limited to, the following:
 
 i. the right to reproduce, adapt, distribute, perform, display, communicate,
 and translate a Work;
@@ -10290,11 +10317,11 @@ including any amended or successor version of such directive); and
 vii. other similar, equivalent or corresponding rights throughout the world
 based on applicable law or treaty, and any national implementations thereof.
 
-2. Waiver. To the greatest extent permitted by, but not in contravention of, applicable law, Affirmer hereby overtly, fully, permanently, irrevocably and unconditionally waives, abandons, and surrenders all of Affirmer&apos;s Copyright and Related Rights and associated claims and causes of action, whether now known or unknown (including existing as well as future claims and causes of action), in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the "Waiver"). Affirmer makes the Waiver for the benefit of each member of the public at large and to the detriment of Affirmer&apos;s heirs and successors, fully intending that such Waiver shall not be subject to revocation, rescission, cancellation, termination, or any other legal or equitable action to disrupt the quiet enjoyment of the Work by the public as contemplated by Affirmer&apos;s express Statement of Purpose. 
+2. Waiver. To the greatest extent permitted by, but not in contravention of, applicable law, Affirmer hereby overtly, fully, permanently, irrevocably and unconditionally waives, abandons, and surrenders all of Affirmer&apos;s Copyright and Related Rights and associated claims and causes of action, whether now known or unknown (including existing as well as future claims and causes of action), in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the "Waiver"). Affirmer makes the Waiver for the benefit of each member of the public at large and to the detriment of Affirmer&apos;s heirs and successors, fully intending that such Waiver shall not be subject to revocation, rescission, cancellation, termination, or any other legal or equitable action to disrupt the quiet enjoyment of the Work by the public as contemplated by Affirmer&apos;s express Statement of Purpose.
 
-3. Public License Fallback. Should any part of the Waiver for any reason be judged legally invalid or ineffective under applicable law, then the Waiver shall be preserved to the maximum extent permitted taking into account Affirmer&apos;s express Statement of Purpose. In addition, to the extent the Waiver is so judged Affirmer hereby grants to each affected person a royalty-free, non transferable, non sublicensable, non exclusive, irrevocable and unconditional license to exercise Affirmer&apos;s Copyright and Related Rights in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the "License"). The License shall be deemed effective as of the date CC0 was applied by Affirmer to the Work. Should any part of the License for any reason be judged legally invalid or ineffective under applicable law, such partial invalidity or ineffectiveness shall not invalidate the remainder of the License, and in such case Affirmer hereby affirms that he or she will not (i) exercise any of his or her remaining Copyright and Related Rights in the Work or (ii) assert any associated claims and causes of action with respect to the Work, in either case contrary to Affirmer&apos;s express Statement of Purpose. 
+3. Public License Fallback. Should any part of the Waiver for any reason be judged legally invalid or ineffective under applicable law, then the Waiver shall be preserved to the maximum extent permitted taking into account Affirmer&apos;s express Statement of Purpose. In addition, to the extent the Waiver is so judged Affirmer hereby grants to each affected person a royalty-free, non transferable, non sublicensable, non exclusive, irrevocable and unconditional license to exercise Affirmer&apos;s Copyright and Related Rights in the Work (i) in all territories worldwide, (ii) for the maximum duration provided by applicable law or treaty (including future time extensions), (iii) in any current or future medium and for any number of copies, and (iv) for any purpose whatsoever, including without limitation commercial, advertising or promotional purposes (the "License"). The License shall be deemed effective as of the date CC0 was applied by Affirmer to the Work. Should any part of the License for any reason be judged legally invalid or ineffective under applicable law, such partial invalidity or ineffectiveness shall not invalidate the remainder of the License, and in such case Affirmer hereby affirms that he or she will not (i) exercise any of his or her remaining Copyright and Related Rights in the Work or (ii) assert any associated claims and causes of action with respect to the Work, in either case contrary to Affirmer&apos;s express Statement of Purpose.
 
-4. Limitations and Disclaimers. 
+4. Limitations and Disclaimers.
 
 a. No trademark or patent rights held by Affirmer are waived, abandoned,
 surrendered, licensed or otherwise affected by this document.
@@ -11065,7 +11092,7 @@ record keeping.)
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -11120,21 +11147,21 @@ record keeping.)
  * This package is an SSL implementation written
  * by Eric Young (eay@cryptsoft.com).
  * The implementation was written so as to conform with Netscapes SSL.
- * 
+ *
  * This library is free for commercial and non-commercial use as long as
  * the following conditions are aheared to.  The following conditions
  * apply to all code found in this distribution, be it the RC4, RSA,
  * lhash, DES, etc., code; not just the SSL code.  The SSL documentation
  * included with this distribution is covered by the same copyright terms
  * except that the holder is Tim Hudson (tjh@cryptsoft.com).
- * 
+ *
  * Copyright remains Eric Young's, and as such any Copyright notices in
  * the code are not to be removed.
  * If this package is used in a product, Eric Young should be given attribution
  * as the author of the parts of the library used.
  * This can be in the form of a textual message at program startup or
  * in documentation (online or textual) provided with the package.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -11149,10 +11176,10 @@ record keeping.)
  *     Eric Young (eay@cryptsoft.com)"
  *    The word 'cryptographic' can be left out if the rouines from the library
  *    being used are not cryptographic related :-).
- * 4. If you include any Windows specific code (or a derivative thereof) from 
+ * 4. If you include any Windows specific code (or a derivative thereof) from
  *    the apps directory (application code) you must include an acknowledgement:
  *    "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -11164,7 +11191,7 @@ record keeping.)
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
+ *
  * The licence and distribution terms for any publically available version or
  * derivative of this code cannot be changed.  i.e. this code cannot simply be
  * copied and put under another distribution licence
@@ -14349,7 +14376,7 @@ For files under tasks/cc/text/language_detector/custom_ops/utils/utf/
 Notices for: com.google.mlkit:face-detection:16.1.7 / Ooura FFT
 
 Copyright(C) 1997,2001 Takuya OOURA (email: ooura@kurims.kyoto-u.ac.jp).
-You may use, copy, modify this code for any purpose and 
+You may use, copy, modify this code for any purpose and
 without fee. You may distribute this ORIGINAL package.
 
 Notices for: com.google.mlkit:face-detection:16.1.7 / OpenCV
@@ -15447,7 +15474,7 @@ Copyright (c) 2010 Miguel A. Ballicora
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  OTHER DEALINGS IN THE SOFTWARE.
 
-== 
+==
 
 For fireworks.jpeg, the license is:
 
@@ -15771,7 +15798,7 @@ Creative Commons Notice
 
     Creative Commons may be contacted at https://creativecommons.org/.
 
-== 
+==
 
 For the excerpt from “Combinatorial Modeling of Chromatin Features
 Quantitatively Predicts DNA Replication Timing in _Drosophila_”, the license is:
@@ -16313,16 +16340,16 @@ are met:
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 
-2. The origin of this software must not be misrepresented; you must 
-   not claim that you wrote the original software.  If you use this 
-   software in a product, an acknowledgment in the product 
+2. The origin of this software must not be misrepresented; you must
+   not claim that you wrote the original software.  If you use this
+   software in a product, an acknowledgment in the product
    documentation would be appreciated but is not required.
 
 3. Altered source versions must be plainly marked as such, and must
    not be misrepresented as being the original software.
 
-4. The name of the author may not be used to endorse or promote 
-   products derived from this software without specific prior written 
+4. The name of the author may not be used to endorse or promote
+   products derived from this software without specific prior written
    permission.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -16730,7 +16757,7 @@ Mozilla Public License Version 2.0
     means any form of the work other than Source Code Form.
 
 1.7. "Larger Work"
-    means a work that combines Covered Software with other material, in 
+    means a work that combines Covered Software with other material, in
     a separate file or files, that is not Covered Software.
 
 1.8. "License"
@@ -18436,13 +18463,13 @@ the use of this software, even if advised of the possibility of such damage.
 Notices for: com.google.mlkit:face-detection:16.1.7 / perfetto
 
 Copyright (C) 2017 The Android Open Source Project
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
       http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18891,40 +18918,40 @@ Notices for: org.jspecify:jspecify:1.0.0 / legal/ADDITIONAL_LICENSE_INFO
 
 ADDITIONAL INFORMATION ABOUT LICENSING
 
-Certain files distributed by Oracle America, Inc. and/or its affiliates are 
-subject to the following clarification and special exception to the GPLv2, 
-based on the GNU Project exception for its Classpath libraries, known as the 
+Certain files distributed by Oracle America, Inc. and/or its affiliates are
+subject to the following clarification and special exception to the GPLv2,
+based on the GNU Project exception for its Classpath libraries, known as the
 GNU Classpath Exception.
 
-Note that Oracle includes multiple, independent programs in this software 
-package.  Some of those programs are provided under licenses deemed 
-incompatible with the GPLv2 by the Free Software Foundation and others. 
-For example, the package includes programs licensed under the Apache 
-License, Version 2.0 and may include FreeType. Such programs are licensed 
-to you under their original licenses. 
+Note that Oracle includes multiple, independent programs in this software
+package.  Some of those programs are provided under licenses deemed
+incompatible with the GPLv2 by the Free Software Foundation and others.
+For example, the package includes programs licensed under the Apache
+License, Version 2.0 and may include FreeType. Such programs are licensed
+to you under their original licenses.
 
-Oracle facilitates your further distribution of this package by adding the 
-Classpath Exception to the necessary parts of its GPLv2 code, which permits 
-you to use that code in combination with other independent modules not 
-licensed under the GPLv2. However, note that this would not permit you to 
-commingle code under an incompatible license with Oracle's GPLv2 licensed 
-code by, for example, cutting and pasting such code into a file also 
-containing Oracle's GPLv2 licensed code and then distributing the result. 
+Oracle facilitates your further distribution of this package by adding the
+Classpath Exception to the necessary parts of its GPLv2 code, which permits
+you to use that code in combination with other independent modules not
+licensed under the GPLv2. However, note that this would not permit you to
+commingle code under an incompatible license with Oracle's GPLv2 licensed
+code by, for example, cutting and pasting such code into a file also
+containing Oracle's GPLv2 licensed code and then distributing the result.
 
-Additionally, if you were to remove the Classpath Exception from any of the 
-files to which it applies and distribute the result, you would likely be 
-required to license some or all of the other code in that distribution under 
-the GPLv2 as well, and since the GPLv2 is incompatible with the license terms 
-of some items included in the distribution by Oracle, removing the Classpath 
-Exception could therefore effectively compromise your ability to further 
-distribute the package. 
+Additionally, if you were to remove the Classpath Exception from any of the
+files to which it applies and distribute the result, you would likely be
+required to license some or all of the other code in that distribution under
+the GPLv2 as well, and since the GPLv2 is incompatible with the license terms
+of some items included in the distribution by Oracle, removing the Classpath
+Exception could therefore effectively compromise your ability to further
+distribute the package.
 
-Failing to distribute notices associated with some files may also create 
+Failing to distribute notices associated with some files may also create
 unexpected legal consequences.
- 
-Proceed with caution and we recommend that you obtain the advice of a lawyer 
-skilled in open source matters before removing the Classpath Exception or 
-making modifications to this package which may subsequently be redistributed 
+
+Proceed with caution and we recommend that you obtain the advice of a lawyer
+skilled in open source matters before removing the Classpath Exception or
+making modifications to this package which may subsequently be redistributed
 and/or involve the use of third party software.
 
 Notices for: org.jspecify:jspecify:1.0.0 / legal/LICENSE
