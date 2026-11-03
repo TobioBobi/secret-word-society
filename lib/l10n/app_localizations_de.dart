@@ -357,4 +357,86 @@ class AppLocalizationsDe extends AppLocalizations {
   String confirmSuspects(int count) {
     return '$count Personen verdächtigen';
   }
+
+  @override
+  String photoFor(String name) {
+    return 'Foto für $name';
+  }
+
+  @override
+  String get photoPosition =>
+      'Halte dein Gesicht in den ovalen Rahmen und löse selbst aus.';
+
+  @override
+  String get photoPreview => 'Vorschau des Spielerfotos';
+
+  @override
+  String get photoWorking => 'Foto wird verarbeitet';
+
+  @override
+  String get photoPermission =>
+      'Kein Kamerazugriff. Du kannst mit deinem bisherigen Bild weiterspielen. Erlaube die Kamera bei Bedarf in den Android-App-Einstellungen.';
+
+  @override
+  String get photoNoCamera =>
+      'Keine Frontkamera verfügbar. Spiele mit deinem bisherigen Bild weiter.';
+
+  @override
+  String get photoNoFace =>
+      'Kein Gesicht erkannt. Halte dein Gesicht gut beleuchtet in den Rahmen und nimm erneut auf.';
+
+  @override
+  String get photoManyFaces =>
+      'Mehrere Gesichter erkannt. Bitte nur eine Person aufnehmen.';
+
+  @override
+  String get photoLandmarks =>
+      'Gesicht nicht deutlich erkannt. Schau gerade in die Kamera und nimm erneut auf.';
+
+  @override
+  String get photoFailed =>
+      'Das Foto konnte nicht verarbeitet werden. Bitte erneut versuchen.';
+
+  @override
+  String get takePhoto => 'Foto aufnehmen';
+
+  @override
+  String get photoRetry => 'Erneut versuchen';
+
+  @override
+  String get usePhoto => 'Übernehmen';
+
+  @override
+  String get rollEffect => 'Effekt würfeln';
+
+  @override
+  String get retakePhoto => 'Neu aufnehmen';
+
+  @override
+  String get cancelPhoto => 'Abbrechen';
+
+  @override
+  String get removePhoto => 'Foto entfernen';
+
+  @override
+  String get effectNose => 'Große Nase';
+
+  @override
+  String get effectEyes => 'Große Augen';
+
+  @override
+  String get effectWide => 'Breites Gesicht';
+
+  @override
+  String get effectSwirl => 'Strudel';
+
+  @override
+  String get privacyAndLicenses => 'Datenschutz und Lizenzen';
+
+  @override
+  String get licenses => 'Lizenzen';
+
+  @override
+  String get photoPrivacy =>
+      'Spielerfotos sind freiwillig. Die Kamera wird nur für deine Aufnahme geöffnet. Bilder und erkannte Gesichtsmerkmale werden auf diesem Gerät verarbeitet und nicht hochgeladen. Ausgangsfoto und gefiltertes Bild bleiben nur in der laufenden Spielgruppe; beim Ersetzen, Entfernen oder Beenden der Sitzung werden sie freigegeben. Es gibt keine Galerieablage und keinen Export. Temporäre Aufnahmedateien werden nach der Verarbeitung gelöscht; nach einem unerwarteten Prozessende beim nächsten App-Start.\n\nDie Gesichtserkennung verwendet Google ML Kit mit einem mitgelieferten Modell und funktioniert auch bei der ersten Nutzung offline. Laut Google kann das SDK Geräte- und App-Informationen sowie Nutzungs- und Leistungsmetriken an Google senden und Server für Updates kontaktieren. Fotos und Erkennungsergebnisse werden dabei nicht an Google gesendet. Google verarbeitet diese Metriken für Diagnose, Wartung und Verbesserung der APIs.\n\nWeitere Informationen: https://developers.google.com/ml-kit/terms und https://policies.google.com/privacy. Die Lizenzansicht enthält außerdem die Bedingungen und Quellen der verwendeten Bibliotheken.';
 }

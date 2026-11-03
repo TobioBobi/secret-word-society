@@ -12,14 +12,25 @@ void main() {
       'Cutouts (DiceBear)',
     ], await rootBundle.loadString('assets/licenses/cutouts.txt'));
   });
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Photo capture and face detection (native)',
+    ], await rootBundle.loadString('assets/licenses/photo-native.txt'));
+  });
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.catalogLoader, this.now = DateTime.now});
+  const MyApp({
+    super.key,
+    this.catalogLoader,
+    this.now = DateTime.now,
+    this.photoEditorLauncher,
+  });
 
   final CatalogLoader? catalogLoader;
   final DateTime Function() now;
+  final PhotoEditorLauncher? photoEditorLauncher;
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +41,12 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       home: catalogLoader == null
-          ? SessionScreen(now: now)
-          : SessionScreen(catalogLoader: catalogLoader!, now: now),
+          ? SessionScreen(now: now, photoEditorLauncher: photoEditorLauncher)
+          : SessionScreen(
+              catalogLoader: catalogLoader!,
+              now: now,
+              photoEditorLauncher: photoEditorLauncher,
+            ),
     );
   }
 }

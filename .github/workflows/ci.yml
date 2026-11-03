@@ -113,4 +113,7 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 180
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
-          script: flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded
+          script: |
+            set -e
+            flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded
+            flutter test integration_test/photo_pipeline_test.dart -d emulator-5554 --reporter expanded

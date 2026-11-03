@@ -4,12 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../game/player_avatar.dart';
+import '../game/player_photo.dart';
+import 'photo_image.dart';
 
 /// One style definition; no network, role, or name enters the renderer.
 class PlayerAvatarView extends StatelessWidget {
-  const PlayerAvatarView({super.key, required this.avatar, this.size = 48});
+  const PlayerAvatarView({
+    super.key,
+    required this.avatar,
+    this.size = 48,
+    this.photo,
+  });
 
   final PlayerAvatar avatar;
+  final PlayerPhoto? photo;
   final double size;
   static final _style = dicebear.Style.parse(cutouts);
   // Expando avoids retaining appearances after their session is discarded.
@@ -22,7 +30,11 @@ class PlayerAvatarView extends StatelessWidget {
   Widget build(BuildContext context) => ExcludeSemantics(
     child: SizedBox.square(
       dimension: size,
-      child: ClipOval(child: SvgPicture.string(svgFor(avatar))),
+      child: ClipOval(
+        child: photo == null
+            ? SvgPicture.string(svgFor(avatar))
+            : PhotoImage(bytes: photo!.bytes),
+      ),
     ),
   );
 }

@@ -92,6 +92,18 @@ class MainActivity : FlutterActivity() {
         // Protect the entire window from its first frame, including task previews.
         // Keeping this enabled avoids a platform-channel race when revealing a card.
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // CameraX creates CAP<number>.jpg in this app's private cache. A killed
+        // process cannot run Dart finally blocks; remove only our photo files
+        // before a fresh session starts; leave unrelated cache entries intact.
+        cacheDir.listFiles()?.forEach { file ->
+            if (file.name.matches(Regex("CAP[0-9]+\\.jpg")) && file.isFile) {
+                file.delete()
+            } else if (file.name.startsWith("sws-photo-") && file.isDirectory) {
+                val input = java.io.File(file, "face.jpg")
+                input.delete()
+                file.delete()
+            }
+        }
         super.onCreate(savedInstanceState)
     }
 }
