@@ -216,3 +216,29 @@ bleiben getrennte Prüfungen. Keine zusätzlichen Abhängigkeiten oder Berechtig
 
 Release-APK: 89.731.138 Byte; SHA256:
 `A74526BD60056B075B1976BBD185229B6531B50CA7C1CFA6231E02CAE6B479BD`.
+
+## Review-Korrekturen für PR #44
+
+Die Rückkehr aus `inactive` baut die vorhandene Fotovorschau jetzt sofort neu
+auf. „Übernehmen“ ist nach dem Zurückkehren ohne zusätzliches Würfeln wieder
+aktiv. Der Regressionstest rendert ausdrücklich einen inaktiven Zwischenframe
+und übernimmt danach dasselbe Foto. Vor der Korrektur blieb der Button im Test
+deaktiviert, nach der Korrektur kann das unveränderte Bild übernommen werden.
+
+Das Manifest markiert zusätzlich `android.hardware.camera` (Rückkamera) und
+`android.hardware.camera.autofocus` als optional. Zusammen mit `camera.any` und
+`camera.front` sind damit alle vier Kamera-Merkmale ausdrücklich nicht zwingend.
+Das überschreibt auch die durch die Kameraberechtigung implizierten
+[Google-Play-Hardwareanforderungen](https://developer.android.com/guide/topics/manifest/uses-feature-element#permissions).
+Die Feature-Liste des gebauten Release-APK enthält alle vier als
+`uses-feature-not-required` und keinen erforderlichen Kameraeintrag mehr.
+
+120 Unit-/Widget-Tests, Analyse und Format-/Diff-Prüfung erfolgreich. Der native
+Kameratest mit Unterbrechung, Wiederöffnung, Aufnahme und Abbruch ist ebenfalls
+erfolgreich. Die Effektrezepte und die neun Spielabläufe sind unverändert und
+wurden für diese beiden Review-Korrekturen nicht nochmals nativ durchlaufen.
+
+Aktualisierte normale Release-APK nach den Review-Korrekturen: 89.731.190 Byte;
+SHA256: `97BAF069C5EE8ED4E40FE99CC5D05CBA5ED6787490523FAD471238EFEFBDE0B2`.
+Kaltstart, Fensterschutz und geprüfte Prozesslogs erfolgreich; Remote-CI und
+echtes TalkBack bleiben als getrennte Prüfungen ausgewiesen.

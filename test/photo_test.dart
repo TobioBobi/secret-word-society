@@ -58,6 +58,54 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  testWidgets('preview can be accepted immediately after an inactive frame', (
+    tester,
+  ) async {
+    final original = source();
+    final photo = PlayerPhoto(
+      original,
+      renderPhoto((original, PhotoEffect.eyes)),
+      PhotoEffect.eyes,
+    );
+    PlayerPhoto? accepted;
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () async {
+                accepted = await Navigator.of(context).push<PlayerPhoto>(
+                  MaterialPageRoute(
+                    builder: (_) => PhotoEditor(name: 'Anna', initial: photo),
+                  ),
+                );
+              },
+              child: const Text('Open photo'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open photo'));
+    await tester.pumpAndSettle();
+    final accept = find.widgetWithText(FilledButton, 'Übernehmen');
+    await tester.scrollUntilVisible(accept, 150);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(accept).onPressed, isNotNull);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    await tester
+        .pump(); // Real inactive frame: don't hide the bug by resuming first.
+    expect(tester.widget<FilledButton>(accept).onPressed, isNull);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(tester.widget<FilledButton>(accept).onPressed, isNotNull);
+    await tester.tap(accept);
+    await tester.pumpAndSettle();
+    expect(accepted, same(photo));
+    expect(find.text('Open photo'), findsOneWidget);
+  });
   test(
     'random strengths stay in range and both mirror directions are reachable',
     () {

@@ -90,7 +90,7 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
         _busy = false;
       });
     } else if (state == AppLifecycleState.resumed) {
-      _active = true;
+      setState(() => _active = true);
       if (_cameraWanted && !_opening) unawaited(_openCamera());
     }
   }
