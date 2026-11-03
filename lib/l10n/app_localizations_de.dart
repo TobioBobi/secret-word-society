@@ -485,4 +485,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get effectFisheye => 'Fischauge';
+
+  @override
+  String get effectGreen => 'Alien-Grün';
+
+  @override
+  String get effectIce => 'Eisblau';
+
+  @override
+  String get effectPink => 'Pink';
+
+  @override
+  String get effectMono => 'Schwarzweiß';
+
+  @override
+  String get effectSepia => 'Sepia';
+
+  @override
+  String get effectRetro => 'Retro';
+
+  @override
+  String get effectSunset => 'Sonnenuntergang';
+
+  @override
+  String get effectComic => 'Poster-Look';
+
+  @override
+  String get effectSunglasses => 'Riesensonnenbrille';
+
+  @override
+  String get effectMoustache => 'Schnurrbart';
+
+  @override
+  String get effectClown => 'Clownsnase';
+
+  @override
+  String get effectPatch => 'Augenklappe';
+
+  @override
+  String get effectCrown => 'Krone';
+
+  @override
+  String get effectPartyHat => 'Partyhut';
+
+  @override
+  String get effectCatEars => 'Katzenohren';
+
+  @override
+  String get effectBunnyEars => 'Hasenohren';
+
+  @override
+  String get effectWizardHat => 'Zauberhut';
+
+  @override
+  String get effectFlower => 'Blume';
+
+  @override
+  String get effectStars => 'Sternenrahmen';
+
+  @override
+  String get effectConfetti => 'Konfetti';
+
+  @override
+  String get effectBurst => 'Comicexplosion';
+
+  @override
+  String get effectPirate => 'Pirat';
+
+  @override
+  String get effectWizard => 'Zauberer';
+
+  @override
+  String get effectAstronaut => 'Astronaut';
+
+  @override
+  String get effectRoyal => 'Königlich';
+
+  @override
+  String get effectDiscoAlien => 'Disco-Alien';
 }

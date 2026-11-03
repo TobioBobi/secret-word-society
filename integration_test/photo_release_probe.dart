@@ -21,6 +21,8 @@ Future<void> _probe() async {
   final directory = await Directory.systemTemp.createTemp('photo-release-');
   try {
     if (!kReleaseMode) throw StateError('Probe must run in release mode');
+    final initialRss = ProcessInfo.currentRss;
+    final total = Stopwatch()..start();
     final input = await File('${directory.path}/capture.jpg')
         .writeAsBytes(base64Decode(photoFixture));
     final processing = PhotoProcessing();
@@ -31,6 +33,7 @@ Future<void> _probe() async {
         PhotoVariation.minimumStrength,
         PhotoVariation.maximumStrength,
       ]) {
+        final watch = Stopwatch()..start();
         final variation = PhotoVariation(
           strength: strength,
           mirrorRight: strength == PhotoVariation.maximumStrength,
@@ -47,8 +50,16 @@ Future<void> _probe() async {
             !identical(result.variation, variation)) {
           throw StateError('Invalid ${effect.name} output at $strength');
         }
+        // ignore: avoid_print
+        print(
+          'PHOTO_RELEASE_EFFECT:${effect.name}:$strength:${watch.elapsedMilliseconds}ms:${result.bytes.length}bytes',
+        );
       }
     }
+    // ignore: avoid_print
+    print(
+      'PHOTO_RELEASE_METRICS:${total.elapsedMilliseconds}ms:initialRss=$initialRss:finalRss=${ProcessInfo.currentRss}:maxRss=${ProcessInfo.maxRss}',
+    );
     // ignore: avoid_print
     print('PHOTO_RELEASE_PROBE:PASS');
   } catch (error, stack) {
