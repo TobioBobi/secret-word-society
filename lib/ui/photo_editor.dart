@@ -158,10 +158,13 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
       _error = null;
     });
     XFile? capture;
+    var stage = 'capture';
     try {
       capture = await camera.takePicture();
       if (!mounted || revision != _revision) return;
+      stage = 'processing';
       final source = await _processing.prepare(capture.path);
+      stage = 'effect';
       final photo = await _processing.render(source, _nextEffect(null));
       if (!mounted || revision != _revision) return;
       _cameraWanted = false;
@@ -176,7 +179,7 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
       if (mounted && revision == _revision) {
         setState(() {
           _busy = false;
-          _error = error is PhotoProblem ? error.code : 'processing';
+          _error = error is PhotoProblem ? error.code : stage;
         });
       }
     } finally {
@@ -210,7 +213,7 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
       if (mounted && revision == _revision) {
         setState(() {
           _busy = false;
-          _error = 'processing';
+          _error = 'effect';
         });
       }
     }
@@ -332,6 +335,10 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
                     'noFace' => s.photoNoFace,
                     'manyFaces' => s.photoManyFaces,
                     'landmarks' => s.photoLandmarks,
+                    'capture' => s.photoCaptureFailed,
+                    'decode' => s.photoDecodeFailed,
+                    'detection' => s.photoDetectionFailed,
+                    'effect' => s.photoEffectFailed,
                     _ => s.photoFailed,
                   }),
                 ),

@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:image/image.dart' as img;
@@ -52,6 +53,47 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  test(
+    'native detector failure is distinct from a bad photo and cleans files',
+    () async {
+      const channel = MethodChannel('google_mlkit_face_detector');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'vision#startFaceDetector') {
+          throw PlatformException(
+            code: 'error',
+            message: 'Native initialization failed',
+          );
+        }
+        return null;
+      });
+      final directory = await Directory.systemTemp.createTemp(
+        'photo-error-test-',
+      );
+      try {
+        final capture = await File('${directory.path}/capture.jpg')
+            .writeAsBytes(source().bytes);
+        await expectLater(
+          PhotoProcessing().prepare(capture.path),
+          throwsA(
+            isA<PhotoProblem>().having((e) => e.code, 'code', 'detection'),
+          ),
+        );
+        expect(await directory.list().toList(), isEmpty);
+        final broken = await File('${directory.path}/broken.jpg')
+            .writeAsBytes([1, 2, 3]);
+        await expectLater(
+          PhotoProcessing().prepare(broken.path),
+          throwsA(isA<PhotoProblem>().having((e) => e.code, 'code', 'decode')),
+        );
+        expect(await directory.list().toList(), isEmpty);
+      } finally {
+        messenger.setMockMethodCallHandler(channel, null);
+        await directory.delete(recursive: true);
+      }
+    },
+  );
   testWidgets(
     'group photo dice immediately creates a preview from the original',
     (tester) async {

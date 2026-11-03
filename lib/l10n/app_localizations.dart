@@ -741,6 +741,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Spielerfotos sind freiwillig. Die Kamera wird nur für deine Aufnahme geöffnet. Bilder und erkannte Gesichtsmerkmale werden auf diesem Gerät verarbeitet und nicht hochgeladen. Ausgangsfoto und gefiltertes Bild bleiben nur in der laufenden Spielgruppe; beim Ersetzen, Entfernen oder Beenden der Sitzung werden sie freigegeben. Es gibt keine Galerieablage und keinen Export. Temporäre Aufnahmedateien werden nach der Verarbeitung gelöscht; nach einem unerwarteten Prozessende beim nächsten App-Start.\n\nDie Gesichtserkennung verwendet Google ML Kit mit einem mitgelieferten Modell und funktioniert auch bei der ersten Nutzung offline. Laut Google kann das SDK Geräte- und App-Informationen sowie Nutzungs- und Leistungsmetriken an Google senden und Server für Updates kontaktieren. Fotos und Erkennungsergebnisse werden dabei nicht an Google gesendet. Google verarbeitet diese Metriken für Diagnose, Wartung und Verbesserung der APIs.\n\nWeitere Informationen: https://developers.google.com/ml-kit/terms und https://policies.google.com/privacy. Die Lizenzansicht enthält außerdem die Bedingungen und Quellen der verwendeten Bibliotheken.'**
   String get photoPrivacy;
+
+  /// No description provided for @photoCaptureFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Kamera konnte kein Foto aufnehmen. Bitte erneut versuchen.'**
+  String get photoCaptureFailed;
+
+  /// No description provided for @photoDecodeFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Das aufgenommene Bild konnte nicht gelesen werden. Bitte neu aufnehmen.'**
+  String get photoDecodeFailed;
+
+  /// No description provided for @photoDetectionFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Gesichtserkennung konnte nicht gestartet werden. Bitte erneut versuchen.'**
+  String get photoDetectionFailed;
+
+  /// No description provided for @photoEffectFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.'**
+  String get photoEffectFailed;
 }
 
 class _AppLocalizationsDelegate

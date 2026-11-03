@@ -117,3 +117,5 @@ jobs:
             set -e
             flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded
             flutter test integration_test/photo_pipeline_test.dart -d emulator-5554 --reporter expanded
+            flutter build apk --release --target integration_test/photo_release_probe.dart
+            bash scripts/check-photo-release.sh build/app/outputs/flutter-apk/app-release.apk emulator-5554

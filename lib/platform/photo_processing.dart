@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 import '../game/player_photo.dart';
@@ -15,7 +16,12 @@ class PhotoProcessing {
     Directory? scratch;
     FaceDetector? detector;
     try {
-      final bytes = await compute(normalizePhoto, await capture.readAsBytes());
+      late Uint8List bytes;
+      try {
+        bytes = await compute(normalizePhoto, await capture.readAsBytes());
+      } catch (_) {
+        throw const PhotoProblem('decode');
+      }
       scratch = await capture.parent.createTemp('sws-photo-');
       final input = await File('${scratch.path}/face.jpg').writeAsBytes(bytes);
       detector = FaceDetector(
@@ -24,9 +30,14 @@ class PhotoProcessing {
           performanceMode: FaceDetectorMode.accurate,
         ),
       );
-      final faces = await detector.processImage(
-        InputImage.fromFilePath(input.path),
-      );
+      late List<Face> faces;
+      try {
+        faces = await detector.processImage(
+          InputImage.fromFilePath(input.path),
+        );
+      } on PlatformException {
+        throw const PhotoProblem('detection');
+      }
       if (faces.length != 1) {
         throw PhotoProblem(faces.isEmpty ? 'noFace' : 'manyFaces');
       }

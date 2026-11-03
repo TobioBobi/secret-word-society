@@ -116,3 +116,52 @@ fremden Cache-Testdatei geprüft. Release installiert und kalt gestartet;
 Fensterschutz aktiv, geprüfte Prozesslogs ohne App-Fehler.
 
 SHA256: `B6A7E7B01E38BA015F730DC0E327379CCDE591008D661F5462DB983DEC08C5BA`.
+
+## Korrektur: Gesichtserkennung scheitert nur im Release
+
+Die erste ausgelieferte APK scheiterte bereits beim Start der Gesichtserkennung.
+Die vorherigen nativen Verarbeitungstests liefen im Debug-Modus; die
+Release-Abnahme prüfte nur Installation und App-Start. Damit war die tatsächliche
+Release-Bildverarbeitung noch nicht abgesichert.
+
+Der Fehler wurde mit demselben bekannten Testporträt in einer AOT-/R8-APK
+reproduziert: `NoSuchMethodException` für die parameterlosen Konstruktoren von
+`FaceRegistrar`, `CommonComponentRegistrar` und `VisionCommonRegistrar`, danach
+ein `PlatformException` bei der Detektorinitialisierung. Das geschieht vor der
+Gesichtserkennung und hat nichts mit der Position im Rahmen zu tun.
+
+`android/app/proguard-rules.pro` erhält die per Reflection aus dem Manifest
+geladenen `ComponentRegistrar`-Klassen samt öffentlichem Standardkonstruktor.
+Die übrige Optimierung bleibt aktiv. Der gleiche Release-Test verarbeitet das
+Porträt danach ohne Netzwerk erfolgreich mit allen vier Effekten.
+
+`integration_test/photo_release_probe.dart` ist ein separater Test-Einstiegspunkt,
+der Release-Modus voraussetzt. Er gehört nicht zum normalen App-Einstiegspunkt.
+Die CI baut und startet ihn zusätzlich zu den Debug-Integrationstests:
+
+```sh
+flutter build apk --release --target integration_test/photo_release_probe.dart
+bash scripts/check-photo-release.sh build/app/outputs/flutter-apk/app-release.apk emulator-5554
+```
+
+Das Skript schaltet Netzwerkdienste im Testemulator aus, wartet auf ein explizites
+Ergebnis und schlägt bei Fehler oder Zeitüberschreitung fehl. Danach für die
+eigentliche Testverteilung stets wieder `flutter build apk --release` mit dem
+normalen Einstiegspunkt bauen.
+
+Fehlermeldungen unterscheiden jetzt Kameraaufnahme, unlesbares Bild,
+fehlgeschlagenen Start der Gesichtserkennung und Effektberechnung. Nicht
+erkannte Gesichter bzw. fehlende Merkmale behalten ihre eigenen Hinweise.
+Native Initialisierungsfehler und defekte Bilder werden mit unterschiedlichem
+Fehlergrund getestet; temporäre Dateien werden in beiden Fällen bereinigt.
+
+Abnahme der Korrektur: 117 Unit-/Widget-Tests, Analyse und Format-/Diff-Prüfung
+erfolgreich. Dieselbe optimierte Release-Probe zeigt vor dem Fix den
+Initialisierungsfehler und danach offline erfolgreiche Erkennung sowie alle
+vier Effekte. Das neue CI-Skript wurde lokal erfolgreich ausgeführt; sein
+Remote-Lauf steht noch aus. Die normale Release-App wurde anschließend wieder
+gebaut; die neun unveränderten Spielabläufe wurden für diese Korrektur nicht
+nochmals ausgeführt. Der erneute Praxistest auf dem gemeldeten Handy bleibt offen.
+
+Aktualisierte Release-APK: 89.649.218 Byte; SHA256:
+`40853B3715AFAEC607AA6F99D800A9B7F9144087F38A0D2A76F14F7FFE756025`.
