@@ -118,6 +118,13 @@ class _FaceArt {
     oy = ((eyes[0][1] + eyes[1][1]) / 2 - cropY) * scale;
     unit = source.face[2] * scale;
     size = .92 + .08 * strength;
+    // Fit tall headwear into the existing photo crop, without zooming the photo
+    // out. Only the portion above the forehead is compressed; facial anchors
+    // and the rest of the artwork keep their original scale and position.
+    headScale =
+        ((oy - unit * .30 * cos(angle) - 10 - unit * .65 * sin(angle).abs()) /
+                (unit * 1.02 * cos(angle)))
+            .clamp(.15, 1.0);
     offsetX = cropX * scale;
     offsetY = cropY * scale;
     nose = local(source.nose);
@@ -130,7 +137,7 @@ class _FaceArt {
         source.face[2];
   }
   final img.Image image;
-  late final double angle, scale, ox, oy, unit, size, eyeDistance;
+  late final double angle, scale, ox, oy, unit, size, eyeDistance, headScale;
   late final List<double> nose, mouth;
   final ink = img.ColorRgb8(37, 21, 53),
       white = img.ColorRgb8(255, 248, 229),
@@ -149,10 +156,14 @@ class _FaceArt {
   }
 
   double offsetX = 0, offsetY = 0;
-  img.Point point(double x, double y) => img.Point(
-    (ox + unit * (x * cos(angle) - y * sin(angle))).round(),
-    (oy + unit * (x * sin(angle) + y * cos(angle))).round(),
-  );
+  img.Point point(double x, double y) {
+    final fittedY = y < -.30 ? -.30 + (y + .30) * headScale : y;
+    return img.Point(
+      (ox + unit * (x * cos(angle) - fittedY * sin(angle))).round(),
+      (oy + unit * (x * sin(angle) + fittedY * cos(angle))).round(),
+    );
+  }
+
   void polygon(
     List<List<double>> points,
     img.Color color, {

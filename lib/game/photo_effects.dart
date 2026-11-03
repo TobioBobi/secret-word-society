@@ -213,32 +213,6 @@ Uint8List renderPhotoVariant(
       );
     }
   }
-  if (decorated) {
-    // Sample into a bounded output directly. A colored matte supplies headroom
-    // when a hat extends beyond the captured photo; the source is never stretched.
-    final side = (max(width, height) * 2.6).round();
-    final cropX = (cx - side / 2).round();
-    final eyeY = (source.eyes[0][1] + source.eyes[1][1]) / 2;
-    final cropY = (eyeY + height * .10 - side / 2).round();
-    final result = img.Image(width: 384, height: 384);
-    for (final p in result) {
-      final x = cropX + (p.x + .5) * side / 384;
-      final y = cropY + (p.y + .5) * side / 384;
-      if (x >= 0 && y >= 0 && x < output.width - 1 && y < output.height - 1) {
-        p.set(
-          output.getPixelInterpolate(
-            x,
-            y,
-            interpolation: img.Interpolation.linear,
-          ),
-        );
-      } else {
-        p.setRgb(45, 25, 57);
-      }
-    }
-    applyPhotoLook(result, source, effect, variation, cropX, cropY, side);
-    return img.encodeJpg(result, quality: 88);
-  }
   final cropSide = min(
     min(original.width, original.height),
     (max(width, height) * 1.65).round(),
@@ -256,5 +230,8 @@ Uint8List renderPhotoVariant(
     height: cropSide,
   );
   final result = img.copyResize(cropped, width: 384, height: 384);
+  if (decorated) {
+    applyPhotoLook(result, source, effect, variation, cropX, cropY, cropSide);
+  }
   return img.encodeJpg(result, quality: 88);
 }

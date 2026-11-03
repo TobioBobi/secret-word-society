@@ -47,13 +47,15 @@ Rahmen. Alle Accessoires verwenden dieselbe an der Augenlinie gedrehte Basis;
 Nase und Mund werden aus den vorhandenen Merkmalen in diese Basis übertragen.
 Disco-Alien verwendet die unverändert verankerten Augenmitten der Alien-Verzerrung.
 
-Die neuen Ausschnitte schaffen Platz über dem Kopf. Außerhalb des aufgenommenen
-Bildes wird eine farbige Fläche ergänzt, ohne den Fotohintergrund freizustellen.
-Der Ausschnitt wird direkt in ein 384×384-Bild abgetastet, ohne ein großes
-Zwischenbild für zusätzlichen Rand anzulegen. Sitzungsspeicher, Spieler-ID,
+Alle Effekte verwenden denselben quadratischen Ausschnitt und dieselbe
+Vergrößerung wie die bisherigen Verzerrungen. Es wird kein zusätzlicher Rand
+angelegt und keine farbige Außenfläche ergänzt. Farblooks färben das Foto
+innerhalb des unveränderten Ausschnitts; grafische Rahmen werden darüber
+gezeichnet. Hohe Accessoires werden oberhalb der Stirn an den verfügbaren Platz
+angepasst, ohne das Foto zu verkleinern. Sitzungsspeicher, Spieler-ID,
 temporäre Bereinigung und fehlende Galerie-/Exportfunktion bleiben unverändert.
 
-## Prüfung am 03.11.2026
+## Prüfung der ersten Umsetzung am 03.11.2026 (ed490fe)
 
 - 122 Unit-/Widget-Tests, Analyse, Format und Diff-Prüfung erfolgreich.
   Enthalten sind alle 40 Rezepte bei beiden Stärkegrenzen, Unverändertheit der
@@ -89,3 +91,33 @@ war aktiv und die geprüften Prozesslogs enthielten keine App-Fehler.
 Normale universelle Release-APK: 89.895.222 Byte gegenüber 89.731.190 Byte
 vor dieser Erweiterung, also +164.032 Byte (ca. 0,18 Prozent). SHA256:
 `405BC56F9F8FDCCC48CC53B7473251591B14878E5B6A7BD9B2E8863331312E31`.
+
+## Korrektur: einheitliche Fotogröße
+
+Der Nutzer bestätigt am 03.11.2026: Farblooks und Accessoires sollen das Foto
+in derselben Größe wie die Verzerrungen zeigen. Der zuvor eingeführte größere
+Ausschnitt mit zusätzlicher Außenfläche ist damit verworfen.
+
+Die bisher separate Ausschnittberechnung für die 26 neuen Vorschläge entfällt.
+Alle 40 Rezepte verwenden die bestehende, an den Bildgrenzen begrenzte
+Ausschnittberechnung mit Faktor 1,65. Nur hohe Zeichnungsteile über der Stirn
+werden vertikal an den verfügbaren Platz angepasst. Gesichtsmerkmale,
+Fotoausschnitt und Größe des Gesichts bleiben unverändert.
+
+Der neue Regressionstest vergleicht Bildpunkte eines Farblooks und eines
+Accessoires mit dem bekannten bisherigen Fotoausschnitt. Er schlägt vor der
+Korrektur fehl und besteht danach. Der Nasenplatzierungstest prüft weiterhin
+drei Kopfneigungen, jetzt mit dem gemeinsamen begrenzten Ausschnitt.
+123 Unit-/Widget-Tests und Analyse erfolgreich; Effekte bei drei Stärken und
+als kleine runde Spielerbilder visuell geprüft.
+
+Die korrigierte Offline-AOT-/R8-Probe besteht mit allen 80 Kombinationen.
+Fotoaufnahme, Lifecycle-Bedienung und vollständige Spielabläufe wurden für diese
+reine Ausschnittkorrektur nicht erneut nativ getestet. Physischer Praxistest und
+TalkBack bleiben offen; Remote-CI wurde noch nicht gestartet.
+
+Korrigierte normale Release-APK: 89.895.222 Byte. SHA256:
+`228CB65469FC0B4337A77CF010FC326028C34FE693B2B9337EF4934B9186FEDB`.
+
+Korrigierte normale Release-App installiert und kalt gestartet; `FLAG_SECURE`
+aktiv, keine App-Fehler in den geprüften Prozesslogs.
