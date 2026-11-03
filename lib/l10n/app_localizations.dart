@@ -597,6 +597,234 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count} Personen verdächtigen'**
   String confirmSuspects(int count);
+
+  /// No description provided for @photoFor.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto für {name}'**
+  String photoFor(String name);
+
+  /// No description provided for @photoPosition.
+  ///
+  /// In de, this message translates to:
+  /// **'Halte dein Gesicht in den ovalen Rahmen und löse selbst aus.'**
+  String get photoPosition;
+
+  /// No description provided for @photoPreview.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau des Spielerfotos'**
+  String get photoPreview;
+
+  /// No description provided for @photoWorking.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto wird verarbeitet'**
+  String get photoWorking;
+
+  /// No description provided for @photoPermission.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Kamerazugriff. Du kannst mit deinem bisherigen Bild weiterspielen. Erlaube die Kamera bei Bedarf in den Android-App-Einstellungen.'**
+  String get photoPermission;
+
+  /// No description provided for @photoNoCamera.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Frontkamera verfügbar. Spiele mit deinem bisherigen Bild weiter.'**
+  String get photoNoCamera;
+
+  /// No description provided for @photoNoFace.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Gesicht erkannt. Halte dein Gesicht gut beleuchtet in den Rahmen und nimm erneut auf.'**
+  String get photoNoFace;
+
+  /// No description provided for @photoManyFaces.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehrere Gesichter erkannt. Bitte nur eine Person aufnehmen.'**
+  String get photoManyFaces;
+
+  /// No description provided for @photoLandmarks.
+  ///
+  /// In de, this message translates to:
+  /// **'Gesicht nicht deutlich erkannt. Schau gerade in die Kamera und nimm erneut auf.'**
+  String get photoLandmarks;
+
+  /// No description provided for @photoFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Foto konnte nicht verarbeitet werden. Bitte erneut versuchen.'**
+  String get photoFailed;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto aufnehmen'**
+  String get takePhoto;
+
+  /// No description provided for @photoRetry.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut versuchen'**
+  String get photoRetry;
+
+  /// No description provided for @usePhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Übernehmen'**
+  String get usePhoto;
+
+  /// No description provided for @rollEffect.
+  ///
+  /// In de, this message translates to:
+  /// **'Effekt würfeln'**
+  String get rollEffect;
+
+  /// No description provided for @retakePhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu aufnehmen'**
+  String get retakePhoto;
+
+  /// No description provided for @cancelPhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get cancelPhoto;
+
+  /// No description provided for @removePhoto.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto entfernen'**
+  String get removePhoto;
+
+  /// No description provided for @effectNose.
+  ///
+  /// In de, this message translates to:
+  /// **'Große Nase'**
+  String get effectNose;
+
+  /// No description provided for @effectEyes.
+  ///
+  /// In de, this message translates to:
+  /// **'Große Augen'**
+  String get effectEyes;
+
+  /// No description provided for @effectWide.
+  ///
+  /// In de, this message translates to:
+  /// **'Breites Gesicht'**
+  String get effectWide;
+
+  /// No description provided for @effectSwirl.
+  ///
+  /// In de, this message translates to:
+  /// **'Strudel'**
+  String get effectSwirl;
+
+  /// No description provided for @privacyAndLicenses.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz und Lizenzen'**
+  String get privacyAndLicenses;
+
+  /// No description provided for @licenses.
+  ///
+  /// In de, this message translates to:
+  /// **'Lizenzen'**
+  String get licenses;
+
+  /// No description provided for @photoPrivacy.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielerfotos sind freiwillig. Die Kamera wird nur für deine Aufnahme geöffnet. Bilder und erkannte Gesichtsmerkmale werden auf diesem Gerät verarbeitet und nicht hochgeladen. Ausgangsfoto und gefiltertes Bild bleiben nur in der laufenden Spielgruppe; beim Ersetzen, Entfernen oder Beenden der Sitzung werden sie freigegeben. Es gibt keine Galerieablage und keinen Export. Temporäre Aufnahmedateien werden nach der Verarbeitung gelöscht; nach einem unerwarteten Prozessende beim nächsten App-Start.\n\nDie Gesichtserkennung verwendet Google ML Kit mit einem mitgelieferten Modell und funktioniert auch bei der ersten Nutzung offline. Laut Google kann das SDK Geräte- und App-Informationen sowie Nutzungs- und Leistungsmetriken an Google senden und Server für Updates kontaktieren. Fotos und Erkennungsergebnisse werden dabei nicht an Google gesendet. Google verarbeitet diese Metriken für Diagnose, Wartung und Verbesserung der APIs.\n\nWeitere Informationen: https://developers.google.com/ml-kit/terms und https://policies.google.com/privacy. Die Lizenzansicht enthält außerdem die Bedingungen und Quellen der verwendeten Bibliotheken.'**
+  String get photoPrivacy;
+
+  /// No description provided for @photoCaptureFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Kamera konnte kein Foto aufnehmen. Bitte erneut versuchen.'**
+  String get photoCaptureFailed;
+
+  /// No description provided for @photoDecodeFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Das aufgenommene Bild konnte nicht gelesen werden. Bitte neu aufnehmen.'**
+  String get photoDecodeFailed;
+
+  /// No description provided for @photoDetectionFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Gesichtserkennung konnte nicht gestartet werden. Bitte erneut versuchen.'**
+  String get photoDetectionFailed;
+
+  /// No description provided for @photoEffectFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.'**
+  String get photoEffectFailed;
+
+  /// No description provided for @effectAlien.
+  ///
+  /// In de, this message translates to:
+  /// **'Alien'**
+  String get effectAlien;
+
+  /// No description provided for @effectCheeks.
+  ///
+  /// In de, this message translates to:
+  /// **'Hamsterbacken'**
+  String get effectCheeks;
+
+  /// No description provided for @effectGrin.
+  ///
+  /// In de, this message translates to:
+  /// **'Riesengrinsen'**
+  String get effectGrin;
+
+  /// No description provided for @effectEgghead.
+  ///
+  /// In de, this message translates to:
+  /// **'Eierkopf'**
+  String get effectEgghead;
+
+  /// No description provided for @effectSquashed.
+  ///
+  /// In de, this message translates to:
+  /// **'Quetschkopf'**
+  String get effectSquashed;
+
+  /// No description provided for @effectAsymmetric.
+  ///
+  /// In de, this message translates to:
+  /// **'Schiefgesicht'**
+  String get effectAsymmetric;
+
+  /// No description provided for @effectMini.
+  ///
+  /// In de, this message translates to:
+  /// **'Mini-Gesicht'**
+  String get effectMini;
+
+  /// No description provided for @effectMirror.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiegelgesicht'**
+  String get effectMirror;
+
+  /// No description provided for @effectJelly.
+  ///
+  /// In de, this message translates to:
+  /// **'Wackelpudding'**
+  String get effectJelly;
+
+  /// No description provided for @effectFisheye.
+  ///
+  /// In de, this message translates to:
+  /// **'Fischauge'**
+  String get effectFisheye;
 }
 
 class _AppLocalizationsDelegate

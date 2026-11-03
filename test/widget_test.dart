@@ -154,7 +154,16 @@ void main() {
       isNotNull,
     );
 
-    await tester.ensureVisible(find.byTooltip('Ben entfernen'));
+    await tester.scrollUntilVisible(
+      find.byTooltip('Ben entfernen'),
+      -150,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.ensureVisible(find.byTooltip('Ben entfernen'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Ben entfernen'));

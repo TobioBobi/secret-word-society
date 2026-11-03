@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'game_round.dart';
 import 'player.dart';
+import 'player_photo.dart';
 import 'round_rules.dart';
 import 'player_avatar.dart';
 import 'word_catalog.dart';
@@ -84,7 +85,12 @@ final class GameSession {
       return NameProblem.duplicate;
     }
     final player = _players[index];
-    _players[index] = Player(id: id, name: name, avatar: player.avatar);
+    _players[index] = Player(
+      id: id,
+      name: name,
+      avatar: player.avatar,
+      photo: player.photo,
+    );
     return null;
   }
 
@@ -97,6 +103,20 @@ final class GameSession {
       id: id,
       name: player.name,
       avatar: PlayerAvatar.random(),
+      photo: player.photo,
+    );
+  }
+
+  void setPhoto(String id, PlayerPhoto? photo) {
+    _requireSetup();
+    final index = _players.indexWhere((p) => p.id == id);
+    if (index < 0) throw ArgumentError('Unknown player.');
+    final player = _players[index];
+    _players[index] = Player(
+      id: id,
+      name: player.name,
+      avatar: player.avatar,
+      photo: photo,
     );
   }
 

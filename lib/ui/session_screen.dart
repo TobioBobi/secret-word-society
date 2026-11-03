@@ -6,6 +6,7 @@ import '../data/word_catalog_loader.dart';
 import '../game/game_round.dart';
 import '../game/game_session.dart';
 import '../game/player.dart';
+import '../game/player_photo.dart';
 import '../game/round_rules.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
@@ -13,21 +14,29 @@ import '../platform/round_signal.dart';
 import 'party_card.dart';
 import 'party_theme.dart';
 import 'player_avatar.dart';
+import 'photo_editor.dart';
+import 'photo_privacy.dart';
 import 'secret_curtain.dart';
 import 'time_up_card.dart';
 
 typedef CatalogLoader = Future<WordCatalog> Function();
+typedef PhotoEditorLauncher = Future<PlayerPhoto?> Function(
+  BuildContext context,
+  Player player,
+);
 
 class SessionScreen extends StatefulWidget {
   const SessionScreen({
     super.key,
     this.catalogLoader = loadWordCatalog,
     this.now = DateTime.now,
+    this.photoEditorLauncher,
   });
 
   final CatalogLoader catalogLoader;
   // The production clock also counts time when Flutter suspends frames.
   final DateTime Function() now;
+  final PhotoEditorLauncher? photoEditorLauncher;
 
   @override
   State<SessionScreen> createState() => _SessionScreenState();
@@ -100,6 +109,24 @@ class _SessionScreenState extends State<SessionScreen>
       if (_nameProblem == null) _name.clear();
     });
     _nameFocus.requestFocus();
+  }
+
+  Future<void> _editPhoto(Player player, {bool reroll = false}) async {
+    if (_starting) return;
+    FocusScope.of(context).unfocus();
+    final photo = widget.photoEditorLauncher != null
+        ? await widget.photoEditorLauncher!(context, player)
+        : await Navigator.of(context).push<PlayerPhoto>(
+            MaterialPageRoute(
+              builder: (_) => PhotoEditor(
+                name: player.name,
+                initial: player.photo,
+                rerollInitially: reroll,
+              ),
+            ),
+          );
+    if (!mounted || photo == null || _session.round != null) return;
+    setState(() => _session.setPhoto(player.id, photo));
   }
 
   Future<void> _renamePlayer(Player player) async {
@@ -541,6 +568,7 @@ class _SessionScreenState extends State<SessionScreen>
                                     name: round.currentPlayer!.name,
                                     avatar: PlayerAvatarView(
                                       avatar: round.currentPlayer!.avatar,
+                                      photo: round.currentPlayer!.photo,
                                       size: 182,
                                     ),
                                     advanceAction: FilledButton(
@@ -927,7 +955,10 @@ class _SessionScreenState extends State<SessionScreen>
                       ? (_) => _selectSuspect(round, player.id)
                       : null,
                   title: Text(player.name),
-                  secondary: PlayerAvatarView(avatar: player.avatar),
+                  secondary: PlayerAvatarView(
+                    avatar: player.avatar,
+                    photo: player.photo,
+                  ),
                   activeColor: PartyColors.lime,
                   checkColor: PartyColors.background,
                   selected: selected,
@@ -949,7 +980,10 @@ class _SessionScreenState extends State<SessionScreen>
                   toggleable: true,
                   enabled: round.canSelectSuspect(player.id),
                   title: Text(player.name),
-                  secondary: PlayerAvatarView(avatar: player.avatar),
+                  secondary: PlayerAvatarView(
+                    avatar: player.avatar,
+                    photo: player.photo,
+                  ),
                   selected: selected,
                   activeColor: PartyColors.lime,
                   tileColor: PartyColors.surface,
@@ -1041,6 +1075,7 @@ class _SessionScreenState extends State<SessionScreen>
                                 children: [
                                   PlayerAvatarView(
                                     avatar: player.avatar,
+                                    photo: player.photo,
                                     size: 64,
                                   ),
                                   const SizedBox(width: 12),
@@ -1101,15 +1136,26 @@ class _SessionScreenState extends State<SessionScreen>
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        PlayerAvatarView(avatar: player.avatar),
+                        PlayerAvatarView(
+                          avatar: player.avatar,
+                          photo: player.photo,
+                        ),
                         IconButton(
                           key: ValueKey('reroll-${player.id}'),
-                          tooltip: strings.rerollAvatar(player.name),
+                          tooltip: player.photo == null
+                              ? strings.rerollAvatar(player.name)
+                              : strings.rollEffect,
                           onPressed: _starting
                               ? null
-                              : () => setState(
-                                  () => _session.rerollAvatar(player.id),
-                                ),
+                              : () {
+                                  if (player.photo != null) {
+                                    _editPhoto(player, reroll: true);
+                                  } else {
+                                    setState(
+                                      () => _session.rerollAvatar(player.id),
+                                    );
+                                  }
+                                },
                           icon: const Icon(Icons.casino_outlined),
                         ),
                       ],
@@ -1124,6 +1170,28 @@ class _SessionScreenState extends State<SessionScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: strings.photoFor(player.name),
+                          onPressed: _starting
+                              ? null
+                              : () => _editPhoto(player),
+                          icon: const Icon(Icons.add_a_photo_outlined),
+                        ),
+                        if (player.photo != null)
+                          IconButton(
+                            tooltip: strings.removePhoto,
+                            onPressed: _starting
+                                ? null
+                                : () => setState(
+                                    () => _session.setPhoto(player.id, null),
+                                  ),
+                            icon: const Icon(Icons.no_photography_outlined),
+                          ),
+                      ],
+                    ),
                     IconButton(
                       tooltip: strings.removePlayer(player.name),
                       onPressed: _starting
@@ -1304,6 +1372,11 @@ class _SessionScreenState extends State<SessionScreen>
         _starting ? strings.startingRound : strings.startRound,
         textAlign: TextAlign.center,
       ),
+    ),
+    const SizedBox(height: 8),
+    TextButton(
+      onPressed: () => showPhotoPrivacy(context),
+      child: Text(strings.privacyAndLicenses),
     ),
   ];
 

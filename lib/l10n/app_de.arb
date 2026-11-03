@@ -108,5 +108,50 @@
   "@groupWinIntro": {"placeholders": {"count": {"type": "int"}}},
   "@imposterWinIntro": {"placeholders": {"count": {"type": "int"}}},
   "@imposterWins": {"placeholders": {"count": {"type": "int"}}},
-  "@resultImposter": {"placeholders": {"count": {"type": "int"}}}
+  "@resultImposter": {"placeholders": {"count": {"type": "int"}}},
+  "photoFor": "Foto für {name}",
+  "@photoFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "photoPosition": "Halte dein Gesicht in den ovalen Rahmen und löse selbst aus.",
+  "photoPreview": "Vorschau des Spielerfotos",
+  "photoWorking": "Foto wird verarbeitet",
+  "photoPermission": "Kein Kamerazugriff. Du kannst mit deinem bisherigen Bild weiterspielen. Erlaube die Kamera bei Bedarf in den Android-App-Einstellungen.",
+  "photoNoCamera": "Keine Frontkamera verfügbar. Spiele mit deinem bisherigen Bild weiter.",
+  "photoNoFace": "Kein Gesicht erkannt. Halte dein Gesicht gut beleuchtet in den Rahmen und nimm erneut auf.",
+  "photoManyFaces": "Mehrere Gesichter erkannt. Bitte nur eine Person aufnehmen.",
+  "photoLandmarks": "Gesicht nicht deutlich erkannt. Schau gerade in die Kamera und nimm erneut auf.",
+  "photoFailed": "Das Foto konnte nicht verarbeitet werden. Bitte erneut versuchen.",
+  "takePhoto": "Foto aufnehmen",
+  "photoRetry": "Erneut versuchen",
+  "usePhoto": "Übernehmen",
+  "rollEffect": "Effekt würfeln",
+  "retakePhoto": "Neu aufnehmen",
+  "cancelPhoto": "Abbrechen",
+  "removePhoto": "Foto entfernen",
+  "effectNose": "Große Nase",
+  "effectEyes": "Große Augen",
+  "effectWide": "Breites Gesicht",
+  "effectSwirl": "Strudel",
+  "privacyAndLicenses": "Datenschutz und Lizenzen",
+  "licenses": "Lizenzen",
+  "photoPrivacy": "Spielerfotos sind freiwillig. Die Kamera wird nur für deine Aufnahme geöffnet. Bilder und erkannte Gesichtsmerkmale werden auf diesem Gerät verarbeitet und nicht hochgeladen. Ausgangsfoto und gefiltertes Bild bleiben nur in der laufenden Spielgruppe; beim Ersetzen, Entfernen oder Beenden der Sitzung werden sie freigegeben. Es gibt keine Galerieablage und keinen Export. Temporäre Aufnahmedateien werden nach der Verarbeitung gelöscht; nach einem unerwarteten Prozessende beim nächsten App-Start.\n\nDie Gesichtserkennung verwendet Google ML Kit mit einem mitgelieferten Modell und funktioniert auch bei der ersten Nutzung offline. Laut Google kann das SDK Geräte- und App-Informationen sowie Nutzungs- und Leistungsmetriken an Google senden und Server für Updates kontaktieren. Fotos und Erkennungsergebnisse werden dabei nicht an Google gesendet. Google verarbeitet diese Metriken für Diagnose, Wartung und Verbesserung der APIs.\n\nWeitere Informationen: https://developers.google.com/ml-kit/terms und https://policies.google.com/privacy. Die Lizenzansicht enthält außerdem die Bedingungen und Quellen der verwendeten Bibliotheken.",
+  "photoCaptureFailed": "Die Kamera konnte kein Foto aufnehmen. Bitte erneut versuchen.",
+  "photoDecodeFailed": "Das aufgenommene Bild konnte nicht gelesen werden. Bitte neu aufnehmen.",
+  "photoDetectionFailed": "Die Gesichtserkennung konnte nicht gestartet werden. Bitte erneut versuchen.",
+  "photoEffectFailed": "Der Fotoeffekt konnte nicht berechnet werden. Bitte erneut würfeln oder neu aufnehmen.",
+  "effectAlien": "Alien",
+  "effectCheeks": "Hamsterbacken",
+  "effectGrin": "Riesengrinsen",
+  "effectEgghead": "Eierkopf",
+  "effectSquashed": "Quetschkopf",
+  "effectAsymmetric": "Schiefgesicht",
+  "effectMini": "Mini-Gesicht",
+  "effectMirror": "Spiegelgesicht",
+  "effectJelly": "Wackelpudding",
+  "effectFisheye": "Fischauge"
 }
