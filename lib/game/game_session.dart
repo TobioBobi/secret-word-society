@@ -18,6 +18,7 @@ final class GameSession {
   WordDeck? _deck;
   Duration? _manualDuration;
   ImposterChoice? _manualImposterChoice;
+  String? _previousStartPlayerId;
 
   ImposterChoice get imposterChoice =>
       _round?.imposterChoice ??
@@ -144,7 +145,9 @@ final class GameSession {
       random: random,
       discussionDuration: _manualDuration,
       imposterChoice: imposterChoice,
+      previousStartPlayerId: _previousStartPlayerId,
     );
+    _previousStartPlayerId = _round!.currentPlayer!.id;
     _deck = deck;
   }
 
@@ -172,7 +175,10 @@ final class GameSession {
 
   void resumeReveal(DateTime now) => _round = _round?.resumeReveal(now);
 
-  void newRound() => _round = _requireRound().newRound();
+  void newRound() {
+    _round = _requireRound().newRound();
+    _previousStartPlayerId = _round!.currentPlayer!.id;
+  }
 
   GameRound _requireRound() =>
       _round ?? (throw StateError('Start a round first.'));

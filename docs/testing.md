@@ -75,6 +75,17 @@ automatisch angeforderten Countdown-Frames gezeichnet werden. Die beiden
 vollständigen Abläufe prüfen zusätzlich nach zwei Sekunden, dass die sichtbare
 Zeit abgenommen hat.
 
+Seit Issue #48 lesen die Tests die tatsächlich angezeigte Person jeder
+Übergabe, statt die Eingabereihenfolge vorauszusetzen. Die Aufdeckreihenfolge
+wird pro Runde einmal zufällig gewählt; die vorherige Startperson ist auch
+nach Abbruch und Gruppenbearbeitung an erster Position ausgeschlossen.
+Spielkern-Tests prüfen alle zulässigen Reihenfolgen einer Dreiergruppe mit
+gleich wahrscheinlichen Zufallsziehungen und jeder möglichen Imposter-Rolle.
+Zusätzlich werden alle Gruppengrößen von 3–14, stabile Identitäten und
+Folgerunden geprüft. Widget-Tests decken passende Namen und Spielerbilder,
+erneutes Aufdecken, Unterbrechungen, lange Namen und 200 Prozent Schrift auf
+320-Pixel-Displays ab. Die Semantikprüfung ersetzt keinen echten TalkBack-Test.
+
 Nach der Namenseingabe schließen die Gerätetests die native Android-Tastatur
 gezielt und warten bis zu 15 Sekunden auf `viewInsets.bottom == 0`, bevor sie
 zum Startbutton scrollen. `pumpAndSettle` allein wartet nicht zuverlässig auf

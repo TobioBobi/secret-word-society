@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
+import 'support/handoff.dart';
 import 'widget_test.dart'
     show addName, showStart, tapVisible, semanticsTree, multiHintCatalog;
 
@@ -52,7 +53,8 @@ void main() {
         await tapVisible(tester, 'Runde starten');
         final imposters = <String>[];
         final hints = <String>{};
-        for (final name in names) {
+        for (var person = 0; person < names.length; person++) {
+          final name = handoffName(tester, names);
           expect(find.text(name), findsOneWidget);
           await tapVisible(tester, 'Geheimnis kurz ansehen');
           if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
@@ -175,7 +177,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Die Gruppe gewinnt.'), findsOneWidget);
         await tapVisible(tester, 'Noch eine Runde');
-        expect(find.text('Person 1'), findsOneWidget);
+        expect(handoffName(tester, names), isNotEmpty);
         expect(semanticsTree(tester), isNot(contains('Popcorn')));
         expect(tester.takeException(), isNull);
         semantics.dispose();

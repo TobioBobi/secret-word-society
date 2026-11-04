@@ -7,6 +7,7 @@ import 'package:secret_word_society/game/player_avatar.dart';
 import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/ui/player_avatar.dart';
 
+import 'support/handoff.dart';
 import 'widget_test.dart' show addName, showStart, tapVisible, testCatalog;
 
 void main() {
@@ -25,7 +26,10 @@ void main() {
     expect(session.renamePlayer(original.id, 'ben'), NameProblem.duplicate);
     expect(session.renamePlayer(original.id, ' '), NameProblem.empty);
     session.startRound(testCatalog, random: Random(1));
-    expect(session.round!.currentPlayer!.avatar, same(avatar));
+    expect(
+      session.round!.players.singleWhere((p) => p.id == original.id).avatar,
+      same(avatar),
+    );
     expect(() => session.rerollAvatar(original.id), throwsStateError);
     expect(() => session.renamePlayer(original.id, 'Other'), throwsStateError);
     while (session.round!.canAdvanceCard) {
@@ -39,7 +43,10 @@ void main() {
     session.advanceTime(now.add(const Duration(seconds: 3)));
     expect(session.round!.result!.suspects.single.avatar, same(avatar));
     session.newRound();
-    expect(session.round!.currentPlayer!.avatar, same(avatar));
+    expect(
+      session.round!.players.singleWhere((p) => p.id == original.id).avatar,
+      same(avatar),
+    );
     session.returnToGroup();
     expect(session.players.first.avatar, same(avatar));
     session.removePlayer(original.id);
@@ -103,12 +110,14 @@ void main() {
           await addName(tester, 'Ben');
           await addName(tester, 'Cem');
           await showStart(tester);
+          final avatars = await groupAvatars(tester, ['Anni', 'Ben', 'Cem']);
+          await showStart(tester);
           await tapVisible(tester, 'Runde starten');
           expect(
             tester
                 .widget<PlayerAvatarView>(find.byType(PlayerAvatarView))
                 .avatar,
-            same(changed),
+            same(avatars[handoffName(tester, ['Anni', 'Ben', 'Cem'])]),
           );
           expect(tester.takeException(), isNull);
         } finally {

@@ -51,6 +51,7 @@ final class GameRound {
     required this._random,
     required this._pair,
     required this._imposterHints,
+    required this._handoffOrder,
     required this.discussionDuration,
     required this.imposterChoice,
     this.phase = GamePhase.handoff,
@@ -83,6 +84,7 @@ final class GameRound {
     Random? random,
     Duration? discussionDuration,
     ImposterChoice? imposterChoice,
+    String? previousStartPlayerId,
   }) {
     final group = List<Player>.unmodifiable(players);
     RoundRules.validate(group.length);
@@ -110,12 +112,24 @@ final class GameRound {
       indices[index] = value;
       assignments[value] = hints[index % hints.length];
     }
+    // Choose the start uniformly among eligible identities, then uniformly
+    // shuffle everyone else. Each permitted full order has equal probability.
+    final eligible = [
+      for (var i = 0; i < group.length; i++)
+        if (group[i].id != previousStartPlayerId) i,
+    ];
+    final first = eligible[source.nextInt(eligible.length)];
+    final rest = [
+      for (var i = 0; i < group.length; i++)
+        if (i != first) i,
+    ]..shuffle(source);
     return GameRound._(
       players: group,
       deck: deck,
       random: source,
       pair: pair,
       imposterHints: Map.unmodifiable(assignments),
+      handoffOrder: List.unmodifiable([first, ...rest]),
       discussionDuration: duration,
       imposterChoice: choice,
     );
@@ -148,12 +162,13 @@ final class GameRound {
   final WordPair _pair;
   final Map<int, String> _imposterHints;
   final int _handoffIndex;
+  final List<int> _handoffOrder;
 
   String get languageCode => _deck.catalog.languageCode;
 
   Player? get currentPlayer =>
       phase == GamePhase.handoff || phase == GamePhase.secret
-      ? players[_handoffIndex]
+      ? players[_handoffOrder[_handoffIndex]]
       : null;
 
   /// One-based progress while handing out secrets, absent afterwards.
@@ -162,7 +177,7 @@ final class GameRound {
 
   PlayerSecret? get currentSecret {
     if (phase != GamePhase.secret) return null;
-    final hint = _imposterHints[_handoffIndex];
+    final hint = _imposterHints[_handoffOrder[_handoffIndex]];
     final isImposter = hint != null;
     return PlayerSecret(
       role: isImposter ? PlayerRole.imposter : PlayerRole.group,
@@ -303,6 +318,7 @@ final class GameRound {
       random: _random,
       discussionDuration: discussionDuration,
       imposterChoice: imposterChoice,
+      previousStartPlayerId: players[_handoffOrder.first].id,
     );
   }
 
@@ -328,6 +344,7 @@ final class GameRound {
     random: _random,
     pair: _pair,
     imposterHints: _imposterHints,
+    handoffOrder: _handoffOrder,
     discussionDuration: discussionDuration ?? this.discussionDuration,
     imposterChoice: imposterChoice,
     phase: phase,

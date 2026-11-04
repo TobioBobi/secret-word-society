@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:secret_word_society/ui/secret_curtain.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart';
+import 'package:secret_word_society/ui/secret_curtain.dart';
+
+import 'support/handoff.dart';
 
 final testCatalog = WordCatalog(
   languageCode: 'de',
@@ -191,7 +193,7 @@ void main() {
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
     await tester.pumpAndSettle();
-    expect(find.text('Anna'), findsOneWidget);
+    expect(handoffName(tester), isNotEmpty);
     expect(find.text('Person 1 von 3'), findsOneWidget);
     expect(find.bySemanticsLabel('Geheimnis kurz ansehen'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
@@ -281,7 +283,7 @@ void main() {
       expect(calls, 2);
       pending.complete(testCatalog);
       await tester.pumpAndSettle();
-      expect(find.text('Anna'), findsOneWidget);
+      expect(handoffName(tester), isNotEmpty);
       expect(tester.takeException(), isNull);
     },
   );
@@ -328,7 +330,15 @@ void main() {
       await showStart(tester);
       await tester.tap(find.text('Runde starten'));
       await tester.pumpAndSettle();
-      expect(find.text(longName), findsOneWidget);
+      expect(
+        handoffName(tester, [
+          longName,
+          'Ben',
+          'Cem',
+          ...List.generate(9, (i) => 'Person ${i + 4}'),
+        ]),
+        isNotEmpty,
+      );
       expect(find.text('Person 1 von 12'), findsOneWidget);
       await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
@@ -345,7 +355,10 @@ void main() {
       await startTestRound(tester);
       var words = 0;
       var hints = 0;
-      for (final (index, name) in ['Anna', 'Ben', 'Cem'].indexed) {
+      final seen = <String>{};
+      for (var index = 0; index < 3; index++) {
+        final name = handoffName(tester);
+        expect(seen.add(name), isTrue);
         expect(find.text(name), findsOneWidget);
         expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
         expectConcealed(tester);
@@ -412,7 +425,7 @@ void main() {
           AppLifecycleState.resumed,
         );
         await tester.pumpAndSettle();
-        expect(find.text('Ben'), findsOneWidget);
+        expect(handoffName(tester), isNotEmpty);
         expectConcealed(tester);
         await tapVisible(tester, 'Geheimnis kurz ansehen');
         expect(find.text(secret), findsOneWidget);
@@ -445,7 +458,7 @@ void main() {
         } else {
           await tapVisible(tester, 'Weiterspielen');
         }
-        expect(find.text('Anna'), findsOneWidget);
+        expect(handoffName(tester), isNotEmpty);
         expectConcealed(tester);
       }
       await tapVisible(tester, 'Geheimnis kurz ansehen');
@@ -472,14 +485,14 @@ void main() {
     advance();
     advance();
     await tester.pumpAndSettle();
-    expect(find.text('Ben'), findsOneWidget);
+    expect(handoffName(tester), isNotEmpty);
     expectConcealed(tester);
     await tester.binding.handlePopRoute();
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsOneWidget);
     await tapVisible(tester, 'Weiterspielen');
-    expect(find.text('Ben'), findsOneWidget);
+    expect(handoffName(tester), isNotEmpty);
     expect(tester.takeException(), isNull);
   });
 
