@@ -38,5 +38,17 @@ Layoutprüfungen berücksichtigen 320 × 568, Systemleisten, lange Namen/Geheimn
 200 Prozent Schrift und reduzierte Bewegung. Der Pixelfarbtest für die tatsächlich
 gekrümmte Freilegung bleibt erhalten.
 
+Für die Umsetzung bestehen alle 129 Unit-/Widget-Tests, Flutter-Analyse,
+Format- und Diff-Prüfung. Der unabhängige Review gegen den bestätigten
+Ausgangsstand ergab auf beiden Achsen (Standards und Spezifikation) keine Befunde.
+Die gerenderten Ansichten bei normaler und 200-Prozent-Schrift wurden geprüft;
+ein zusätzlicher Regressionstest verhindert Überlappungen zwischen langem Namen
+und barrierefreier Übergabeaktion. Alle neun Android-Spielabläufe auf API 36.1
+bei 320 × 568 und 200 Prozent Schrift mit reduzierter Bewegung bestanden,
+einschließlich beider Gewinner, Folgerunden, Teilöffnungen und Verlassensdialog.
+Die gezielte native Übergabeprüfung bestand zusätzlich mit animiertem Rücklauf
+und erneut mit reduzierter Bewegung auf dem abschließenden App-Stand. Der
+Android-Release-Build ist erfolgreich.
+
 Echtes TalkBack und das Weiterreichen auf einem physischen Handy bleiben
 Praxistests; Semantikprüfungen bestätigen keine tatsächliche Sprachausgabe.

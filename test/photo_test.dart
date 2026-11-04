@@ -531,7 +531,8 @@ void main() {
       same(photo),
     );
     expect(() => session.setPhoto(player.id, null), throwsStateError);
-    while (session.round!.canAdvanceCard) {
+    while (session.round!.currentPlayer != null) {
+      session.revealSecret();
       session.hideAndAdvance();
     }
     final now = DateTime.utc(2026);

@@ -166,8 +166,9 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 
 Seit der weiteren Überarbeitung von Issue #32 entfällt „Gruppe bearbeiten“ aus
 allen Rundenansichten. Die Tests öffnen den Verlassensdialog über den Flutter-
-Back-Handler. Ein vierter Android-Ablauf überspringt alle ungeöffneten Karten:
-„Weiter“ muss von Beginn an aktiv sein, ohne irgendein Geheimnis freizulegen.
+Back-Handler. Ein weiterer Android-Ablauf prüft seit #47, dass ungesehene und
+teilweise geöffnete Karten bei derselben Person bleiben und erst vollständiges
+Ansehen mit anschließendem Loslassen verdeckt weitergibt.
 Ein Pixeltest sichert ab, dass die Textfreilegung der tatsächlichen Kurve folgt.
 Beim Loslassen prüft die Testhilfe die tatsächliche Einstellung für reduzierte
 Bewegung: Bei aktivierten Animationen bleibt der Text zunächst an seiner Position;

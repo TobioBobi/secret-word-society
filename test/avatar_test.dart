@@ -32,7 +32,8 @@ void main() {
     );
     expect(() => session.rerollAvatar(original.id), throwsStateError);
     expect(() => session.renamePlayer(original.id, 'Other'), throwsStateError);
-    while (session.round!.canAdvanceCard) {
+    while (session.round!.currentPlayer != null) {
+      session.revealSecret();
       session.hideAndAdvance();
     }
     final now = DateTime.utc(2026);
