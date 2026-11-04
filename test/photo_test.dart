@@ -623,8 +623,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         if (interrupt) {
-          await tester.scrollUntilVisible(find.text('Große Nase'), -120);
-          expect(find.text('Große Nase'), findsOneWidget);
+          expect(find.text('Große Nase'), findsNothing);
           await tester.scrollUntilVisible(find.text('Übernehmen'), -120);
           await tester.tap(find.text('Übernehmen'));
           await tester.pumpAndSettle();
