@@ -364,7 +364,16 @@ void main() {
     expect(find.text('01:00'), findsOneWidget);
     expect(find.text('Automatisch'), findsNothing);
     await _tapText(tester, '01:00 starten');
-    expect(find.text('01:00'), findsOneWidget);
+    // The production clock may tick while the native tap helper settles.
+    final countdown = tester.widget<Text>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            RegExp(r'^\d{2}:\d{2}$').hasMatch(widget.data ?? ''),
+      ),
+    );
+    final digits = countdown.data!.split(':').map(int.parse).toList();
+    expect(digits[0] * 60 + digits[1], inInclusiveRange(55, 60));
     expect(tester.takeException(), isNull);
   });
 
