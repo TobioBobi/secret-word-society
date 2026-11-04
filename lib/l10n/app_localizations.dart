@@ -825,6 +825,150 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Fischauge'**
   String get effectFisheye;
+
+  /// No description provided for @effectGreen.
+  ///
+  /// In de, this message translates to:
+  /// **'Grüner Alien'**
+  String get effectGreen;
+
+  /// No description provided for @effectIce.
+  ///
+  /// In de, this message translates to:
+  /// **'Eisaugen'**
+  String get effectIce;
+
+  /// No description provided for @effectPink.
+  ///
+  /// In de, this message translates to:
+  /// **'Pinke Hamsterbacken'**
+  String get effectPink;
+
+  /// No description provided for @effectMono.
+  ///
+  /// In de, this message translates to:
+  /// **'Schwarzweiß-Fischauge'**
+  String get effectMono;
+
+  /// No description provided for @effectSepia.
+  ///
+  /// In de, this message translates to:
+  /// **'Sepia-Schnurrbart'**
+  String get effectSepia;
+
+  /// No description provided for @effectRetro.
+  ///
+  /// In de, this message translates to:
+  /// **'Retro-Brille'**
+  String get effectRetro;
+
+  /// No description provided for @effectSunset.
+  ///
+  /// In de, this message translates to:
+  /// **'Sonnenparty'**
+  String get effectSunset;
+
+  /// No description provided for @effectComic.
+  ///
+  /// In de, this message translates to:
+  /// **'Comicgrinsen'**
+  String get effectComic;
+
+  /// No description provided for @effectSunglasses.
+  ///
+  /// In de, this message translates to:
+  /// **'Riesensonnenbrille'**
+  String get effectSunglasses;
+
+  /// No description provided for @effectMoustache.
+  ///
+  /// In de, this message translates to:
+  /// **'Schnurrbart'**
+  String get effectMoustache;
+
+  /// No description provided for @effectClown.
+  ///
+  /// In de, this message translates to:
+  /// **'Clownsnase'**
+  String get effectClown;
+
+  /// No description provided for @effectPatch.
+  ///
+  /// In de, this message translates to:
+  /// **'Augenklappe'**
+  String get effectPatch;
+
+  /// No description provided for @effectCrown.
+  ///
+  /// In de, this message translates to:
+  /// **'Krone'**
+  String get effectCrown;
+
+  /// No description provided for @effectPartyHat.
+  ///
+  /// In de, this message translates to:
+  /// **'Partyhut'**
+  String get effectPartyHat;
+
+  /// No description provided for @effectCatEars.
+  ///
+  /// In de, this message translates to:
+  /// **'Katzenohren'**
+  String get effectCatEars;
+
+  /// No description provided for @effectBunnyEars.
+  ///
+  /// In de, this message translates to:
+  /// **'Hasenohren'**
+  String get effectBunnyEars;
+
+  /// No description provided for @effectFlower.
+  ///
+  /// In de, this message translates to:
+  /// **'Blume'**
+  String get effectFlower;
+
+  /// No description provided for @effectStars.
+  ///
+  /// In de, this message translates to:
+  /// **'Sternenrahmen'**
+  String get effectStars;
+
+  /// No description provided for @effectConfetti.
+  ///
+  /// In de, this message translates to:
+  /// **'Konfetti'**
+  String get effectConfetti;
+
+  /// No description provided for @effectBurst.
+  ///
+  /// In de, this message translates to:
+  /// **'Comicexplosion'**
+  String get effectBurst;
+
+  /// No description provided for @effectPirate.
+  ///
+  /// In de, this message translates to:
+  /// **'Pirat'**
+  String get effectPirate;
+
+  /// No description provided for @effectAstronaut.
+  ///
+  /// In de, this message translates to:
+  /// **'Astronaut'**
+  String get effectAstronaut;
+
+  /// No description provided for @effectRoyal.
+  ///
+  /// In de, this message translates to:
+  /// **'Königlich'**
+  String get effectRoyal;
+
+  /// No description provided for @effectDiscoAlien.
+  ///
+  /// In de, this message translates to:
+  /// **'Disco-Alien'**
+  String get effectDiscoAlien;
 }
 
 class _AppLocalizationsDelegate

@@ -16,6 +16,67 @@ enum PhotoEffect {
   mirror,
   jelly,
   fisheye,
+  green,
+  ice,
+  pink,
+  mono,
+  sepia,
+  retro,
+  sunset,
+  comic,
+  sunglasses,
+  moustache,
+  clown,
+  patch,
+  crown,
+  partyHat,
+  catEars,
+  bunnyEars,
+  flower,
+  stars,
+  confetti,
+  burst,
+  pirate,
+  astronaut,
+  royal,
+  discoAlien,
+}
+
+/// Every color/poster look has a fixed companion in the same recipe.
+/// Random selection chooses complete recipes, never individual filter layers.
+extension PhotoRecipe on PhotoEffect {
+  bool get hasFilter =>
+      index >= PhotoEffect.green.index && index <= PhotoEffect.comic.index ||
+      this == PhotoEffect.discoAlien;
+  PhotoEffect? get distortion => switch (this) {
+    PhotoEffect.green || PhotoEffect.discoAlien => PhotoEffect.alien,
+    PhotoEffect.ice => PhotoEffect.eyes,
+    PhotoEffect.pink => PhotoEffect.cheeks,
+    PhotoEffect.mono => PhotoEffect.fisheye,
+    PhotoEffect.comic => PhotoEffect.grin,
+    PhotoEffect.nose ||
+    PhotoEffect.eyes ||
+    PhotoEffect.wide ||
+    PhotoEffect.swirl ||
+    PhotoEffect.alien ||
+    PhotoEffect.cheeks ||
+    PhotoEffect.grin ||
+    PhotoEffect.egghead ||
+    PhotoEffect.squashed ||
+    PhotoEffect.asymmetric ||
+    PhotoEffect.mini ||
+    PhotoEffect.mirror ||
+    PhotoEffect.jelly ||
+    PhotoEffect.fisheye => this,
+    _ => null,
+  };
+  PhotoEffect? get accessory => switch (this) {
+    PhotoEffect.sepia => PhotoEffect.moustache,
+    PhotoEffect.retro => PhotoEffect.sunglasses,
+    PhotoEffect.sunset => PhotoEffect.partyHat,
+    PhotoEffect.discoAlien => PhotoEffect.sunglasses,
+    _ => null,
+  };
 }
 
 /// Drawn once per suggestion, then retained with its rendered image.

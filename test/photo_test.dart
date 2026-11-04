@@ -58,6 +58,100 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  test('selectable recipes exclude wizard motifs and always pair filters', () {
+    expect(
+      PhotoEffect.values.any((e) => e.name.toLowerCase().contains('wizard')),
+      isFalse,
+    );
+    final filters = PhotoEffect.values.where((e) => e.hasFilter).toList();
+    expect(filters, hasLength(9));
+    for (final effect in filters) {
+      expect(
+        effect.distortion != null || effect.accessory != null,
+        isTrue,
+        reason: '${effect.name} must never render as a filter alone',
+      );
+    }
+    expect(PhotoEffect.green.distortion, PhotoEffect.alien);
+    expect(PhotoEffect.ice.distortion, PhotoEffect.eyes);
+    expect(PhotoEffect.pink.distortion, PhotoEffect.cheeks);
+    expect(PhotoEffect.mono.distortion, PhotoEffect.fisheye);
+    expect(PhotoEffect.comic.distortion, PhotoEffect.grin);
+    expect(PhotoEffect.sepia.accessory, PhotoEffect.moustache);
+    expect(PhotoEffect.retro.accessory, PhotoEffect.sunglasses);
+    expect(PhotoEffect.sunset.accessory, PhotoEffect.partyHat);
+  });
+  test('color looks and accessories preserve the distortion photo crop', () {
+    final original = source();
+    // Existing distortion framing for this 240x320 source is x=0,y=25,side=240.
+    final reference = img.copyResize(
+      img.copyCrop(
+        img.decodeJpg(original.bytes)!,
+        x: 0,
+        y: 25,
+        width: 240,
+        height: 240,
+      ),
+      width: 384,
+      height: 384,
+    );
+    final mono = img.decodeJpg(renderPhoto((original, PhotoEffect.mono)))!;
+    final accessory = img.decodeJpg(
+      renderPhoto((original, PhotoEffect.clown)),
+    )!;
+    for (final x in [16, 64, 320, 368]) {
+      for (final y in [16, 64, 320, 368]) {
+        final expected = reference.getPixel(x, y);
+        expect(mono.getPixel(x, y).r, closeTo(img.getLuminance(expected), 4));
+        final actual = accessory.getPixel(x, y);
+        expect(actual.r, closeTo(expected.r, 4));
+        expect(actual.g, closeTo(expected.g, 4));
+        expect(actual.b, closeTo(expected.b, 4));
+      }
+    }
+  });
+  test(
+    'clown nose follows source landmarks with clamped crop and head tilt',
+    () {
+      final original = source();
+      for (final slope in [-.5, 0.0, .5]) {
+        final tilted = PhotoSource(
+          original.bytes,
+          [10, 0, 140, 160],
+          [80, 80],
+          [
+            [45, 45 - slope * 35],
+            [115, 45 + slope * 35],
+          ],
+          mouth: [80, 110],
+        );
+        final image = img.decodeJpg(renderPhoto((tilted, PhotoEffect.clown)))!;
+        const side = 240;
+        const cropX = 0;
+        const cropY = 0;
+        final x = ((80 - cropX) * 384 / side).round();
+        final y = ((80 - cropY) * 384 / side).round();
+        final pixel = image.getPixel(x, y);
+        expect(pixel.r, greaterThan(200));
+        expect(pixel.g, lessThan(100));
+        expect(pixel.b, lessThan(120));
+      }
+    },
+  );
+  test('monochrome remains grayscale at both random strength limits', () {
+    for (final strength in [.75, 1.25]) {
+      final image = img.decodeJpg(
+        renderPhoto((
+          source(),
+          PhotoEffect.mono,
+        ), variation: PhotoVariation(strength: strength)),
+      )!;
+      for (final p in image) {
+        expect((p.r - p.g).abs(), lessThanOrEqualTo(2));
+        expect((p.b - p.g).abs(), lessThanOrEqualTo(2));
+      }
+    }
+  });
   testWidgets('preview can be accepted immediately after an inactive frame', (
     tester,
   ) async {
@@ -123,10 +217,10 @@ void main() {
       expect(draws.map((v) => v.mirrorRight).toSet(), {false, true});
     },
   );
-  test('all 14 effects vary with strength without changing the source', () {
+  test('all effects vary with strength without changing the source', () {
     final original = source();
     final before = List<int>.of(original.bytes);
-    expect(PhotoEffect.values, hasLength(14));
+    expect(PhotoEffect.values, hasLength(38));
     for (final effect in PhotoEffect.values) {
       final low = renderPhoto(
         (original, effect),
@@ -384,7 +478,7 @@ void main() {
       expect(original.bytes, before);
       results.add(bytes.toString());
     }
-    expect(results, hasLength(14));
+    expect(results, hasLength(38));
   });
 
   test('EXIF orientation is baked, mirrored once, metadata removed', () {

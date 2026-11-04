@@ -1,3 +1,11 @@
+Player photo decorations
+
+The cartoon accessories, frames and costume motifs are original procedural
+artwork implemented in lib/game/photo_looks.dart for this project. No external
+graphics, characters, brands, fonts or additional models are incorporated.
+Rendering uses the existing MIT-licensed Dart image package; its copyright
+and complete license text are included in the app license bundle.
+
 Player photos: native third-party notices
 
 Google ML Kit bundled face detector 16.1.7 and its ML Kit common/vision components
