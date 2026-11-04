@@ -6,6 +6,35 @@ import 'package:secret_word_society/game/game_session.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 
 void main() {
+  test(
+    'handoff requires complete viewing and interruption resets permission',
+    () {
+      final session = GameSession()
+        ..addPlayer('Anna')
+        ..addPlayer('Ben')
+        ..addPlayer('Cem');
+      session.startRound(
+        WordCatalog(
+          languageCode: 'de',
+          pairs: [WordPair(id: 'one', word: 'Popcorn', hint: 'Kino')],
+        ),
+      );
+      final person = session.round!.currentPlayer;
+      expect(session.hideAndAdvance, throwsStateError);
+      session.revealSecret(markAsViewed: false);
+      expect(session.hideAndAdvance, throwsStateError);
+      session.markSecretViewed();
+      expect(session.round!.canAdvanceCard, isTrue);
+      session.concealSecret(resetViewed: true);
+      expect(session.round!.currentPlayer, same(person));
+      expect(session.round!.canAdvanceCard, isFalse);
+      session.revealSecret();
+      session.concealSecret();
+      session.hideAndAdvance();
+      expect(session.round!.currentPlayer, isNot(same(person)));
+      expect(session.round!.canAdvanceCard, isFalse);
+    },
+  );
   final catalog = WordCatalog(
     languageCode: 'de',
     pairs: [WordPair(id: 'test', word: 'Popcorn', hint: 'Kino')],
@@ -205,7 +234,7 @@ void main() {
     var words = 0;
     var hints = 0;
     for (var i = 1; i <= 3; i++) {
-      expect(session.round!.canAdvanceCard, isTrue);
+      expect(session.round!.canAdvanceCard, isFalse);
       session.revealSecret();
       final secret = session.round!.currentSecret!;
       session.concealSecret();

@@ -69,7 +69,7 @@ void main() {
             );
             await tester.pumpAndSettle();
             await _checkAndroidControls(tester);
-            await tapVisible(tester, 'Weiter');
+            await tapVisible(tester, 'Verdecken und weitergeben');
           }
           await _checkAndroidControls(tester);
           await tapVisible(tester, '01:30 starten');

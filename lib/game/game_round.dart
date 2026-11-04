@@ -152,7 +152,8 @@ final class GameRound {
   final bool hasViewedSecret;
 
   bool get canAdvanceCard =>
-      phase == GamePhase.handoff || phase == GamePhase.secret;
+      hasViewedSecret &&
+      (phase == GamePhase.handoff || phase == GamePhase.secret);
   final DateTime? discussionEndsAt;
   final List<Player> suspects;
   final DateTime? revealEndsAt;
@@ -204,15 +205,20 @@ final class GameRound {
     );
   }
 
-  /// Records a complete viewing independently of the always-available handoff.
+  /// Records the complete viewing required before handing off.
   GameRound markSecretViewed() {
     _requirePhase(GamePhase.secret);
     return hasViewedSecret ? this : _copy(phase: phase, hasViewedSecret: true);
   }
 
   /// Conceals on interruption without advancing to another person.
-  GameRound concealSecret() =>
-      phase == GamePhase.secret ? _copy(phase: GamePhase.handoff) : this;
+  GameRound concealSecret({bool resetViewed = false}) =>
+      phase == GamePhase.secret || (phase == GamePhase.handoff && resetViewed)
+      ? _copy(
+          phase: GamePhase.handoff,
+          hasViewedSecret: resetViewed ? false : hasViewedSecret,
+        )
+      : this;
 
   /// Concealment and advancing happen in a single state change.
   GameRound hideAndAdvance() {

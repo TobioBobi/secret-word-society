@@ -30,9 +30,16 @@ Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
 
 ## Abgedeckte Abläufe
 
+Seit Issue #47 erfolgt die normale Übergabe nach vollständigem Ansehen,
+Loslassen und vollständigem Schließen automatisch. Ungesehene Karten können
+nicht übersprungen werden. Die Gerätetests verwenden dafür `_passCard` mit einer
+echten Ziehgeste und Loslassen; die früher getrennte Weiter-Aktion entfällt.
+Zeitgesteuerte Semantik-/Tastaturanzeige, bewusste barrierefreie Übergabe und
+Unterbrechungen sind zusätzlich mit Widget-Tests abgesichert. Details:
+[Sichere Übergabe](mvp/issue-47-sichere-uebergabe.md).
+
 Seit Ticket 23 werden Geheimnisse mit einer gehaltenen Ziehgeste am unteren
-Kartengriff angesehen. Die Gerätetests verwenden echte Pointer-Gesten und
-lassen vor der getrennten „Weiter“-Aktion los. Widget-Tests prüfen zusätzlich
+Kartengriff angesehen. Widget-Tests prüfen zusätzlich
 Gestenabbruch, Unterbrechungen während vollständiger und teilweiser Gesten,
 mehrfaches Ansehen und die automatisch schließende Screenreader-Alternative.
 Details: [Vorhang-Bedienung](mvp/ticket-23-vorhang.md).

@@ -151,6 +151,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nextPlayer => 'Weiter';
 
   @override
+  String get concealAndHandoff => 'Verdecken und weitergeben';
+
+  @override
   String privateTitle(String name) {
     return 'Nur für $name.';
   }

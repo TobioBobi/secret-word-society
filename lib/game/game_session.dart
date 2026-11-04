@@ -158,7 +158,8 @@ final class GameSession {
 
   void hideAndAdvance() => _round = _requireRound().hideAndAdvance();
 
-  void concealSecret() => _round = _round?.concealSecret();
+  void concealSecret({bool resetViewed = false}) =>
+      _round = _round?.concealSecret(resetViewed: resetViewed);
 
   void startDiscussion(DateTime now) =>
       _round = _requireRound().startDiscussion(now);

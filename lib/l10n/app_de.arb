@@ -43,6 +43,7 @@
   "curtainInstruction": "Hochziehen und halten",
   "curtainRelease": "Loslassen verdeckt",
   "nextPlayer": "Weiter",
+  "concealAndHandoff": "Verdecken und weitergeben",
   "privateTitle": "Nur für {name}.",
   "@privateTitle": { "placeholders": { "name": { "type": "String" } } },
   "privateIntro": "Nur du schaust auf den Bildschirm.",

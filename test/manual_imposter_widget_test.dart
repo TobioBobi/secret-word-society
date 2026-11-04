@@ -59,7 +59,7 @@ void main() {
         if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
           imposters.add(name);
         }
-        await tapVisible(tester, 'Weiter');
+        await tapVisible(tester, 'Verdecken und weitergeben');
       }
       expect(imposters, hasLength(2));
       await tapVisible(tester, '01:30 starten');

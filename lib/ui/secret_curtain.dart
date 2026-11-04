@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import 'party_theme.dart';
 
-/// Keeps only the cover animation locally. Private content belongs to the round
+/// Keeps gesture and cover progress locally. Private content belongs to the round
 /// and stays behind the cover during a normal return. Interruptions and
 /// cancellation still remove it immediately.
 class SecretCurtain extends StatefulWidget {
@@ -17,7 +17,9 @@ class SecretCurtain extends StatefulWidget {
     required this.title,
     required this.name,
     this.avatar,
-    required this.advanceAction,
+    required this.onHandoff,
+    required this.onInterrupt,
+    required this.canAdvance,
     required this.headingFocus,
     required this.revealed,
     required this.concealRevision,
@@ -29,7 +31,9 @@ class SecretCurtain extends StatefulWidget {
   final String title;
   final String name;
   final Widget? avatar;
-  final Widget advanceAction;
+  final VoidCallback onHandoff;
+  final VoidCallback onInterrupt;
+  final bool canAdvance;
   final FocusNode headingFocus;
   final bool revealed;
   final int concealRevision;
@@ -55,6 +59,9 @@ class _SecretCurtainState extends State<SecretCurtain>
   bool _dragging = false;
   bool _requestedViewed = false;
   bool _returning = false;
+  bool _viewed = false;
+  bool _accessibleMode = false;
+  int? _activePointer;
   int _returnRevision = 0;
 
   @override
@@ -67,6 +74,8 @@ class _SecretCurtainState extends State<SecretCurtain>
       _dragging = false;
       _lastDragY = null;
       _requestedViewed = false;
+      _viewed = false;
+      _activePointer = null;
       _cover.value = 0;
     }
   }
@@ -78,7 +87,10 @@ class _SecretCurtainState extends State<SecretCurtain>
     super.dispose();
   }
 
-  Future<void> _close({bool keepSecretDuringReturn = false}) async {
+  Future<void> _close({
+    bool keepSecretDuringReturn = false,
+    bool handoff = false,
+  }) async {
     _accessibleTimer?.cancel();
     _dragging = false;
     _lastDragY = null;
@@ -95,6 +107,7 @@ class _SecretCurtainState extends State<SecretCurtain>
     if (!retain) widget.onConceal();
     if (immediate) {
       _cover.value = 0;
+      if (handoff) widget.onHandoff();
       return;
     }
     try {
@@ -110,14 +123,21 @@ class _SecretCurtainState extends State<SecretCurtain>
     }
     if (retain) {
       setState(() => _returning = false);
+    }
+    if (handoff) {
+      widget.onHandoff();
+    } else if (retain) {
       widget.onConceal();
     }
   }
 
   void _accessiblePeek() {
+    if (_dragging || _returning) return;
+    setState(() => _accessibleMode = true);
     _returnRevision++;
     _returning = false;
     _requestedViewed = true;
+    _viewed = true;
     widget.onReveal(true);
     _cover.value = 1;
     _accessibleTimer?.cancel();
@@ -126,6 +146,17 @@ class _SecretCurtainState extends State<SecretCurtain>
       const Duration(seconds: 8),
       () => unawaited(_close()),
     );
+  }
+
+  void _interrupt() {
+    _returnRevision++;
+    _accessibleTimer?.cancel();
+    _dragging = false;
+    _returning = false;
+    _viewed = false;
+    _activePointer = null;
+    _cover.value = 0;
+    widget.onInterrupt();
   }
 
   void _startDrag(DragStartDetails details) {
@@ -148,6 +179,7 @@ class _SecretCurtainState extends State<SecretCurtain>
     _cover.value = (_cover.value + movement / travel).clamp(0.0, 1.0);
     if (_cover.value >= _fullyOpenAt && !_requestedViewed) {
       _requestedViewed = true;
+      _viewed = true;
       widget.onReveal(true);
     }
   }
@@ -158,20 +190,40 @@ class _SecretCurtainState extends State<SecretCurtain>
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
+        final accessible =
+            _accessibleMode || MediaQuery.accessibleNavigationOf(context);
         // A little covered space below the secret protects it against a
         // small accidental drag while passing the phone.
         const secretLift = 40.0;
-        // Keep the established stop and reachable handoff action.
+        // Keep the established stop and reachable grip.
         final travel = math.min(
           height * .55,
           160 * MediaQuery.textScalerOf(context).scale(1) + 32,
         );
         final contentTop = height - travel * _fullyOpenAt + 8;
         return Listener(
+          onPointerDown: (event) {
+            if (_activePointer != null) return;
+            _activePointer = event.pointer;
+            if (_returning) {
+              _returnRevision++;
+              _cover.stop();
+              setState(() => _returning = false);
+              _dragging = true;
+              _lastDragY = event.position.dy;
+            }
+          },
+          onPointerUp: (event) {
+            if (_activePointer != event.pointer) return;
+            _activePointer = null;
+            if (_dragging) {
+              unawaited(_close(keepSecretDuringReturn: true, handoff: _viewed));
+            }
+          },
           onPointerCancel: (_) {
             // Flutter reports cancellation of an accepted drag through onEnd.
             // Conceal here first so it cannot be treated as normal release.
-            if (_dragging || _returning) unawaited(_close());
+            if (_dragging || _returning) _interrupt();
           },
           child: FocusableActionDetector(
             shortcuts: const {
@@ -263,13 +315,17 @@ class _SecretCurtainState extends State<SecretCurtain>
                               _updateDrag(details, travel),
                           onVerticalDragEnd: (_) {
                             if (_dragging) {
-                              unawaited(_close(keepSecretDuringReturn: true));
+                              unawaited(
+                                _close(
+                                  keepSecretDuringReturn: true,
+                                  handoff: _viewed,
+                                ),
+                              );
                             }
                           },
                           onVerticalDragCancel: () {
-                            // A tap on the nested handoff button can win before
-                            // a drag starts. Do not invalidate that button's round.
-                            if (_dragging) unawaited(_close());
+                            // Losing before a drag starts is not a canceled viewing.
+                            if (_dragging) _interrupt();
                           },
                           child: PhysicalShape(
                             clipper: const _SoftEdgeClipper(),
@@ -308,24 +364,17 @@ class _SecretCurtainState extends State<SecretCurtain>
                                               child: SizedBox(
                                                 width:
                                                     constraints.maxWidth - 48,
-                                                child: _identity(
-                                                  context,
-                                                  strings,
-                                                ),
+                                                child: accessible
+                                                    ? const SizedBox.shrink()
+                                                    : _identity(
+                                                        context,
+                                                        strings,
+                                                      ),
                                               ),
                                             ),
                                           ),
                                         ),
                                         const SizedBox(height: 20),
-                                        SizedBox(
-                                          width: math.min(
-                                            constraints.maxWidth - 48,
-                                            200 *
-                                                MediaQuery.textScalerOf(context)
-                                                    .scale(1),
-                                          ),
-                                          child: widget.advanceAction,
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -385,6 +434,63 @@ class _SecretCurtainState extends State<SecretCurtain>
                           ),
                         ),
                       ),
+                      if (_accessibleMode ||
+                          MediaQuery.accessibleNavigationOf(context))
+                        Positioned(
+                          top: 16,
+                          left: 24,
+                          right: 24,
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 64,
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      key: const ValueKey('curtain-avatar'),
+                                      width: 56,
+                                      height: 56,
+                                      child: widget.avatar,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: LayoutBuilder(
+                                        builder: (context, size) => FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: SizedBox(
+                                            width:
+                                                size.maxWidth *
+                                                MediaQuery.textScalerOf(context)
+                                                    .scale(1),
+                                            child: _heading(
+                                              context,
+                                              fontSize: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              FilledButton(
+                                onPressed: widget.canAdvance && !_returning
+                                    ? () => unawaited(
+                                        _close(
+                                          keepSecretDuringReturn: true,
+                                          handoff: true,
+                                        ),
+                                      )
+                                    : null,
+                                child: Text(
+                                  strings.concealAndHandoff,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -419,21 +525,7 @@ class _SecretCurtainState extends State<SecretCurtain>
             ),
       ),
       const SizedBox(height: 24),
-      Focus(
-        focusNode: widget.headingFocus,
-        skipTraversal: true,
-        child: Semantics(
-          header: true,
-          label: widget.title,
-          excludeSemantics: true,
-          child: Text(
-            widget.name,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineLarge!
-                .copyWith(fontSize: 44),
-          ),
-        ),
-      ),
+      _heading(context),
       const SizedBox(height: 12),
       Text(
         strings.curtainYourTurn,
@@ -441,6 +533,22 @@ class _SecretCurtainState extends State<SecretCurtain>
         style: const TextStyle(color: PartyColors.muted),
       ),
     ],
+  );
+  Widget _heading(BuildContext context, {double fontSize = 44}) => Focus(
+    focusNode: widget.headingFocus,
+    skipTraversal: true,
+    child: Semantics(
+      header: true,
+      liveRegion: true,
+      label: widget.title,
+      excludeSemantics: true,
+      child: Text(
+        widget.name,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.headlineLarge!
+            .copyWith(fontSize: fontSize),
+      ),
+    ),
   );
 }
 

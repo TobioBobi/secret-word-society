@@ -377,7 +377,8 @@ void main() {
           tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).photo,
           same(handoffName(tester) == 'Anna' ? photo : null),
         );
-        await tapVisible(tester, 'Weiter');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
+        await tapVisible(tester, 'Verdecken und weitergeben');
       }
       await tapVisible(tester, '01:30 starten');
       now = now.add(const Duration(seconds: 90));
@@ -406,7 +407,8 @@ void main() {
           tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).photo,
           same(handoffName(tester) == 'Anna' ? photo : null),
         );
-        await tapVisible(tester, 'Weiter');
+        await tapVisible(tester, 'Geheimnis kurz ansehen');
+        await tapVisible(tester, 'Verdecken und weitergeben');
       }
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
