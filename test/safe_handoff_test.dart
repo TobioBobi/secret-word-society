@@ -143,7 +143,8 @@ void main() {
         tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNull,
       );
-      Focus.of(tester.element(grip)).requestFocus();
+      Focus.of(tester.element(find.byKey(const ValueKey('secret-peek-action'))))
+          .requestFocus();
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
