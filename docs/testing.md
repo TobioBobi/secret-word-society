@@ -20,10 +20,16 @@ ersetzt; ihre bisherige Zeit ist deshalb zunächst ein Näherungswert.
 | 1 | manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | ca. 4:53 |
 | 2 | beide manuellen Imposter-Varianten, Imposter-Sieg, unvollständig angesehene Karten, 6 Personen | ca. 4:43 |
 
-Nach Gruppe 2 laufen weiterhin die native Fotopipeline und die Release-Fotoprobe
-seriell. Deren weitere Parallelisierung gehört zu #65. Der normale Release-Build,
-Analyse, Format und Unit-/Widget-Tests bleiben im bisherigen Standardjob.
-Beide Emulatorjobs behalten Caches, KVM, Speicherbereinigung, Speicherdiagnose,
+Nach Gruppe 2 läuft weiterhin die native Fotopipeline. Die vollständige
+AOT-/R8-Release-Fotoprobe läuft seit #65 unabhängig in einem eigenen
+API-35-Emulatorjob parallel zu beiden Spieltestgruppen. Ihr Release-Build
+startet vor dem Emulator; Installation und Offline-Ausführung mit deaktiviertem
+WLAN/Mobilfunk sowie alle bisherigen Assertions bleiben erhalten. Der neue Job
+hat kein `needs` auf Spieltests und verwendet keine Artefakte anderer Jobs.
+Er funktioniert ebenso mit einer ungeteilten Spieltestsuite. Der normale
+App-Release-Build, Analyse, Format und Unit-/Widget-Tests bleiben im Standardjob.
+Alle drei Emulatorjobs verwenden dieselbe lokale Setup-Action für
+Caches, KVM, Speicherbereinigung, Speicherdiagnose,
 8-GiB-AVD und die verbindliche 24-GiB-Mindestprüfung.
 
 Neue oder umbenannte Spieltests müssen einer der beiden Gruppen zugeordnet
@@ -34,8 +40,9 @@ kein Namensfilter neue Tests stillschweigend auslassen kann. Beim Ändern der
 Suite immer auch beide CI-Gruppen ausführen und die Laufzeitverteilung prüfen.
 
 Der unveränderte Pflichtcheck **Android integration tests (API 35)** ist jetzt
-eine Gesamtprüfung mit `needs` auf der vollständigen Zweiermatrix und `always()`.
-Nur das Matrixergebnis `success` wird akzeptiert. Fehler, Abbruch, übersprungene
+eine Gesamtprüfung mit `needs` auf der vollständigen Zweiermatrix und der
+Release-Fotoprobe sowie `always()`. Beide Ergebnisse müssen `success` sein.
+Fehler, Abbruch, übersprungene
 Jobs und fehlende Ergebnisse werden abgewiesen. `fail-fast: false` lässt die
 zweite Gruppe auch nach einem Fehler weiterlaufen. Der ebenfalls verpflichtende
 Check **Analyze, test and build Android** bleibt unverändert; die bestehende
@@ -47,7 +54,8 @@ GitHub-gehosteten Standardrunner. Deren Nutzung ist nach den am 05.11.2026
 geprüften [GitHub-Konditionen](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
 kostenlos; die zusätzliche Parallelität erhöht die Runner-Minuten.
 Laufzeitmessungen und Cache-/Fehlerbeobachtungen stehen in
-[CI-Messungen](ci-game-test-measurements.md).
+[Spieltest-Messungen](ci-game-test-measurements.md) und
+[Messungen der parallelen Fotoprobe](ci-photo-release-measurements.md).
 
 ```sh
 flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded --dart-define=GAME_TEST_GROUP=1
@@ -205,19 +213,28 @@ Hintergrund: [Flutter-Issue #169336](https://github.com/flutter/flutter/issues/1
 
 ## GitHub Actions
 
-Der Workflow `.github/workflows/ci.yml` hat zwei unabhängige Jobs:
+Der Workflow `.github/workflows/ci.yml` hat vier parallele ausführende Jobs
+und einen verpflichtenden Gesamtcheck:
 
 - `android`: Formatierung einschließlich `integration_test/`, Analyse,
   Unit-/Widget-Tests und Android-Release-Build.
-- `android-integration`: Flutter und Java einrichten, gesperrte Abhängigkeiten
-  installieren, Lokalisierungen erzeugen, KVM aktivieren und den Emulator starten.
-  Android API 35, `google_apis`, `x86_64`, Pixel-7-Pro-Profil; Animationen aus,
-  keine gespeicherten Emulator-Snapshots. Anschließend derselbe Testbefehl wie
-  lokal. Die Emulator-Action ist wie die übrigen Actions auf eine Commit-ID fixiert.
+- `android-game-tests`: zwei Matrixjobs für alle neun Spielabläufe;
+  Gruppe 2 führt außerdem die native Fotopipeline aus.
+- `android-photo-release`: eigener AOT-/R8-Release-Build der Fotoprobe und
+  unveränderte Offline-Prüfung über `scripts/check-photo-release.sh`.
+- `android-integration`: prüft mit `always()` beide Jobergebnisse über
+  `scripts/require-android-test-groups.sh`. Auch eine übersprungene oder
+  fehlgeschlagene Fotoprobe verhindert einen grünen Pflichtcheck.
+
+Alle Emulatorjobs verwenden `.github/actions/setup-android-tests/action.yml`:
+Flutter und Java, gesperrte Abhängigkeiten, Lokalisierungen, KVM und Speicherschutz.
+Android API 35, `google_apis`, `x86_64`, Pixel-7-Pro-Profil; Animationen aus,
+keine gespeicherten Emulator-Snapshots. Die Emulator-Action und externe
+Setup-Actions bleiben auf ihre bisherigen Commit-IDs fixiert.
 
 ### Speicher für den Android-Runner (Issue #58)
 
-Vor der Tool-Einrichtung entfernt nur der Emulatorjob ungenutzte .NET-,
+Vor der Tool-Einrichtung entfernt jeder Emulatorjob ungenutzte .NET-,
 Boost-, Haskell- und CodeQL-Verzeichnisse. Android-SDK samt NDK, Java,
 Flutter und Build-Caches bleiben erhalten. `df -h` protokolliert den Platz
 vor und nach dem Aufräumen.
