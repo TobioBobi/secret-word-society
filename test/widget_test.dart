@@ -376,7 +376,7 @@ void main() {
           expect(find.text('Popcorn'), findsOneWidget);
           expect(find.text('Kino'), findsNothing);
         }
-        await tapVisible(tester, 'Weiter');
+        await tapVisible(tester, 'Verdecken und weitergeben');
         expectConcealed(tester);
         expect(find.text(name), findsNothing);
       }
@@ -404,7 +404,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await startTestRound(tester);
       await tapVisible(tester, 'Geheimnis kurz ansehen');
-      await tapVisible(tester, 'Weiter');
+      await tapVisible(tester, 'Verdecken und weitergeben');
       for (final state in [
         AppLifecycleState.inactive,
         AppLifecycleState.hidden,
@@ -523,8 +523,19 @@ void main() {
       await tapVisible(tester, 'Runde starten');
       for (var i = 0; i < 3; i++) {
         await tapVisible(tester, 'Geheimnis kurz ansehen');
+        final name = handoffName(tester, [
+          'AlexandramitbesonderslangemNamen',
+          'Ben',
+          'Cem',
+        ]);
+        expect(
+          tester.getRect(find.text(name)).bottom,
+          lessThanOrEqualTo(
+            tester.getRect(find.text('Verdecken und weitergeben')).top,
+          ),
+        );
         expect(tester.takeException(), isNull);
-        await tapVisible(tester, 'Weiter');
+        await tapVisible(tester, 'Verdecken und weitergeben');
         expect(tester.takeException(), isNull);
       }
       await leaveRound(tester);

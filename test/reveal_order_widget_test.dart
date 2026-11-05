@@ -74,7 +74,7 @@ void main() {
             expectConcealed(tester);
             await tapVisible(tester, 'Geheimnis kurz ansehen');
             expect(find.text(secret), findsOneWidget);
-            await tapVisible(tester, 'Weiter');
+            await tapVisible(tester, 'Verdecken und weitergeben');
             expect(tester.takeException(), isNull);
           }
           expect(seen, names.toSet());

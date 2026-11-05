@@ -39,7 +39,7 @@ Future<String> _distribute(WidgetTester tester, List<String> names) async {
         find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
       imposter = name;
     }
-    await tapVisible(tester, 'Weiter');
+    await tapVisible(tester, 'Verdecken und weitergeben');
   }
   return imposter!;
 }

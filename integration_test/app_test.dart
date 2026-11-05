@@ -56,6 +56,11 @@ Future<void> _releasePeek(WidgetTester tester) async {
   expect(opening, findsNothing);
 }
 
+Future<void> _passCard(WidgetTester tester) async {
+  if (_peekGesture == null) await _tapText(tester, 'Geheimnis kurz ansehen');
+  await _releasePeek(tester);
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   if (_peekGesture != null) {
     await _releasePeek(tester);
@@ -258,7 +263,7 @@ void main() {
               ifAbsent: () => 1,
             );
           }
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
           _expectConcealed(catalog);
         }
         expect(imposters.length, fixed ? 5 : inInclusiveRange(4, 5));
@@ -292,7 +297,7 @@ void main() {
         expect(find.text('Die Gruppe gewinnt.'), findsOneWidget);
         await _tapText(tester, 'Noch eine Runde');
         for (var i = 0; i < 6; i++) {
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
         }
         expect(
           find.text('Imposter-Anzahl: ${fixed ? '5' : '4–5'}'),
@@ -320,7 +325,7 @@ void main() {
         );
         await _tapText(tester, 'Runde starten');
         for (var i = 0; i < 3; i++) {
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
         }
         expect(find.text('Imposter-Anzahl: 2'), findsOneWidget);
         expect(tester.takeException(), isNull);
@@ -343,7 +348,7 @@ void main() {
       },
     );
     for (var i = 0; i < 3; i++) {
-      await _tapText(tester, 'Weiter');
+      await _passCard(tester);
     }
     await _tapText(tester, '00:30 starten');
     expect(find.byTooltip('30 Sekunden länger'), findsNothing);
@@ -358,7 +363,7 @@ void main() {
     await _settle(tester);
     await _tapText(tester, 'Noch eine Runde');
     for (var i = 0; i < 3; i++) {
-      await _tapText(tester, 'Weiter');
+      await _passCard(tester);
     }
     await _tap(tester, find.byTooltip('30 Sekunden länger'));
     expect(find.text('01:00'), findsOneWidget);
@@ -409,7 +414,7 @@ void main() {
             expect(find.text('Dein Hinweis'), findsNothing);
             words.add(secret);
           }
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
           _expectConcealed(catalog);
           expect(find.text(name), findsNothing);
         }
@@ -553,7 +558,7 @@ void main() {
           } else {
             nextWords.add(secret);
           }
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
         }
         expect(nextWords, hasLength(1));
         expect(nextWords.single, isNot(words.first));
@@ -573,27 +578,32 @@ void main() {
     );
   }
 
-  testWidgets('unseen cards can all be skipped without exposing secrets', (
-    tester,
-  ) async {
-    await _launchAndCreateGroup(tester);
-    final catalog = await loadWordCatalog();
-    for (var index = 0; index < _players.length; index++) {
-      final name = handoffName(tester);
-      expect(find.text(name), findsOneWidget);
+  testWidgets(
+    'unseen and partial cards stay with their person until fully viewed',
+    (tester) async {
+      await _launchAndCreateGroup(tester);
+      final catalog = await loadWordCatalog();
+      for (var index = 0; index < _players.length; index++) {
+        final name = handoffName(tester);
+        expect(find.text(name), findsOneWidget);
+        expect(find.text('Gruppe bearbeiten'), findsNothing);
+        _expectConcealed(catalog);
+        expect(find.text('Weiter'), findsNothing);
+        final grip = find.byKey(const ValueKey('secret-curtain-gesture'));
+        final partial = await tester.startGesture(tester.getCenter(grip));
+        await partial.moveBy(const Offset(0, -30));
+        await tester.pump();
+        await partial.up();
+        await _settle(tester);
+        expect(handoffName(tester), name);
+        await _passCard(tester);
+        _expectConcealed(catalog);
+      }
+      expect(find.text('Alle eingeweiht?'), findsOneWidget);
       expect(find.text('Gruppe bearbeiten'), findsNothing);
-      _expectConcealed(catalog);
-      expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        isNotNull,
-      );
-      await _tapText(tester, 'Weiter');
-      _expectConcealed(catalog);
-    }
-    expect(find.text('Alle eingeweiht?'), findsOneWidget);
-    expect(find.text('Gruppe bearbeiten'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('leave dialog conceals cards, retains group and allows restart', (
     tester,
@@ -613,7 +623,7 @@ void main() {
     await _tapText(tester, 'Geheimnis kurz ansehen');
     expect(_visibleSecret(catalog), firstSecret);
 
-    await _tapText(tester, 'Weiter');
+    await _passCard(tester);
     expect(handoffName(tester), isNot(firstName));
     await _tapText(tester, 'Geheimnis kurz ansehen');
     final secondSecret = _visibleSecret(catalog);
@@ -651,7 +661,7 @@ void main() {
       if (find.text('Du bist der Imposter').evaluate().isEmpty) {
         restartedWords.add(secret);
       }
-      await _tapText(tester, 'Weiter');
+      await _passCard(tester);
     }
     expect(restartedWords, hasLength(1));
     expect(restartedWords.single, isNot(previousWord));
@@ -678,7 +688,7 @@ void main() {
           } else {
             words.add(secret);
           }
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
           _expectConcealed(catalog);
         }
         expect(
@@ -777,7 +787,7 @@ void main() {
         }
         await _tapText(tester, 'Runde starten');
         for (var i = 0; i < 5; i++) {
-          await _tapText(tester, 'Weiter');
+          await _passCard(tester);
         }
         await _tapText(tester, '02:30 starten');
         expect(find.text('02:30'), findsOneWidget);

@@ -18,8 +18,9 @@ GameSession group() => GameSession()
 
 List<String> distribute(GameSession session) {
   final ids = <String>[];
-  while (session.round!.canAdvanceCard) {
+  while (session.round!.currentPlayer != null) {
     ids.add(session.round!.currentPlayer!.id);
+    session.revealSecret();
     session.hideAndAdvance();
   }
   return ids;
@@ -46,7 +47,7 @@ void main() {
             );
             final order = <String>[];
             String? imposter;
-            while (round.canAdvanceCard) {
+            while (round.currentPlayer != null) {
               final player = round.currentPlayer!;
               order.add(player.id);
               round = round.revealSecret();
@@ -99,9 +100,9 @@ void main() {
           random: Random(seed),
         );
         final order = <String>[];
-        while (round.canAdvanceCard) {
+        while (round.currentPlayer != null) {
           order.add(round.currentPlayer!.id);
-          round = round.hideAndAdvance();
+          round = round.revealSecret().hideAndAdvance();
         }
         expect(order, isNot(contains(previous.id)));
         orders.add(order.join(','));

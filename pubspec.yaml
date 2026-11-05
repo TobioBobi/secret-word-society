@@ -64,6 +64,7 @@ dev_dependencies:
 flutter:
   generate: true
   assets:
+    - assets/branding/start-logo.png
     - assets/words/de.json
     - assets/licenses/cutouts.txt
     - assets/licenses/photo-native.txt

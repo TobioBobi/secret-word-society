@@ -30,9 +30,16 @@ Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
 
 ## Abgedeckte Abläufe
 
+Seit Issue #47 erfolgt die normale Übergabe nach vollständigem Ansehen,
+Loslassen und vollständigem Schließen automatisch. Ungesehene Karten können
+nicht übersprungen werden. Die Gerätetests verwenden dafür `_passCard` mit einer
+echten Ziehgeste und Loslassen; die früher getrennte Weiter-Aktion entfällt.
+Zeitgesteuerte Semantik-/Tastaturanzeige, bewusste barrierefreie Übergabe und
+Unterbrechungen sind zusätzlich mit Widget-Tests abgesichert. Details:
+[Sichere Übergabe](mvp/issue-47-sichere-uebergabe.md).
+
 Seit Ticket 23 werden Geheimnisse mit einer gehaltenen Ziehgeste am unteren
-Kartengriff angesehen. Die Gerätetests verwenden echte Pointer-Gesten und
-lassen vor der getrennten „Weiter“-Aktion los. Widget-Tests prüfen zusätzlich
+Kartengriff angesehen. Widget-Tests prüfen zusätzlich
 Gestenabbruch, Unterbrechungen während vollständiger und teilweiser Gesten,
 mehrfaches Ansehen und die automatisch schließende Screenreader-Alternative.
 Details: [Vorhang-Bedienung](mvp/ticket-23-vorhang.md).
@@ -191,8 +198,9 @@ begrenzt. Die tatsächliche CI-Laufzeit muss am ersten GitHub-Lauf gemessen werd
 
 Seit der weiteren Überarbeitung von Issue #32 entfällt „Gruppe bearbeiten“ aus
 allen Rundenansichten. Die Tests öffnen den Verlassensdialog über den Flutter-
-Back-Handler. Ein vierter Android-Ablauf überspringt alle ungeöffneten Karten:
-„Weiter“ muss von Beginn an aktiv sein, ohne irgendein Geheimnis freizulegen.
+Back-Handler. Ein weiterer Android-Ablauf prüft seit #47, dass ungesehene und
+teilweise geöffnete Karten bei derselben Person bleiben und erst vollständiges
+Ansehen mit anschließendem Loslassen verdeckt weitergibt.
 Ein Pixeltest sichert ab, dass die Textfreilegung der tatsächlichen Kurve folgt.
 Beim Loslassen prüft die Testhilfe die tatsächliche Einstellung für reduzierte
 Bewegung: Bei aktivierten Animationen bleibt der Text zunächst an seiner Position;

@@ -36,10 +36,9 @@ void main() {
                     title: 'Handy an Anna.',
                     name: 'Anna',
                     headingFocus: focus,
-                    advanceAction: TextButton(
-                      onPressed: () {},
-                      child: const Text('Weiter'),
-                    ),
+                    canAdvance: false,
+                    onHandoff: () => update(() => revealed = false),
+                    onInterrupt: () => update(() => revealed = false),
                     revealed: revealed,
                     concealRevision: 0,
                     onReveal: (_) => update(() => revealed = true),
