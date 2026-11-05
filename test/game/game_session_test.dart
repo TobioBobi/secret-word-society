@@ -154,7 +154,7 @@ void main() {
       final round = session.round!;
       expect(round.players.map((p) => p.name), ['Anna', 'Ben', 'Cem']);
       expect(round.phase, GamePhase.handoff);
-      expect(round.currentPlayer!.name, 'Anna');
+      expect(session.players, contains(round.currentPlayer));
       expect(round.currentPlayerNumber, 1);
       expect(round.currentSecret, isNull);
       expect(round.result, isNull);
@@ -179,7 +179,7 @@ void main() {
     session.addPlayer('Dora');
     session.startRound(catalog);
     expect(session.round, isNot(same(previous)));
-    expect(session.round!.currentPlayer!.name, 'Ben');
+    expect(session.players, contains(session.round!.currentPlayer));
     expect(previous.players.map((p) => p.name), ['Anna', 'Ben', 'Cem']);
     expect(GameSession().players, isEmpty);
   });

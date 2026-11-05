@@ -1,21 +1,22 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:image/image.dart' as img;
 import 'package:secret_word_society/game/game_session.dart';
 import 'package:secret_word_society/game/player_photo.dart';
 import 'package:secret_word_society/l10n/app_localizations.dart';
-import 'package:secret_word_society/platform/photo_processing.dart';
-import 'package:secret_word_society/ui/photo_editor.dart';
-import 'package:secret_word_society/ui/party_theme.dart';
 import 'package:secret_word_society/main.dart';
+import 'package:secret_word_society/platform/photo_processing.dart';
+import 'package:secret_word_society/ui/party_theme.dart';
+import 'package:secret_word_society/ui/photo_editor.dart';
 import 'package:secret_word_society/ui/player_avatar.dart';
 
+import 'support/handoff.dart';
 import 'widget_test.dart' show testCatalog, readyGroup, tapVisible, showStart;
 
 PhotoSource source() {
@@ -371,13 +372,11 @@ void main() {
       );
       await showStart(tester);
       await tapVisible(tester, 'Runde starten');
-      expect(
-        tester
-            .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
-            .photo,
-        same(photo),
-      );
       for (var i = 0; i < 3; i++) {
+        expect(
+          tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).photo,
+          same(handoffName(tester) == 'Anna' ? photo : null),
+        );
         await tapVisible(tester, 'Weiter');
       }
       await tapVisible(tester, '01:30 starten');
@@ -402,12 +401,13 @@ void main() {
         findsWidgets,
       );
       await tapVisible(tester, 'Noch eine Runde');
-      expect(
-        tester
-            .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
-            .photo,
-        same(photo),
-      );
+      for (var i = 0; i < 3; i++) {
+        expect(
+          tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).photo,
+          same(handoffName(tester) == 'Anna' ? photo : null),
+        );
+        await tapVisible(tester, 'Weiter');
+      }
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tapVisible(tester, 'Runde verlassen');
@@ -524,7 +524,10 @@ void main() {
     expect(session.players.first.photo, same(photo));
     expect(session.players.first.avatar, same(player.avatar));
     session.startRound(testCatalog);
-    expect(session.round!.currentPlayer!.photo, same(photo));
+    expect(
+      session.round!.players.singleWhere((p) => p.id == player.id).photo,
+      same(photo),
+    );
     expect(() => session.setPhoto(player.id, null), throwsStateError);
     while (session.round!.canAdvanceCard) {
       session.hideAndAdvance();
@@ -537,7 +540,10 @@ void main() {
     session.advanceTime(now.add(const Duration(seconds: 3)));
     expect(session.round!.result!.suspects.single.photo, same(photo));
     session.newRound();
-    expect(session.round!.currentPlayer!.photo, same(photo));
+    expect(
+      session.round!.players.singleWhere((p) => p.id == player.id).photo,
+      same(photo),
+    );
     session.returnToGroup();
     session.setPhoto(player.id, null);
     expect(session.players.first.photo, isNull);

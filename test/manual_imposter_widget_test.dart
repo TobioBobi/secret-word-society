@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
+import 'support/handoff.dart';
 import 'widget_test.dart'
     show readyGroup, showStart, tapVisible, testCatalog, semanticsTree;
 
@@ -52,7 +53,8 @@ void main() {
       await tapVisible(tester, 'Runde starten');
       expect(find.byTooltip('Mehr Imposter'), findsNothing);
       final imposters = <String>[];
-      for (final name in ['Anna', 'Ben', 'Cem']) {
+      for (var person = 0; person < 3; person++) {
+        final name = handoffName(tester);
         await tapVisible(tester, 'Geheimnis kurz ansehen');
         if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
           imposters.add(name);

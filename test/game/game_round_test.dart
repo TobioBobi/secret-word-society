@@ -167,7 +167,7 @@ void main() {
         final groupWords = <String>[];
         final imposterHints = <String>[];
         for (var i = 0; i < groupSize; i++) {
-          expect(round.currentPlayer, same(group[i]));
+          expect(group, contains(round.currentPlayer));
           expect(round.currentPlayerNumber, i + 1);
           expect(round.currentSecret, isNull);
           expect(round.result, isNull);
@@ -226,7 +226,7 @@ void main() {
       revealed.currentSecret!.text,
     );
     final next = hidden.revealSecret().hideAndAdvance();
-    expect(next.currentPlayer, same(_players[1]));
+    expect(next.currentPlayer, isNot(same(hidden.currentPlayer)));
     expect(next.currentSecret, isNull);
   });
 
@@ -317,7 +317,7 @@ void main() {
     'new rounds retain the group and word history, resetting round state',
     () {
       // Draw sequence: first remaining pair / imposter 0, then sole pair / 3.
-      final random = _SequenceRandom([0, 0, 0, 3]);
+      final random = _SequenceRandom([0, 0, 0, 0, 0, 0, 3, 0, 0, 0]);
       final first = GameRound.start(
         players: _players,
         catalog: _catalog,
@@ -334,7 +334,7 @@ void main() {
       expect(next.languageCode, 'de');
       expect(next.phase, GamePhase.handoff);
       expect(next.currentPlayerNumber, 1);
-      expect(next.currentPlayer, same(_players.first));
+      expect(next.currentPlayer, isNot(same(first.currentPlayer)));
       expect(next.currentSecret, isNull);
       expect(next.suspects, isEmpty);
       expect(next.result, isNull);
@@ -349,7 +349,7 @@ void main() {
     final first = GameRound.start(
       players: _players,
       catalog: _catalog,
-      random: _SequenceRandom([0, 0, 0, 0]),
+      random: _SequenceRandom(List.filled(10, 0)),
     );
     final finished = _voting(first)
         .selectSuspect('a')

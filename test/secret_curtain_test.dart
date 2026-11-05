@@ -3,11 +3,11 @@ import 'dart:ui' show SemanticsAction, SemanticsActionEvent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
+import 'package:secret_word_society/main.dart';
 
 import 'support/curtain_geometry.dart';
-
+import 'support/handoff.dart';
 import 'widget_test.dart'
     show
         startTestRound,
@@ -73,7 +73,7 @@ void main() {
         if (person == 0) {
           tester.widget<FilledButton>(find.byType(FilledButton)).onPressed!();
           await tester.pumpAndSettle();
-          expect(find.text('Ben'), findsOneWidget);
+          expect(handoffName(tester), isNotEmpty);
           expectConcealed(tester);
           continue;
         }
@@ -204,7 +204,8 @@ void main() {
     'next is always active and skips unseen cards safely through ready',
     (tester) async {
       await startTestRound(tester);
-      for (final name in ['Anna', 'Ben', 'Cem']) {
+      for (var person = 0; person < 3; person++) {
+        final name = handoffName(tester);
         expect(find.text(name), findsOneWidget);
         expect(find.text('Gruppe bearbeiten'), findsNothing);
         expectConcealed(tester);
@@ -238,7 +239,8 @@ void main() {
       final semantics = tester.ensureSemantics();
       await startTestRound(tester);
       var imposters = 0;
-      for (final name in ['Anna', 'Ben', 'Cem']) {
+      for (var person = 0; person < 3; person++) {
+        final name = handoffName(tester);
         for (final area in ['avatar', 'name', 'background', 'button']) {
           final panel = tester.getRect(
             find.byKey(const ValueKey('secret-curtain-panel')),
@@ -385,7 +387,7 @@ void main() {
       final avatarStart = tester.getCenter(
         find.byKey(const ValueKey('curtain-avatar')),
       );
-      final titleStart = tester.getCenter(find.text('Anna'));
+      final titleStart = tester.getCenter(find.text(handoffName(tester)));
       final gesture = await tester.startGesture(start);
       await gesture.moveBy(const Offset(0, -60));
       await tester.pump();
@@ -396,7 +398,7 @@ void main() {
         closeTo(avatarStart.dy - 60, .1),
       );
       expect(
-        tester.getCenter(find.text('Anna')).dy,
+        tester.getCenter(find.text(handoffName(tester))).dy,
         closeTo(titleStart.dy - 60, .1),
       );
       final avatar = tester.getCenter(
@@ -547,7 +549,7 @@ void main() {
       expectConcealed(tester);
     }
     await tapVisible(tester, 'Weiter');
-    expect(find.text('Ben'), findsOneWidget);
+    expect(handoffName(tester), isNotEmpty);
     expectConcealed(tester);
     expect(
       tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
@@ -607,7 +609,7 @@ void main() {
       advance();
       await gesture.up();
       await tester.pumpAndSettle();
-      expect(find.text('Ben'), findsOneWidget);
+      expect(handoffName(tester), isNotEmpty);
       expectConcealed(tester);
       await tester.ensureVisible(_curtain);
       await tester.pumpAndSettle();

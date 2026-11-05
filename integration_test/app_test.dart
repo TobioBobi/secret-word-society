@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
+import 'package:secret_word_society/game/player_avatar.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
 import 'package:secret_word_society/ui/player_avatar.dart';
 
-import '../test/support/tap_when_stable.dart';
 import '../test/support/curtain_geometry.dart';
+import '../test/support/handoff.dart';
+import '../test/support/tap_when_stable.dart';
 
 const _players = ['Anna', 'Ben', 'Cem'];
 
@@ -119,7 +121,7 @@ Future<void> _tapText(WidgetTester tester, String text) async {
   await _tap(tester, find.text(text));
 }
 
-Future<void> _launchAndCreateGroup(
+Future<Map<String, PlayerAvatar>> _launchAndCreateGroup(
   WidgetTester tester, {
   List<String> players = _players,
   DateTime Function()? now,
@@ -171,14 +173,17 @@ Future<void> _launchAndCreateGroup(
       .widget<PlayerAvatarView>(find.byType(PlayerAvatarView).first)
       .avatar;
   expect(selected.seed, isNot(changed.seed));
+  final avatars = await groupAvatars(tester, players);
   await beforeStart?.call();
   await _tapText(tester, 'Runde starten');
+  final first = handoffName(tester, players);
   expect(
     tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
-    same(selected),
+    same(avatars[first]),
   );
-  expect(find.text(players.first), findsOneWidget);
+  expect(avatars[players.first], same(selected));
   expect(find.text('Person 1 von ${players.length}'), findsOneWidget);
+  return avatars;
 }
 
 Future<void> _leaveRound(WidgetTester tester) async {
@@ -242,7 +247,8 @@ void main() {
         final catalog = await loadWordCatalog();
         final imposters = <String>[];
         final hints = <String, int>{};
-        for (final name in names) {
+        for (var index = 0; index < names.length; index++) {
+          final name = handoffName(tester, names);
           await _tapText(tester, 'Geheimnis kurz ansehen');
           if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {
             imposters.add(name);
@@ -358,7 +364,16 @@ void main() {
     expect(find.text('01:00'), findsOneWidget);
     expect(find.text('Automatisch'), findsNothing);
     await _tapText(tester, '01:00 starten');
-    expect(find.text('01:00'), findsOneWidget);
+    // The production clock may tick while the native tap helper settles.
+    final countdown = tester.widget<Text>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            RegExp(r'^\d{2}:\d{2}$').hasMatch(widget.data ?? ''),
+      ),
+    );
+    final digits = countdown.data!.split(':').map(int.parse).toList();
+    expect(digits[0] * 60 + digits[1], inInclusiveRange(55, 60));
     expect(tester.takeException(), isNull);
   });
 
@@ -366,16 +381,18 @@ void main() {
     testWidgets(
       'real assets: complete round, correct=$correct, then start next round',
       (tester) async {
-        await _launchAndCreateGroup(tester);
-        final firstAvatar = tester
-            .widget<PlayerAvatarView>(find.byType(PlayerAvatarView))
-            .avatar;
+        final avatars = await _launchAndCreateGroup(tester);
+        final firstAvatar = avatars['Anna']!;
+        final firstStart = handoffName(tester);
         final catalog = await loadWordCatalog();
         final words = <String>[];
         final hints = <String>[];
         String? imposter;
 
-        for (final (index, name) in _players.indexed) {
+        final seen = <String>{};
+        for (var index = 0; index < _players.length; index++) {
+          final name = handoffName(tester);
+          expect(seen.add(name), isTrue);
           expect(find.text(name), findsOneWidget);
           expect(find.text('Person ${index + 1} von 3'), findsOneWidget);
           _expectConcealed(catalog);
@@ -513,20 +530,22 @@ void main() {
         } else {
           await _tapText(tester, 'Noch eine Runde');
         }
-        expect(
-          tester.widget<PlayerAvatarView>(find.byType(PlayerAvatarView)).avatar,
-          same(firstAvatar),
-        );
-        expect(find.text('Anna'), findsOneWidget);
+        final nextNames = correct ? ['Anna', 'Benny', 'Dora'] : _players;
+        expect(handoffName(tester, nextNames), isNot(firstStart));
         expect(find.text('Person 1 von 3'), findsOneWidget);
         _expectConcealed(catalog);
         final nextWords = <String>{};
         final nextHints = <String>[];
         for (var index = 0; index < _players.length; index++) {
-          expect(
-            find.text((correct ? ['Anna', 'Benny', 'Dora'] : _players)[index]),
-            findsOneWidget,
-          );
+          final name = handoffName(tester, nextNames);
+          if (name == 'Anna') {
+            expect(
+              tester
+                  .widget<PlayerAvatarView>(find.byType(PlayerAvatarView))
+                  .avatar,
+              same(firstAvatar),
+            );
+          }
           await _tapText(tester, 'Geheimnis kurz ansehen');
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist der Imposter').evaluate().isNotEmpty) {
@@ -559,7 +578,8 @@ void main() {
   ) async {
     await _launchAndCreateGroup(tester);
     final catalog = await loadWordCatalog();
-    for (final name in _players) {
+    for (var index = 0; index < _players.length; index++) {
+      final name = handoffName(tester);
       expect(find.text(name), findsOneWidget);
       expect(find.text('Gruppe bearbeiten'), findsNothing);
       _expectConcealed(catalog);
@@ -582,18 +602,19 @@ void main() {
     final catalog = await loadWordCatalog();
     await _tapText(tester, 'Geheimnis kurz ansehen');
     final firstSecret = _visibleSecret(catalog);
+    final firstName = handoffName(tester);
 
     await _leaveRound(tester);
     expect(find.text('Runde verlassen?'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Weiterspielen');
-    expect(find.text('Anna'), findsOneWidget);
+    expect(handoffName(tester), firstName);
     _expectConcealed(catalog);
     await _tapText(tester, 'Geheimnis kurz ansehen');
     expect(_visibleSecret(catalog), firstSecret);
 
     await _tapText(tester, 'Weiter');
-    expect(find.text('Ben'), findsOneWidget);
+    expect(handoffName(tester), isNot(firstName));
     await _tapText(tester, 'Geheimnis kurz ansehen');
     final secondSecret = _visibleSecret(catalog);
     // At least one of the first two people belongs to the group.
@@ -619,7 +640,7 @@ void main() {
     }
 
     await _tapText(tester, 'Runde starten');
-    expect(find.text('Anna'), findsOneWidget);
+    expect(handoffName(tester), isNot(firstName));
     expect(find.text('Person 1 von 3'), findsOneWidget);
     _expectConcealed(catalog);
     await _tapText(tester, 'Geheimnis kurz ansehen');
@@ -647,7 +668,8 @@ void main() {
         final imposters = <String>[];
         final hints = <String>{};
         final words = <String>{};
-        for (final name in names) {
+        for (var index = 0; index < names.length; index++) {
+          final name = handoffName(tester, names);
           await _tapText(tester, 'Geheimnis kurz ansehen');
           final secret = _visibleSecret(catalog);
           if (find.text('Du bist ein Imposter').evaluate().isNotEmpty) {

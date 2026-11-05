@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
+import 'support/handoff.dart';
 import 'widget_test.dart'
     show
         leaveRound,
@@ -50,7 +51,8 @@ void main() {
           await _checkAndroidControls(tester);
           await tapVisible(tester, 'Runde starten');
           String? imposter;
-          for (final name in ['Anna', 'Ben', 'Cem']) {
+          for (var person = 0; person < 3; person++) {
+            final name = handoffName(tester);
             expectConcealed(tester);
             await _checkAndroidControls(tester);
             await tapVisible(tester, 'Geheimnis kurz ansehen');
