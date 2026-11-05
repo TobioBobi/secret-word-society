@@ -166,6 +166,8 @@ final class GameSession {
 
   void advanceTime(DateTime now) => _round = _requireRound().advanceTime(now);
 
+  void skipDiscussion() => _round = _requireRound().skipDiscussion();
+
   void selectSuspect(String playerId) =>
       _round = _requireRound().selectSuspect(playerId);
 

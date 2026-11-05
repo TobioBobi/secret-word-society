@@ -84,6 +84,8 @@
   "resultWord": "Das geheime Wort",
   "nextRound": "Noch eine Runde",
   "leaveRoundTitle": "Runde verlassen?",
+  "skipTimer": "Timer überspringen",
+  "skipTimerTitle": "Timer überspringen?",
   "leaveRoundBody": "Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.",
   "keepPlaying": "Weiterspielen",
   "leaveRound": "Runde verlassen",

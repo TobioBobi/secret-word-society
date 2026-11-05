@@ -130,18 +130,21 @@ void main() {
     },
   );
 
-  testWidgets('abort releases countdown and abandoned deadline cannot fire', (
+  testWidgets('skip releases countdown and abandoned deadline cannot fire', (
     tester,
   ) async {
     await ready(tester);
     await tapVisible(tester, '01:30 starten');
     await leaveRound(tester);
-    await tapVisible(tester, 'Runde verlassen');
+    await tester.tap(
+      find.widgetWithText(TextButton, 'Timer überspringen').last,
+    );
+    await tester.pumpAndSettle();
     expect(calls.last.method, 'cancel');
-    now = now.add(const Duration(seconds: 20));
-    await tester.pump(const Duration(seconds: 20));
+    now = now.add(const Duration(seconds: 100));
+    await tester.pump(const Duration(seconds: 100));
     expect(calls.where((c) => c.method == 'finish'), isEmpty);
-    expect(find.text('Zeit ist um!'), findsNothing);
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
   });
 
   testWidgets('return before deadline keeps one round and its end signal', (

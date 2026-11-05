@@ -532,6 +532,18 @@ abstract class AppLocalizations {
   /// **'Runde verlassen?'**
   String get leaveRoundTitle;
 
+  /// No description provided for @skipTimer.
+  ///
+  /// In de, this message translates to:
+  /// **'Timer überspringen'**
+  String get skipTimer;
+
+  /// No description provided for @skipTimerTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Timer überspringen?'**
+  String get skipTimerTitle;
+
   /// No description provided for @leaveRoundBody.
   ///
   /// In de, this message translates to:

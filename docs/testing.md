@@ -1,5 +1,30 @@
 # Android-Integrationstests
 
+## Aufnahmefreigabe (Issue #62)
+
+Android-Screenshots, Bildschirmaufnahmen und Bildschirmübertragung sind in allen
+Ansichten erlaubt, einschließlich aufgedeckter Wörter und Imposter-Karten.
+Die Activity setzt kein `FLAG_SECURE`; auch App-Vorschauen haben keinen gesonderten
+Schutz. Es gibt dafür keine Einstellung, Warnung oder Bestätigung.
+Der Übergabevorhang und das Verdecken bei Unterbrechungen bleiben unverändert.
+
+Native Abnahme: normale Ansicht und beide Kartenrollen aufnehmen; bei geöffneter
+Karte Home/App-Rückkehr und Sperren/Entsperren auslösen. Danach muss dieselbe
+Person mit verdecktem Geheimnis bleiben, bis sie erneut bewusst aufdeckt.
+Vollständiges Ansehen und normales Loslassen müssen weiterhin genau einmal
+übergeben. Geräteaufnahmen prüfen die native Freigabe; Flutter-Widgetbilder
+allein weisen sie nicht nach. Frühere Prüfberichte mit aktivem Fensterschutz
+weiter unten beschreiben den damaligen Stand vor #62.
+
+Am 05.11.2026 bestanden alle 139 Unit-/Widget-Tests, die Flutter-Analyse und
+die gezielte native Abnahme auf Android API 36.1. Android-Screenshots zeigen
+Wort und Imposter-Hinweis; kurze native Bildschirmaufnahmen wurden erstellt.
+Home/App-Rückkehr und Sperren/Entsperren verdecken die geöffnete Karte, behalten
+die aktuelle Person und erlauben erneutes bewusstes Ansehen. Alle drei Karten
+werden anschließend regulär übergeben. Die getrennten Reviews gegen Standards
+und Issue-Spezifikation ergaben keine Befunde. Eine Übertragung an einen echten
+Empfänger und Tests auf einem physischen Handy sind damit nicht nachgewiesen.
+
 ## Parallele Spieltests in der CI (Issue #64)
 
 Die vollständige Suite `integration_test/app_test.dart` läuft auf genau zwei
@@ -17,7 +42,7 @@ ersetzt; ihre bisherige Zeit ist deshalb zunächst ein Näherungswert.
 
 | Gruppe | Spielabläufe | Bisherige reine Testzeit |
 | --- | --- | --- |
-| 1 | manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | ca. 4:53 |
+| 1 | Timer überspringen, manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | bisher ca. 4:53 ohne Überspringen-Test |
 | 2 | beide manuellen Imposter-Varianten, Imposter-Sieg, unvollständig angesehene Karten, 6 Personen | ca. 4:43 |
 
 Nach Gruppe 2 läuft weiterhin die native Fotopipeline. Die vollständige
@@ -95,6 +120,16 @@ Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
 [Beschreibung des Timersignals](mvp/issue-28-timersignal.md).
 
 ## Abgedeckte Abläufe
+
+Seit Issue #46 führen die sichtbare Aktion „Timer überspringen“ und Zurück
+während der Diskussion in denselben Bestätigungsdialog. Der Timer läuft dort
+weiter; bei Ablauf verschwindet der Dialog automatisch. Bestätigtes Überspringen
+beendet auch das native Timersignal und öffnet die reguläre Abstimmung.
+Widget-Tests prüfen Restzeit, Unterbrechungen, veraltete Bestätigungen,
+Semantik und 320 Pixel bei 200 Prozent Schrift. Ein Android-Ablauf in Gruppe 1
+prüft Bestätigung, Abbruch, Ablauf im Dialog und anschließende normale Auflösung;
+für diesen zusätzlichen Ablauf wird die Uhr gezielt gesteuert. Die bestehenden
+Tests mit echten Timerwartezeiten bleiben erhalten.
 
 Seit Issue #47 erfolgt die normale Übergabe nach vollständigem Ansehen,
 Loslassen und vollständigem Schließen automatisch. Ungesehene Karten können

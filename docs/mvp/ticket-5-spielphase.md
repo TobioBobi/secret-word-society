@@ -1,5 +1,12 @@
 # Ticket 5 · Zwei-Minuten-Spielphase
 
+> Aktualisierung durch [Issue #62](https://github.com/TobioBobi/secret-word-society/issues/62):
+> Der native Screenshot-Schutz ist entfernt. Screenshots, Aufnahmen,
+> Bildschirmübertragung und App-Vorschauen sind erlaubt. Angaben zum aktiven
+> Screenshot-Schutz weiter unten beschreiben den historischen Prüfstand.
+> Übergabevorhang und Verdecken bei Unterbrechungen bleiben erhalten.
+
+
 Stand: 23.10.2026. Branch `codex/ticket-5-spielphase`, ausgehend von
 `origin/main` (`20bc842`, einschließlich Android-Integrationstests aus PR #6).
 
