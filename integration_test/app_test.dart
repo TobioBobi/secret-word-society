@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' hide testWidgets;
+import 'package:flutter_test/flutter_test.dart'
+    as flutter_test
+    show testWidgets;
 import 'package:integration_test/integration_test.dart';
 import 'package:secret_word_society/data/word_catalog_loader.dart';
 import 'package:secret_word_society/game/player_avatar.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
 import 'package:secret_word_society/ui/player_avatar.dart';
+
+import 'support/game_test_selection.dart';
 
 import '../test/support/curtain_geometry.dart';
 import '../test/support/handoff.dart';
@@ -223,6 +228,18 @@ String _visibleSecret(WordCatalog catalog) {
 }
 
 void main() {
+  final selection = GameTestSelection(
+    const String.fromEnvironment('GAME_TEST_GROUP', defaultValue: 'all'),
+    gameTestGroups,
+  );
+  void testWidgets(String name, WidgetTesterCallback callback) {
+    if (selection.includes(name)) flutter_test.testWidgets(name, callback);
+  }
+
+  setUp(() {
+    _peekGesture = null;
+    _peekStart = 0;
+  });
   IntegrationTestWidgetsFlutterBinding.ensureInitialized().framePolicy =
       LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
@@ -796,4 +813,5 @@ void main() {
       },
     );
   }
+  selection.validate();
 }
