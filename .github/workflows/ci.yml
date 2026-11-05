@@ -58,15 +58,22 @@ jobs:
       - name: Run tests
         run: flutter test --no-pub
 
+      - name: Check Android aggregate gate
+        run: bash scripts/test-require-android-test-groups.sh
+
       - name: Build Android APK
         # --no-pub skips release plugin regeneration with this Flutter version:
         # https://github.com/flutter/flutter/issues/169336
         run: flutter build apk --release
 
-  android-integration:
-    name: Android integration tests (API 35)
+  android-game-tests:
+    name: Android game tests (API 35, group ${{ matrix.group }})
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [1, 2]
     env:
       AVD_DISK_GIB: 8
       # SDK download/extraction (8 GiB) + Flutter/Gradle builds and headroom (8 GiB).
@@ -138,7 +145,28 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
           script: |
             set -e
-            flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded
-            flutter test integration_test/photo_pipeline_test.dart -d emulator-5554 --reporter expanded
-            flutter build apk --release --target integration_test/photo_release_probe.dart
-            bash scripts/check-photo-release.sh build/app/outputs/flutter-apk/app-release.apk emulator-5554
+            flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded --dart-define=GAME_TEST_GROUP=${{ matrix.group }}
+            if [ '${{ matrix.group }}' = '2' ]; then
+              flutter test integration_test/photo_pipeline_test.dart -d emulator-5554 --reporter expanded
+              flutter build apk --release --target integration_test/photo_release_probe.dart
+              bash scripts/check-photo-release.sh build/app/outputs/flutter-apk/app-release.apk emulator-5554
+            fi
+
+  android-integration:
+    # Preserve the required check's name and GitHub Actions source. A matrix
+    # result is successful only when every group succeeds (fail-fast is off).
+    name: Android integration tests (API 35)
+    needs: [android-game-tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Require every Android test group
+        env:
+          GAME_TEST_RESULT: ${{ needs.android-game-tests.result }}
+        run: bash scripts/require-android-test-groups.sh "$GAME_TEST_RESULT"

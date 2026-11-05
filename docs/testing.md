@@ -1,5 +1,63 @@
 # Android-Integrationstests
 
+## Parallele Spieltests in der CI (Issue #64)
+
+Die vollständige Suite `integration_test/app_test.dart` läuft auf genau zwei
+unabhängigen API-35-Emulatoren. `GAME_TEST_GROUP=1` beziehungsweise `2` wird
+per `--dart-define` gesetzt; ohne Argument laufen lokal weiterhin alle Tests.
+Testkörper, Assertions, Produktionsuhr und echte Timerwartezeiten bleiben erhalten.
+Jeder Ablauf startet weiterhin eine neue App mit leerem Sitzungsspeicher;
+zusätzlich werden die Gestenhilfen vor jedem Test zurückgesetzt.
+
+Die Zuordnung in `integration_test/support/game_test_selection.dart` basiert auf
+den Einzelzeiten des erfolgreichen Vergleichslaufs
+[42020929635](https://github.com/TobioBobi/secret-word-society/actions/runs/42020929635).
+Die dortige Übergabeprüfung wurde seither durch die sichere Übergabe aus #47
+ersetzt; ihre bisherige Zeit ist deshalb zunächst ein Näherungswert.
+
+| Gruppe | Spielabläufe | Bisherige reine Testzeit |
+| --- | --- | --- |
+| 1 | manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | ca. 4:53 |
+| 2 | beide manuellen Imposter-Varianten, Imposter-Sieg, unvollständig angesehene Karten, 6 Personen | ca. 4:43 |
+
+Nach Gruppe 2 laufen weiterhin die native Fotopipeline und die Release-Fotoprobe
+seriell. Deren weitere Parallelisierung gehört zu #65. Der normale Release-Build,
+Analyse, Format und Unit-/Widget-Tests bleiben im bisherigen Standardjob.
+Beide Emulatorjobs behalten Caches, KVM, Speicherbereinigung, Speicherdiagnose,
+8-GiB-AVD und die verbindliche 24-GiB-Mindestprüfung.
+
+Neue oder umbenannte Spieltests müssen einer der beiden Gruppen zugeordnet
+werden. Die Registrierung verwirft unbekannte, doppelte oder ungültig zugeordnete
+Tests; ein fehlender deklarierter Test oder eine leere Gruppe lässt sie ebenfalls
+scheitern. Alle Spieltests verwenden den lokalen `testWidgets`-Wrapper, damit
+kein Namensfilter neue Tests stillschweigend auslassen kann. Beim Ändern der
+Suite immer auch beide CI-Gruppen ausführen und die Laufzeitverteilung prüfen.
+
+Der unveränderte Pflichtcheck **Android integration tests (API 35)** ist jetzt
+eine Gesamtprüfung mit `needs` auf der vollständigen Zweiermatrix und `always()`.
+Nur das Matrixergebnis `success` wird akzeptiert. Fehler, Abbruch, übersprungene
+Jobs und fehlende Ergebnisse werden abgewiesen. `fail-fast: false` lässt die
+zweite Gruppe auch nach einem Fehler weiterlaufen. Der ebenfalls verpflichtende
+Check **Analyze, test and build Android** bleibt unverändert; die bestehende
+strikte Repository-Regel und ihre Bindung an GitHub Actions bleiben erhalten.
+Ein erfolgreicher Teiljob allein erlaubt keinen Merge.
+
+Das öffentliche Repository verwendet ausschließlich `ubuntu-24.04` als
+GitHub-gehosteten Standardrunner. Deren Nutzung ist nach den am 05.11.2026
+geprüften [GitHub-Konditionen](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job)
+kostenlos; die zusätzliche Parallelität erhöht die Runner-Minuten.
+Laufzeitmessungen und Cache-/Fehlerbeobachtungen stehen in
+[CI-Messungen](ci-game-test-measurements.md).
+
+```sh
+flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded --dart-define=GAME_TEST_GROUP=1
+flutter test integration_test/app_test.dart -d emulator-5554 --reporter expanded --dart-define=GAME_TEST_GROUP=2
+flutter test test/game_test_selection_test.dart
+bash scripts/test-require-android-test-groups.sh
+```
+
+## Grundlage
+
 Die Tests in `integration_test/app_test.dart` verwenden das offizielle
 Flutter-SDK-Paket `integration_test`. Sie starten den regulären App-Einstieg und
 bedienen die Flutter-Oberfläche in einer laufenden Android-App. Der Wortkatalog
