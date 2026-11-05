@@ -97,11 +97,13 @@ und ein Android-Release-Build. Ein fehlgeschlagener Schritt stoppt den Job.
 Ergebnisse und Logs stehen am Pull Request und unter **Actions**. Der Release-Build
 nutzt derzeit die Debug-Signierung aus der Android-Konfiguration; für eine
 Store-Veröffentlichung ist später eine eigene Release-Signierung nötig.
-Ein separater Job startet einen Android-Emulator mit API 35 (`google_apis`,
-`x86_64`, Pixel-7-Pro-Profil) und führt die drei Integrationstests aus. Er läuft
-parallel zu Analyse, Unit-/Widget-Tests und Release-Build. Auch ein fehlgeschlagener
-Integrationstest meldet den Workflow als fehlgeschlagen. Es werden keine APKs
-oder Bildschirmaufnahmen hochgeladen.
+Drei unabhängige API-35-Emulatorjobs (`google_apis`, `x86_64`, Pixel-7-Pro-Profil)
+prüfen parallel alle neun Spielabläufe in zwei Gruppen, die native Fotopipeline
+und die Offline-AOT-/R8-Release-Fotoprobe. Sie laufen parallel zum Standardjob.
+Der verpflichtende Android-Gesamtcheck verlangt erfolgreiche Spieltests und
+Release-Fotoprobe; Fehler, Abbruch oder Überspringen verhindern den Merge.
+Es werden keine APKs oder Bildschirmaufnahmen hochgeladen.
+Details und Messungen stehen in der [Testdokumentation](docs/testing.md).
 
 Dieselben Prüfungen lokal (Flutter 3.47.7):
 
