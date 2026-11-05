@@ -31,7 +31,7 @@ Future<void> _ready(WidgetTester tester, _Clock clock) async {
 Future<void> _distribute(WidgetTester tester) async {
   for (var index = 0; index < 3; index++) {
     await tapVisible(tester, 'Geheimnis kurz ansehen');
-    await tapVisible(tester, 'Weiter');
+    await tapVisible(tester, 'Verdecken und weitergeben');
   }
 }
 

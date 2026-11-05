@@ -310,6 +310,12 @@ abstract class AppLocalizations {
   /// **'Weiter'**
   String get nextPlayer;
 
+  /// No description provided for @concealAndHandoff.
+  ///
+  /// In de, this message translates to:
+  /// **'Verdecken und weitergeben'**
+  String get concealAndHandoff;
+
   /// No description provided for @privateTitle.
   ///
   /// In de, this message translates to:

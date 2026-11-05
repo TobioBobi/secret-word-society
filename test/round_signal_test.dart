@@ -35,7 +35,7 @@ void main() {
   Future<void> distribute(WidgetTester tester) async {
     for (var i = 0; i < 3; i++) {
       await tapVisible(tester, 'Geheimnis kurz ansehen');
-      await tapVisible(tester, 'Weiter');
+      await tapVisible(tester, 'Verdecken und weitergeben');
     }
   }
 

@@ -69,7 +69,7 @@ void main() {
               expect(semanticsTree(tester), isNot(contains(other)));
             }
           }
-          await tapVisible(tester, 'Weiter');
+          await tapVisible(tester, 'Verdecken und weitergeben');
           for (final secret in [
             'Popcorn',
             ...multiHintCatalog.pairs.single.hints,

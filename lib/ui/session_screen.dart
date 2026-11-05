@@ -218,7 +218,7 @@ class _SessionScreenState extends State<SessionScreen>
   void _concealSecret() {
     setState(() {
       _concealRevision++;
-      _session.concealSecret();
+      _session.concealSecret(resetViewed: true);
     });
   }
 
@@ -256,6 +256,17 @@ class _SessionScreenState extends State<SessionScreen>
     if (!_canAct(expected) || !expected.canAdvanceCard) return;
     setState(_session.hideAndAdvance);
     _focusNewPhase();
+  }
+
+  void _handoffCard(GameRound expected, int revision) {
+    final current = _session.round;
+    if (revision != _concealRevision ||
+        current == null ||
+        !identical(current.players, expected.players) ||
+        !identical(current.currentPlayer, expected.currentPlayer)) {
+      return;
+    }
+    _advanceCard(current);
   }
 
   void _startDiscussion(GameRound expected) {
@@ -571,20 +582,10 @@ class _SessionScreenState extends State<SessionScreen>
                                       photo: round.currentPlayer!.photo,
                                       size: 182,
                                     ),
-                                    advanceAction: FilledButton(
-                                      onPressed: () => _advanceCard(round),
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: PartyColors.surface,
-                                        foregroundColor: PartyColors.text,
-                                        side: const BorderSide(
-                                          color: PartyColors.outline,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        strings.nextPlayer,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
+                                    onHandoff: () =>
+                                        _handoffCard(round, concealRevision),
+                                    onInterrupt: _concealSecret,
+                                    canAdvance: round.canAdvanceCard,
                                     headingFocus: _headingFocus,
                                     revealed: revealed,
                                     concealRevision: concealRevision,

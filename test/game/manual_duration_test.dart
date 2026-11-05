@@ -16,7 +16,8 @@ void main() {
   }
 
   void distribute(GameSession game) {
-    while (game.round!.canAdvanceCard) {
+    while (game.round!.currentPlayer != null) {
+      game.revealSecret();
       game.hideAndAdvance();
     }
   }
