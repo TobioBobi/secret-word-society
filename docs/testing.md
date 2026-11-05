@@ -1,5 +1,21 @@
 # Android-Integrationstests
 
+## Aufnahmefreigabe (Issue #62)
+
+Android-Screenshots, Bildschirmaufnahmen und Bildschirmübertragung sind in allen
+Ansichten erlaubt, einschließlich aufgedeckter Wörter und Imposter-Karten.
+Die Activity setzt kein `FLAG_SECURE`; auch App-Vorschauen haben keinen gesonderten
+Schutz. Es gibt dafür keine Einstellung, Warnung oder Bestätigung.
+Der Übergabevorhang und das Verdecken bei Unterbrechungen bleiben unverändert.
+
+Native Abnahme: normale Ansicht und beide Kartenrollen aufnehmen; bei geöffneter
+Karte Home/App-Rückkehr und Sperren/Entsperren auslösen. Danach muss dieselbe
+Person mit verdecktem Geheimnis bleiben, bis sie erneut bewusst aufdeckt.
+Vollständiges Ansehen und normales Loslassen müssen weiterhin genau einmal
+übergeben. Geräteaufnahmen prüfen die native Freigabe; Flutter-Widgetbilder
+allein weisen sie nicht nach. Frühere Prüfberichte mit aktivem Fensterschutz
+weiter unten beschreiben den damaligen Stand vor #62.
+
 ## Parallele Spieltests in der CI (Issue #64)
 
 Die vollständige Suite `integration_test/app_test.dart` läuft auf genau zwei

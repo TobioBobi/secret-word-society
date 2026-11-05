@@ -1,5 +1,12 @@
 # Ticket 8 · Party-Look und Android-Abnahme
 
+> Aktualisierung durch [Issue #62](https://github.com/TobioBobi/secret-word-society/issues/62):
+> Der native Screenshot-Schutz ist entfernt. Screenshots, Aufnahmen,
+> Bildschirmübertragung und App-Vorschauen sind erlaubt. Angaben zum aktiven
+> Screenshot-Schutz weiter unten beschreiben den historischen Prüfstand.
+> Übergabevorhang und Verdecken bei Unterbrechungen bleiben erhalten.
+
+
 Stand: 25.10.2026. Branch `codex/ticket-8-party-look`, ausgehend von
 `origin/main` (`1b45a91`, einschließlich Ticket 7 aus dem gemergten PR #9).
 
