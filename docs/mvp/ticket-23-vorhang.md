@@ -1,5 +1,12 @@
 # Ticket 23 · Geheimnisse durch Schieben ansehen
 
+> Aktualisierung durch [Issue #62](https://github.com/TobioBobi/secret-word-society/issues/62):
+> Der native Screenshot-Schutz ist entfernt. Screenshots, Aufnahmen,
+> Bildschirmübertragung und App-Vorschauen sind erlaubt. Angaben zum aktiven
+> Screenshot-Schutz weiter unten beschreiben den historischen Prüfstand.
+> Übergabevorhang und Verdecken bei Unterbrechungen bleiben erhalten.
+
+
 GitHub: [Issue #26](https://github.com/TobioBobi/secret-word-society/issues/26).
 
 ## Bedienung

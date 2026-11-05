@@ -1,5 +1,12 @@
 # Ticket 6 · Abstimmung, Auflösung und neue Runde
 
+> Aktualisierung durch [Issue #62](https://github.com/TobioBobi/secret-word-society/issues/62):
+> Der native Screenshot-Schutz ist entfernt. Screenshots, Aufnahmen,
+> Bildschirmübertragung und App-Vorschauen sind erlaubt. Angaben zum aktiven
+> Screenshot-Schutz weiter unten beschreiben den historischen Prüfstand.
+> Übergabevorhang und Verdecken bei Unterbrechungen bleiben erhalten.
+
+
 Stand: 24.10.2026. Branch `codex/ticket-6-abstimmung`, ausgehend vom aktuellen
 `origin/main` (`ea5e458`, einschließlich Ticket 5 aus PR #7).
 

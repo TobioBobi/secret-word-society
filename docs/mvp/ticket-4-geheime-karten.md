@@ -1,5 +1,12 @@
 # Ticket 4 · Geheime Karten sicher herumreichen
 
+> Aktualisierung durch [Issue #62](https://github.com/TobioBobi/secret-word-society/issues/62):
+> Der native Screenshot-Schutz ist entfernt. Screenshots, Aufnahmen,
+> Bildschirmübertragung und App-Vorschauen sind erlaubt. Angaben zum aktiven
+> Screenshot-Schutz weiter unten beschreiben den historischen Prüfstand.
+> Übergabevorhang und Verdecken bei Unterbrechungen bleiben erhalten.
+
+
 Stand: 23.10.2026. Umsetzung auf `codex/ticket-4-geheime-karten`, ausgehend von
 `main` mit Ticket 3 und CI (`411afef`).
 

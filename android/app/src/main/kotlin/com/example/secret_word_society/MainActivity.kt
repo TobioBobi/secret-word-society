@@ -89,9 +89,6 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Protect the entire window from its first frame, including task previews.
-        // Keeping this enabled avoids a platform-channel race when revealing a card.
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         // CameraX creates CAP<number>.jpg in this app's private cache. A killed
         // process cannot run Dart finally blocks; remove only our photo files
         // before a fresh session starts; leave unrelated cache entries intact.

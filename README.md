@@ -70,7 +70,9 @@ Weitere Erklaerungen und die Diagnose: [ANDROID_STUDIO_SETUP.md](ANDROID_STUDIO_
 - `lib/l10n/app_de.arb`: deutsche UI-Texte; Dart-Lokalisierungen werden generiert.
 - `test/`: Spielregeln, Inhalte, Sitzungsverwaltung und Bedienung der Ansichten.
 - `integration_test/`: Bedienabläufe in der laufenden Android-App mit echten Assets.
-- `android/`: Android-Anbindung mit geschütztem App-Fenster (`FLAG_SECURE`).
+- `android/`: Android-Anbindung für Rundensignale, Kamera und Bildschirm-Wachhalten.
+  Screenshots, Aufnahmen und Bildschirmübertragung sind auch bei sichtbaren
+  Geheimnissen erlaubt. Unterbrechungen verdecken offene Geheimnisse weiterhin.
 
 ```powershell
 flutter pub get
