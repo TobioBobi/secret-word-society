@@ -6,7 +6,7 @@ und `issue-24-approved-brand-concept.png`.
 ## Dateien
 
 - `assets/branding/psst-source.png`: transparenter Rastermaster der festen
-  Psst-Markenfigur, 1280 × 1280 Pixel. Keine Zufallsavatare.
+  Psst-Markenfigur, 1254 × 1254 Pixel. Keine Zufallsavatare.
 - `assets/branding/app-icon.png`: quadratisches Icon mit cremefarbenem
   Hintergrund, 512 × 512 Pixel, ohne vorgezeichnete Android-Maske.
 - `assets/branding/start-logo.png`: freigestellte Dreiergruppe mit dreizeiligem
