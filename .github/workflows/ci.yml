@@ -67,12 +67,26 @@ jobs:
     name: Android integration tests (API 35)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      AVD_DISK_GIB: 8
+      # SDK download/extraction (8 GiB) + Flutter/Gradle builds and headroom (8 GiB).
+      ANDROID_SDK_RESERVE_GIB: 8
+      ANDROID_BUILD_RESERVE_GIB: 8
 
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+
+      - name: Free disk space for Android
+        run: |
+          echo 'Disk space before preparation'
+          df -h / "$GITHUB_WORKSPACE" "$HOME" "$ANDROID_HOME" "$RUNNER_TEMP"
+          # Unused toolchains only. Keep Android SDK/NDK, Java, Flutter and caches.
+          sudo rm -rf -- /usr/share/dotnet /usr/local/share/boost /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          echo 'Disk space after preparation'
+          df -h / "$GITHUB_WORKSPACE" "$HOME" "$ANDROID_HOME" "$RUNNER_TEMP"
 
       - name: Set up Java
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -103,6 +117,14 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Check Android disk guard
+        run: bash scripts/test-check-android-disk.sh
+
+      - name: Check space before Android SDK installation
+        run: |
+          bash scripts/check-android-disk.sh "$((AVD_DISK_GIB + ANDROID_SDK_RESERVE_GIB + ANDROID_BUILD_RESERVE_GIB))" \
+            "$GITHUB_WORKSPACE" "$HOME" "$ANDROID_HOME" "$RUNNER_TEMP"
+
       - name: Run integration tests on Android emulator
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
@@ -110,6 +132,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_7_pro
+          disk-size: ${{ env.AVD_DISK_GIB }}G
           disable-animations: true
           emulator-boot-timeout: 180
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none

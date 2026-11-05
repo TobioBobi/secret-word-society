@@ -13,3 +13,10 @@ Die persönliche geheime Information einer Person in einer Runde: das Wort oder 
 
 **Übergabe**:
 Der verdeckte Wechsel von einer Person zur nächsten beim Ansehen der Geheimnisse. Nach der letzten Person endet das Ansehen und die Gruppe ist bereit für die Spielphase.
+
+**Partie**:
+Mehrere zusammengehörige Runden mit einem gemeinsamen Punktestand der teilnehmenden Personen, ohne feste Rundenzahl oder festes Punktelimit.
+
+**Rangliste**:
+Die nach Gesamtpunkten geordnete Übersicht der Personen einer Partie. Personen mit gleicher Punktzahl teilen sich einen Platz.
+_Vermeiden_: Scoreboard, Bestenliste

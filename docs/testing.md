@@ -157,6 +157,38 @@ Der Workflow `.github/workflows/ci.yml` hat zwei unabhängige Jobs:
   keine gespeicherten Emulator-Snapshots. Anschließend derselbe Testbefehl wie
   lokal. Die Emulator-Action ist wie die übrigen Actions auf eine Commit-ID fixiert.
 
+### Speicher für den Android-Runner (Issue #58)
+
+Vor der Tool-Einrichtung entfernt nur der Emulatorjob ungenutzte .NET-,
+Boost-, Haskell- und CodeQL-Verzeichnisse. Android-SDK samt NDK, Java,
+Flutter und Build-Caches bleiben erhalten. `df -h` protokolliert den Platz
+vor und nach dem Aufräumen.
+
+Die AVD-Datenpartition ist ausdrücklich auf **8 GiB** eingestellt. Nach
+der Tool-Einrichtung verlangt `scripts/check-android-disk.sh` mindestens
+**24 GiB** freien Platz: 8 GiB AVD, 8 GiB für Download und Entpacken des
+API-35-Systemimages beziehungsweise Emulator-/SDK-Komponenten und 8 GiB
+für Flutter-/Gradle-Builds einschließlich Reserve. Diese konservativen
+Budgets sind keine Größenprognose für
+jedes SDK-Update; bei geänderten Images anhand der CI-Logs überprüfen.
+
+Die Prüfung erfasst die Dateisysteme von Workspace, Benutzerverzeichnis
+(AVD/Gradle), Android-SDK und Runner-Temp. Die Diagnose nennt Pfad sowie
+verfügbare und erforderliche KiB. Bei Mangel endet der Job vor dem
+Emulatorstart mit einem Fehler, statt in den Boot-Timeout zu laufen.
+Die beiden verpflichtenden Jobnamen und die API-35-Testbasis bleiben erhalten.
+
+`bash scripts/test-check-android-disk.sh` prüft dieselbe CLI mit simuliertem
+`df`: Ein KiB unter der 24-GiB-Grenze muss mit Speicherdiagnose scheitern,
+die exakte Grenze von 24 GiB muss bestehen.
+Der Test reserviert keinen echten Plattenplatz und läuft auch im Android-Job.
+Der vollständige GitHub-Lauf muss weiterhin alle Spielabläufe, die Fotopipeline
+und die Offline-Release-Probe erfolgreich ausführen.
+
+Die Prüfung liegt bewusst in einem eigenen Schritt vor der Emulator-Action:
+deren fixierte Version setzt bei Fehlern im `pre-emulator-launch-script`
+zwar den Fehlerstatus, versucht anschließend aber trotzdem den Emulatorstart.
+
 Beide Jobs laufen bei Pull Requests gegen `main`, Pushes auf `main` und manuellen
 Workflowstarts. Fehler schlagen sich im jeweiligen Job und Gesamtstatus nieder.
 Logs enthalten Testnamen, Fehler und Laufzeiten. Es gibt keinen Artefaktupload.
