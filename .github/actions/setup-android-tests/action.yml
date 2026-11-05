@@ -54,4 +54,3 @@ runs:
       run: |
         bash scripts/check-android-disk.sh "$((AVD_DISK_GIB + ANDROID_SDK_RESERVE_GIB + ANDROID_BUILD_RESERVE_GIB))" \
           "$GITHUB_WORKSPACE" "$HOME" "$ANDROID_HOME" "$RUNNER_TEMP"
-
