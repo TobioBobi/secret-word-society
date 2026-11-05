@@ -39,6 +39,58 @@ Future<void> _tick(WidgetTester tester) =>
     tester.pump(const Duration(milliseconds: 250));
 
 void main() {
+  testWidgets('skip action confirms and keeps normal voting private', (
+    tester,
+  ) async {
+    final clock = _Clock();
+    await _ready(tester, clock);
+    expect(find.text('Timer überspringen'), findsNothing);
+    await tapVisible(tester, '01:30 starten');
+    await tapVisible(tester, 'Timer überspringen');
+    expect(find.text('Timer überspringen?'), findsOneWidget);
+    expectConcealed(tester);
+    await tester.tap(
+      find.widgetWithText(TextButton, 'Timer überspringen').last,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    expectConcealed(tester);
+    expect(find.text('Timer überspringen'), findsNothing);
+    clock.advance(const Duration(minutes: 3));
+    await tester.pump(const Duration(minutes: 3));
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'skip cancellation keeps elapsed time and survives interruptions',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final clock = _Clock();
+      await _ready(tester, clock);
+      await tapVisible(tester, '01:30 starten');
+      expect(find.bySemanticsLabel('Timer überspringen'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Timer überspringen?'), findsOneWidget);
+      clock.advance(const Duration(seconds: 12));
+      await _tick(tester);
+      await tapVisible(tester, 'Weiterspielen');
+      expect(find.text('01:18'), findsOneWidget);
+      await tapVisible(tester, 'Timer überspringen');
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      clock.advance(const Duration(seconds: 80));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+      expectConcealed(tester);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
   testWidgets('explicit guarded start; deadline, rounding and hidden secrets', (
     tester,
   ) async {
@@ -146,24 +198,33 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-    'leave dialog does not pause time or obscure the next phase on cancel',
-    (tester) async {
-      final clock = _Clock();
-      await _ready(tester, clock);
-      await tapVisible(tester, '01:30 starten');
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsOneWidget);
-      clock.advance(const Duration(seconds: 90));
-      await _tick(tester);
-      expect(find.byType(AlertDialog), findsOneWidget);
-      await tapVisible(tester, 'Weiterspielen');
-      expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
-      expectConcealed(tester);
-      expect(tester.takeException(), isNull);
-    },
-  );
+  testWidgets('skip dialog expires automatically without a second transition', (
+    tester,
+  ) async {
+    final clock = _Clock();
+    await _ready(tester, clock);
+    await tapVisible(tester, '01:30 starten');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Timer überspringen?'), findsOneWidget);
+    final confirm = tester
+        .widget<TextButton>(
+          find.widgetWithText(TextButton, 'Timer überspringen').last,
+        )
+        .onPressed!;
+    clock.advance(const Duration(seconds: 90));
+    await _tick(tester);
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    // An obsolete confirmation must never pop the game route.
+    confirm();
+    await tester.pumpAndSettle();
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    expectConcealed(tester);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'leaving cancels the timer; fresh round and disposal stay clean',
@@ -176,6 +237,11 @@ void main() {
       await tapVisible(tester, '01:30 starten');
       clock.advance(const Duration(seconds: 3));
       await _tick(tester);
+      await leaveRound(tester);
+      await tester.tap(
+        find.widgetWithText(TextButton, 'Timer überspringen').last,
+      );
+      await tester.pumpAndSettle();
       await leaveRound(tester);
       await tapVisible(tester, 'Runde verlassen');
       clock.advance(const Duration(minutes: 3));
@@ -234,7 +300,9 @@ void main() {
     await tapVisible(tester, '01:30 starten');
     expect(find.text('01:30'), findsOneWidget);
     expect(tester.takeException(), isNull);
-    await leaveRound(tester);
+    await tapVisible(tester, 'Timer überspringen');
+    expect(find.text('Timer überspringen?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await tapVisible(tester, 'Weiterspielen');
     clock.advance(const Duration(seconds: 90));
     await _tick(tester);

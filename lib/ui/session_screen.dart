@@ -53,6 +53,7 @@ class _SessionScreenState extends State<SessionScreen>
   bool _starting = false;
   bool _catalogFailed = false;
   bool _leavingDialog = false;
+  DialogRoute<bool>? _skipTimerDialog;
   int _concealRevision = 0;
   Timer? _phaseTimer;
   final _roundSignal = RoundSignal();
@@ -406,6 +407,7 @@ class _SessionScreenState extends State<SessionScreen>
       _remainingSeconds = seconds;
     });
     if (_session.round!.phase == GamePhase.voting) {
+      _closeSkipTimerDialog();
       final lifecycle = WidgetsBinding.instance.lifecycleState;
       final visible =
           lifecycle == null || lifecycle == AppLifecycleState.resumed;
@@ -424,6 +426,10 @@ class _SessionScreenState extends State<SessionScreen>
 
   Future<void> _confirmLeaveRound() async {
     if (_leavingDialog || _session.round == null) return;
+    if (_session.round!.phase == GamePhase.discussion) {
+      await _confirmSkipTimer();
+      return;
+    }
     if (_session.round!.phase == GamePhase.result) {
       _returnToGroup();
       return;
@@ -467,6 +473,63 @@ class _SessionScreenState extends State<SessionScreen>
       }
       _focusNewPhase();
     }
+  }
+
+  void _closeSkipTimerDialog() {
+    final route = _skipTimerDialog;
+    if (route == null) return;
+    _skipTimerDialog = null;
+    _leavingDialog = false;
+    if (route.isActive) route.navigator!.removeRoute(route);
+  }
+
+  Future<void> _confirmSkipTimer() async {
+    if (_leavingDialog || _session.round?.phase != GamePhase.discussion) return;
+    _updateTimedPhase();
+    if (_session.round?.phase != GamePhase.discussion) return;
+    final strings = AppLocalizations.of(context);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    late final DialogRoute<bool> route;
+    void answer(bool skip) {
+      if (mounted && identical(_skipTimerDialog, route) && route.isCurrent) {
+        navigator.pop(skip);
+      }
+    }
+
+    route = DialogRoute<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(strings.skipTimerTitle),
+        actions: [
+          TextButton(
+            onPressed: () => answer(false),
+            child: Text(strings.keepPlaying),
+          ),
+          TextButton(
+            onPressed: () => answer(true),
+            child: Text(strings.skipTimer),
+          ),
+        ],
+      ),
+    );
+    _skipTimerDialog = route;
+    _leavingDialog = true;
+    final skip = await navigator.push(route);
+    if (!mounted || !identical(_skipTimerDialog, route)) return;
+    _skipTimerDialog = null;
+    _leavingDialog = false;
+    // Reconcile the deadline before acting on a potentially late confirmation.
+    _updateTimedPhase();
+    final round = _session.round;
+    if (skip == true &&
+        round?.phase == GamePhase.discussion &&
+        _canAct(round!)) {
+      _cancelSignal();
+      _stopPhaseTimer();
+      setState(() => _session.skipDiscussion());
+    }
+    _focusNewPhase();
   }
 
   void _focusNewPhase() {
@@ -713,9 +776,15 @@ class _SessionScreenState extends State<SessionScreen>
                               if (round != null)
                                 if (round.phase == GamePhase.ready)
                                   _buildReadyCard(strings)
-                                else if (round.phase == GamePhase.discussion)
-                                  _buildCountdown(strings)
-                                else if (round.phase == GamePhase.voting)
+                                else if (round.phase ==
+                                    GamePhase.discussion) ...[
+                                  _buildCountdown(strings),
+                                  const SizedBox(height: 16),
+                                  TextButton(
+                                    onPressed: _confirmSkipTimer,
+                                    child: Text(strings.skipTimer),
+                                  ),
+                                ] else if (round.phase == GamePhase.voting)
                                   _buildVotingCard(strings)
                                 else if (round.phase == GamePhase.reveal)
                                   _buildRevealCountdown(strings)

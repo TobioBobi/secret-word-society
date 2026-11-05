@@ -319,6 +319,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get leaveRoundTitle => 'Runde verlassen?';
 
   @override
+  String get skipTimer => 'Timer überspringen';
+
+  @override
+  String get skipTimerTitle => 'Timer überspringen?';
+
+  @override
   String get leaveRoundBody =>
       'Die aktuelle Runde wird verworfen. Eure Namen bleiben erhalten.';
 

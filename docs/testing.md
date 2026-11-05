@@ -17,7 +17,7 @@ ersetzt; ihre bisherige Zeit ist deshalb zunächst ein Näherungswert.
 
 | Gruppe | Spielabläufe | Bisherige reine Testzeit |
 | --- | --- | --- |
-| 1 | manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | ca. 4:53 |
+| 1 | Timer überspringen, manueller Timer, Gruppensieg, Verlassen/Neustart, 14 Personen | bisher ca. 4:53 ohne Überspringen-Test |
 | 2 | beide manuellen Imposter-Varianten, Imposter-Sieg, unvollständig angesehene Karten, 6 Personen | ca. 4:43 |
 
 Nach Gruppe 2 läuft weiterhin die native Fotopipeline. Die vollständige
@@ -95,6 +95,16 @@ Native Audio-/Unterbrechungsprüfungen und Grenzen stehen in der
 [Beschreibung des Timersignals](mvp/issue-28-timersignal.md).
 
 ## Abgedeckte Abläufe
+
+Seit Issue #46 führen die sichtbare Aktion „Timer überspringen“ und Zurück
+während der Diskussion in denselben Bestätigungsdialog. Der Timer läuft dort
+weiter; bei Ablauf verschwindet der Dialog automatisch. Bestätigtes Überspringen
+beendet auch das native Timersignal und öffnet die reguläre Abstimmung.
+Widget-Tests prüfen Restzeit, Unterbrechungen, veraltete Bestätigungen,
+Semantik und 320 Pixel bei 200 Prozent Schrift. Ein Android-Ablauf in Gruppe 1
+prüft Bestätigung, Abbruch, Ablauf im Dialog und anschließende normale Auflösung;
+für diesen zusätzlichen Ablauf wird die Uhr gezielt gesteuert. Die bestehenden
+Tests mit echten Timerwartezeiten bleiben erhalten.
 
 Seit Issue #47 erfolgt die normale Übergabe nach vollständigem Ansehen,
 Loslassen und vollständigem Schließen automatisch. Ungesehene Karten können

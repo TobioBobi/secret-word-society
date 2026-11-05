@@ -350,6 +350,51 @@ void main() {
     );
   }
 
+  testWidgets('skip timer: confirmation, expiry and normal resolution', (
+    tester,
+  ) async {
+    var now = DateTime.utc(2026, 11, 5, 12);
+    final catalog = await loadWordCatalog();
+    await _launchAndCreateGroup(tester, now: () => now);
+    for (var i = 0; i < 3; i++) {
+      await _passCard(tester);
+    }
+    expect(find.text('Timer überspringen'), findsNothing);
+    await _tapText(tester, '01:30 starten');
+    await _leaveRound(tester);
+    expect(find.text('Timer überspringen?'), findsOneWidget);
+    now = now.add(const Duration(seconds: 10));
+    await _tapText(tester, 'Weiterspielen');
+    expect(find.text('01:20'), findsOneWidget);
+    await _tapText(tester, 'Timer überspringen');
+    await _tap(
+      tester,
+      find.widgetWithText(TextButton, 'Timer überspringen').last,
+    );
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    _expectConcealed(catalog);
+    await _tapText(tester, 'Anna');
+    await _tapText(tester, 'Anna verdächtigen');
+    now = now.add(const Duration(seconds: 3));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.text('Die Auflösung'), findsOneWidget);
+    await _tapText(tester, 'Noch eine Runde');
+    for (var i = 0; i < 3; i++) {
+      await _passCard(tester);
+    }
+    await _tapText(tester, '01:30 starten');
+    await _tapText(tester, 'Timer überspringen');
+    now = now.add(const Duration(seconds: 90));
+    await tester.pump(const Duration(milliseconds: 500));
+    await _settle(tester);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Wem vertraut ihr nicht?'), findsOneWidget);
+    _expectConcealed(catalog);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('manual timer: real 30-second expiry and retained follow-up', (
     tester,
   ) async {

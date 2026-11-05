@@ -2,6 +2,7 @@
 /// Unknown, renamed or removed tests fail registration instead of disappearing
 /// from CI. Keep both groups nonempty when updating this list.
 const gameTestGroups = <String, int>{
+  'skip timer: confirmation, expiry and normal resolution': 1,
   'manual imposters: range or fixed=false, hints and reduced group': 2,
   'manual imposters: range or fixed=true, hints and reduced group': 2,
   'manual timer: real 30-second expiry and retained follow-up': 1,

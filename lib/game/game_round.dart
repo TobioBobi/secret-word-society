@@ -247,6 +247,11 @@ final class GameRound {
     return _copy(phase: phase, discussionDuration: duration);
   }
 
+  GameRound skipDiscussion() {
+    _requirePhase(GamePhase.discussion);
+    return _copy(phase: GamePhase.voting);
+  }
+
   /// Derives remaining time from a deadline, including time spent off screen.
   Duration remainingDiscussionTime(DateTime now) {
     if (phase == GamePhase.voting ||
