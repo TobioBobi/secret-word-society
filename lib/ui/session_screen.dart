@@ -15,7 +15,6 @@ import 'party_card.dart';
 import 'party_theme.dart';
 import 'player_avatar.dart';
 import 'photo_editor.dart';
-import 'photo_privacy.dart';
 import 'secret_curtain.dart';
 import 'time_up_card.dart';
 
@@ -28,12 +27,16 @@ typedef PhotoEditorLauncher = Future<PlayerPhoto?> Function(
 class SessionScreen extends StatefulWidget {
   const SessionScreen({
     super.key,
+    required this.session,
+    required this.nameController,
     this.catalogLoader = loadWordCatalog,
     this.now = DateTime.now,
     this.photoEditorLauncher,
   });
 
   final CatalogLoader catalogLoader;
+  final GameSession session;
+  final TextEditingController nameController;
   // The production clock also counts time when Flutter suspends frames.
   final DateTime Function() now;
   final PhotoEditorLauncher? photoEditorLauncher;
@@ -44,8 +47,8 @@ class SessionScreen extends StatefulWidget {
 
 class _SessionScreenState extends State<SessionScreen>
     with WidgetsBindingObserver {
-  final _session = GameSession();
-  final _name = TextEditingController();
+  GameSession get _session => widget.session;
+  TextEditingController get _name => widget.nameController;
   final _nameFocus = FocusNode();
   final _headingFocus = FocusNode();
   final _scroll = ScrollController();
@@ -96,7 +99,6 @@ class _SessionScreenState extends State<SessionScreen>
     unawaited(_roundSignal.cancel());
     _stopPhaseTimer();
     WidgetsBinding.instance.removeObserver(this);
-    _name.dispose();
     _nameFocus.dispose();
     _headingFocus.dispose();
     _scroll.dispose();
@@ -192,7 +194,7 @@ class _SessionScreenState extends State<SessionScreen>
     });
     try {
       final catalog = await widget.catalogLoader();
-      if (!mounted) return;
+      if (!mounted || ModalRoute.of(context)?.isActive == false) return;
       setState(() {
         _session.startRound(catalog);
         _name.clear();
@@ -606,6 +608,7 @@ class _SessionScreenState extends State<SessionScreen>
         if (!didPop) _confirmLeaveRound();
       },
       child: Scaffold(
+        appBar: round == null ? AppBar() : null,
         body: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -1442,11 +1445,6 @@ class _SessionScreenState extends State<SessionScreen>
         _starting ? strings.startingRound : strings.startRound,
         textAlign: TextAlign.center,
       ),
-    ),
-    const SizedBox(height: 8),
-    TextButton(
-      onPressed: () => showPhotoPrivacy(context),
-      child: Text(strings.privacyAndLicenses),
     ),
   ];
 

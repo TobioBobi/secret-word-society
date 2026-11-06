@@ -4,7 +4,13 @@ import 'package:secret_word_society/main.dart';
 
 import 'support/handoff.dart';
 import 'widget_test.dart'
-    show addName, showStart, tapVisible, testCatalog, expectConcealed;
+    show
+        pumpPreparation,
+        addName,
+        showStart,
+        tapVisible,
+        testCatalog,
+        expectConcealed;
 
 void main() {
   for (final large in [false, true]) {
@@ -25,7 +31,8 @@ void main() {
             tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
           );
           final semantics = tester.ensureSemantics();
-          await tester.pumpWidget(
+          await pumpPreparation(
+            tester,
             MyApp(catalogLoader: () async => testCatalog),
           );
           const names = [

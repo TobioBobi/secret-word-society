@@ -7,6 +7,7 @@ import 'package:secret_word_society/ui/time_up_card.dart';
 
 import 'widget_test.dart'
     show
+        pumpPreparation,
         leaveRound,
         readyGroup,
         showStart,
@@ -41,7 +42,8 @@ void main() {
 
   Future<void> ready(WidgetTester tester) async {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpWidget(
+    await pumpPreparation(
+      tester,
       MyApp(catalogLoader: () async => testCatalog, now: () => now),
     );
     await readyGroup(tester);

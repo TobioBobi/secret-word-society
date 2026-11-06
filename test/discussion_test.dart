@@ -4,6 +4,7 @@ import 'package:secret_word_society/main.dart';
 
 import 'widget_test.dart'
     show
+        pumpPreparation,
         leaveRound,
         readyGroup,
         showStart,
@@ -19,7 +20,8 @@ final class _Clock {
 
 Future<void> _ready(WidgetTester tester, _Clock clock) async {
   tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-  await tester.pumpWidget(
+  await pumpPreparation(
+    tester,
     MyApp(catalogLoader: () async => testCatalog, now: clock.now),
   );
   await readyGroup(tester);
@@ -259,7 +261,7 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       clock.advance(const Duration(minutes: 3));
       await tester.pump(const Duration(minutes: 3));
-      await tester.pumpWidget(const MyApp());
+      await pumpPreparation(tester, const MyApp());
       await tester.pumpAndSettle();
       expect(find.text('Noch keine Personen'), findsOneWidget);
       expect(tester.takeException(), isNull);

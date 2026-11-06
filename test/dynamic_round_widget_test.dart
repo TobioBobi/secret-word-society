@@ -4,7 +4,13 @@ import 'package:secret_word_society/main.dart';
 
 import 'support/handoff.dart';
 import 'widget_test.dart'
-    show addName, showStart, tapVisible, semanticsTree, multiHintCatalog;
+    show
+        pumpPreparation,
+        addName,
+        showStart,
+        tapVisible,
+        semanticsTree,
+        multiHintCatalog;
 
 void main() {
   for (final size in [6, 14]) {
@@ -24,7 +30,8 @@ void main() {
         tester.binding.handleAppLifecycleStateChanged(
           AppLifecycleState.resumed,
         );
-        await tester.pumpWidget(
+        await pumpPreparation(
+          tester,
           MyApp(catalogLoader: () async => multiHintCatalog, now: () => now),
         );
         final names = List.generate(size, (i) => 'Person ${i + 1}');

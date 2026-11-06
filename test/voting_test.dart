@@ -10,6 +10,7 @@ import 'package:secret_word_society/ui/player_avatar.dart';
 import 'support/handoff.dart';
 import 'widget_test.dart'
     show
+        pumpPreparation,
         leaveRound,
         addName,
         readyGroup,
@@ -62,7 +63,8 @@ Future<void> _reachVoting(
 
 Future<String> _voting(WidgetTester tester, _Clock clock) async {
   tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-  await tester.pumpWidget(
+  await pumpPreparation(
+    tester,
     MyApp(catalogLoader: () async => testCatalog, now: clock.now),
   );
   await readyGroup(tester);
@@ -259,7 +261,8 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final clock = _Clock();
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pumpWidget(
+      await pumpPreparation(
+        tester,
         MyApp(catalogLoader: () async => testCatalog, now: clock.now),
       );
       await readyGroup(tester);
@@ -460,7 +463,7 @@ void main() {
       expect(find.text('3 Personen'), findsOneWidget);
       expectConcealed(tester);
       await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pumpWidget(const MyApp());
+      await pumpPreparation(tester, const MyApp());
       await tester.pumpAndSettle();
       expect(find.text('Noch keine Personen'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -549,7 +552,8 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     final clock = _Clock();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpWidget(
+    await pumpPreparation(
+      tester,
       MyApp(catalogLoader: () async => multiHintCatalog, now: clock.now),
     );
     const longName = 'AlexandramitbesonderslangemNamen';

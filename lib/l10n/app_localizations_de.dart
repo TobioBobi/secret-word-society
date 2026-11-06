@@ -10,6 +10,12 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get play => 'Spielen';
+
+  @override
+  String get settings => 'Einstellungen';
+
+  @override
   String get imposterCount => 'Imposter-Anzahl';
 
   @override

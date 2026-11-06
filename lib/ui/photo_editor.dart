@@ -10,7 +10,6 @@ import '../game/player_photo.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/photo_processing.dart';
 import 'photo_image.dart';
-import 'photo_privacy.dart';
 
 class PhotoEditor extends StatefulWidget {
   const PhotoEditor({
@@ -235,25 +234,7 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
     final camera = _camera;
     final photo = _photo;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.photoFor(widget.name)),
-        actions: [
-          IconButton(
-            tooltip: s.privacyAndLicenses,
-            onPressed: _busy
-                ? null
-                : () async {
-                    _revision++;
-                    await _closeCamera();
-                    if (!context.mounted) return;
-                    setState(() {});
-                    await showPhotoPrivacy(context);
-                    if (mounted && _cameraWanted) await _openCamera();
-                  },
-            icon: const Icon(Icons.info_outline),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(s.photoFor(widget.name))),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),

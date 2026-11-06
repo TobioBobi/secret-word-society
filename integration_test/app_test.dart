@@ -145,6 +145,7 @@ Future<Map<String, PlayerAvatar>> _launchAndCreateGroup(
     await tester.pumpWidget(app.MyApp(now: now));
   }
   await _settle(tester);
+  await _tap(tester, find.text('Spielen'));
   expect(find.text('Noch keine Personen'), findsOneWidget);
 
   for (final name in players) {

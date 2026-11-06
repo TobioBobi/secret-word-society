@@ -94,6 +94,18 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('de')];
 
+  /// No description provided for @play.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielen'**
+  String get play;
+
+  /// No description provided for @settings.
+  ///
+  /// In de, this message translates to:
+  /// **'Einstellungen'**
+  String get settings;
+
   /// No description provided for @imposterCount.
   ///
   /// In de, this message translates to:
