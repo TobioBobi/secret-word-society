@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import 'game_guide_screen.dart';
 import 'photo_privacy.dart';
 
 class StartScreen extends StatelessWidget {
@@ -40,6 +41,15 @@ class StartScreen extends StatelessWidget {
                             MaterialPageRoute<void>(builder: buildSession),
                           ),
                           child: Text(s.play, textAlign: TextAlign.center),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const GameGuideScreen(),
+                            ),
+                          ),
+                          child: Text(s.gameGuide, textAlign: TextAlign.center),
                         ),
                         const SizedBox(height: 12),
                         OutlinedButton(

@@ -5,6 +5,51 @@ import 'package:secret_word_society/main.dart';
 import 'widget_test.dart' show addName;
 
 void main() {
+  testWidgets('guide opens directly below Play and scrolls to the result', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
+    final guide = find.widgetWithText(OutlinedButton, 'Spielanleitung');
+    expect(
+      tester.getTopLeft(guide).dy,
+      greaterThan(tester.getBottomLeft(find.text('Spielen')).dy),
+    );
+    expect(
+      tester.getBottomLeft(guide).dy,
+      lessThan(tester.getTopLeft(find.text('Einstellungen')).dy),
+    );
+    await tester.ensureVisible(guide);
+    await tester.tap(guide);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Rollenverteilung'), 150);
+    await tester.scrollUntilVisible(find.text('Popcorn').first, 150);
+    await tester.scrollUntilVisible(find.text('Kino'), 150);
+    expect(find.bySemanticsLabel(RegExp(r'Cleo[\s\S]*Kino')), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Hinweise geben'), 150);
+    await tester.scrollUntilVisible(find.text('Filmpause').first, 150);
+    expect(
+      find.bySemanticsLabel(RegExp(r'Cleo[\s\S]*Filmpause')).first,
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(find.text('Verdacht bestätigen'), 150);
+    await tester.scrollUntilVisible(find.text('Die Gruppe gewinnt.'), 150);
+    expect(tester.takeException(), isNull);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(guide, findsOneWidget);
+    semantics.dispose();
+  });
+
   testWidgets('both back paths preserve the group and name draft', (
     tester,
   ) async {

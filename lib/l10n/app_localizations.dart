@@ -100,6 +100,126 @@ abstract class AppLocalizations {
   /// **'Spielen'**
   String get play;
 
+  /// No description provided for @gameGuide.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielanleitung'**
+  String get gameGuide;
+
+  /// No description provided for @guideRevealTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Rollenverteilung'**
+  String get guideRevealTitle;
+
+  /// No description provided for @guideReveal.
+  ///
+  /// In de, this message translates to:
+  /// **'Schaut reihum auf eure Karte und gebt das Handy weiter.'**
+  String get guideReveal;
+
+  /// No description provided for @guideGroupCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Wort'**
+  String get guideGroupCard;
+
+  /// No description provided for @guideImposterCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Imposter'**
+  String get guideImposterCard;
+
+  /// No description provided for @guideExampleWord.
+  ///
+  /// In de, this message translates to:
+  /// **'Popcorn'**
+  String get guideExampleWord;
+
+  /// No description provided for @guideExampleHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Kino'**
+  String get guideExampleHint;
+
+  /// No description provided for @guideFirstPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Anna'**
+  String get guideFirstPlayer;
+
+  /// No description provided for @guideSecondPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Ben'**
+  String get guideSecondPlayer;
+
+  /// No description provided for @guideThirdPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Cleo'**
+  String get guideThirdPlayer;
+
+  /// No description provided for @guideDiscussTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweise geben'**
+  String get guideDiscussTitle;
+
+  /// No description provided for @guideDiscuss.
+  ///
+  /// In de, this message translates to:
+  /// **'Gebt reihum einen Hinweis, ohne das Wort zu verraten.'**
+  String get guideDiscuss;
+
+  /// No description provided for @guideCrunchy.
+  ///
+  /// In de, this message translates to:
+  /// **'knusprig'**
+  String get guideCrunchy;
+
+  /// No description provided for @guideSalty.
+  ///
+  /// In de, this message translates to:
+  /// **'salzig'**
+  String get guideSalty;
+
+  /// No description provided for @guideMovieBreak.
+  ///
+  /// In de, this message translates to:
+  /// **'Filmpause'**
+  String get guideMovieBreak;
+
+  /// No description provided for @guideVoteTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Verdacht bestätigen'**
+  String get guideVoteTitle;
+
+  /// No description provided for @guideVote.
+  ///
+  /// In de, this message translates to:
+  /// **'Stimmt ab, wer der Imposter ist, und bestätigt euren Verdacht in der App.'**
+  String get guideVote;
+
+  /// No description provided for @guideResultWord.
+  ///
+  /// In de, this message translates to:
+  /// **'Popcorn!'**
+  String get guideResultWord;
+
+  /// No description provided for @guideResultRole.
+  ///
+  /// In de, this message translates to:
+  /// **'Imposter enttarnt.'**
+  String get guideResultRole;
+
+  /// No description provided for @guideResultWin.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Gruppe gewinnt.'**
+  String get guideResultWin;
+
   /// No description provided for @settings.
   ///
   /// In de, this message translates to:

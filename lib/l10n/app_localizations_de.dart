@@ -13,6 +13,69 @@ class AppLocalizationsDe extends AppLocalizations {
   String get play => 'Spielen';
 
   @override
+  String get gameGuide => 'Spielanleitung';
+
+  @override
+  String get guideRevealTitle => 'Rollenverteilung';
+
+  @override
+  String get guideReveal =>
+      'Schaut reihum auf eure Karte und gebt das Handy weiter.';
+
+  @override
+  String get guideGroupCard => 'Wort';
+
+  @override
+  String get guideImposterCard => 'Imposter';
+
+  @override
+  String get guideExampleWord => 'Popcorn';
+
+  @override
+  String get guideExampleHint => 'Kino';
+
+  @override
+  String get guideFirstPlayer => 'Anna';
+
+  @override
+  String get guideSecondPlayer => 'Ben';
+
+  @override
+  String get guideThirdPlayer => 'Cleo';
+
+  @override
+  String get guideDiscussTitle => 'Hinweise geben';
+
+  @override
+  String get guideDiscuss =>
+      'Gebt reihum einen Hinweis, ohne das Wort zu verraten.';
+
+  @override
+  String get guideCrunchy => 'knusprig';
+
+  @override
+  String get guideSalty => 'salzig';
+
+  @override
+  String get guideMovieBreak => 'Filmpause';
+
+  @override
+  String get guideVoteTitle => 'Verdacht bestätigen';
+
+  @override
+  String get guideVote =>
+      'Stimmt ab, wer der Imposter ist, und bestätigt euren Verdacht in der App.';
+
+  @override
+  String get guideResultWord => 'Popcorn!';
+
+  @override
+  String get guideResultRole => 'Imposter enttarnt.';
+
+  @override
+  String get guideResultWin => 'Die Gruppe gewinnt.';
+
+  @override
   String get settings => 'Einstellungen';
 
   @override
