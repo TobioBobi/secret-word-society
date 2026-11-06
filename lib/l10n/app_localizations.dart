@@ -100,6 +100,96 @@ abstract class AppLocalizations {
   /// **'Spielen'**
   String get play;
 
+  /// No description provided for @gameGuide.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielanleitung'**
+  String get gameGuide;
+
+  /// No description provided for @guideRevealTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'1. Geheimnisse ansehen'**
+  String get guideRevealTitle;
+
+  /// No description provided for @guideReveal.
+  ///
+  /// In de, this message translates to:
+  /// **'Schaut euch reihum eure geheime Karte am selben Handy an. Verdeckt die Karte, bevor ihr das Handy weitergebt. Die Gruppe kennt das geheime Wort. Der Imposter sieht seine Rolle und einen Hinweis und blufft mit.'**
+  String get guideReveal;
+
+  /// No description provided for @guideGroupCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Gruppe · Wort'**
+  String get guideGroupCard;
+
+  /// No description provided for @guideImposterCard.
+  ///
+  /// In de, this message translates to:
+  /// **'Imposter · Hinweis'**
+  String get guideImposterCard;
+
+  /// No description provided for @guideExampleWord.
+  ///
+  /// In de, this message translates to:
+  /// **'Popcorn'**
+  String get guideExampleWord;
+
+  /// No description provided for @guideExampleHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Kino'**
+  String get guideExampleHint;
+
+  /// No description provided for @guideDiscussTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'2. Hinweise geben'**
+  String get guideDiscussTitle;
+
+  /// No description provided for @guideDiscuss.
+  ///
+  /// In de, this message translates to:
+  /// **'Während der Timer läuft, gibt jede Person reihum einen eigenen Hinweis, ohne das Wort zu verraten. Im Beispiel sagt jemand aus der Gruppe „knusprig“. Der Imposter blufft mit „Filmpause“.'**
+  String get guideDiscuss;
+
+  /// No description provided for @guideSkip.
+  ///
+  /// In de, this message translates to:
+  /// **'Wenn ihr fertig seid, könnt ihr den Timer überspringen.'**
+  String get guideSkip;
+
+  /// No description provided for @guideVoteTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'3. Verdacht bestätigen'**
+  String get guideVoteTitle;
+
+  /// No description provided for @guideVote.
+  ///
+  /// In de, this message translates to:
+  /// **'Stimmt mündlich ab, wen ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab. Wählt dann die verdächtigte Person oder die verdächtigten Personen in der App aus und bestätigt euren gemeinsamen Verdacht.'**
+  String get guideVote;
+
+  /// No description provided for @guideResultTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'4. Auflösung'**
+  String get guideResultTitle;
+
+  /// No description provided for @guideResult.
+  ///
+  /// In de, this message translates to:
+  /// **'Die App zeigt das Wort und wer Imposter war. Die Gruppe gewinnt, wenn sie genau alle Imposter ausgewählt hat. Sonst gewinnen die Imposter. Das gilt auch bei mehreren Impostern.'**
+  String get guideResult;
+
+  /// No description provided for @guideExampleResult.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Beispiel bestätigt die Gruppe die Person, die „Filmpause“ gesagt hat. Die App löst auf: Das Wort war „Popcorn“, diese Person war der einzige Imposter. Die Gruppe gewinnt.'**
+  String get guideExampleResult;
+
   /// No description provided for @settings.
   ///
   /// In de, this message translates to:

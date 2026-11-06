@@ -13,6 +13,57 @@ class AppLocalizationsDe extends AppLocalizations {
   String get play => 'Spielen';
 
   @override
+  String get gameGuide => 'Spielanleitung';
+
+  @override
+  String get guideRevealTitle => '1. Geheimnisse ansehen';
+
+  @override
+  String get guideReveal =>
+      'Schaut euch reihum eure geheime Karte am selben Handy an. Verdeckt die Karte, bevor ihr das Handy weitergebt. Die Gruppe kennt das geheime Wort. Der Imposter sieht seine Rolle und einen Hinweis und blufft mit.';
+
+  @override
+  String get guideGroupCard => 'Gruppe · Wort';
+
+  @override
+  String get guideImposterCard => 'Imposter · Hinweis';
+
+  @override
+  String get guideExampleWord => 'Popcorn';
+
+  @override
+  String get guideExampleHint => 'Kino';
+
+  @override
+  String get guideDiscussTitle => '2. Hinweise geben';
+
+  @override
+  String get guideDiscuss =>
+      'Während der Timer läuft, gibt jede Person reihum einen eigenen Hinweis, ohne das Wort zu verraten. Im Beispiel sagt jemand aus der Gruppe „knusprig“. Der Imposter blufft mit „Filmpause“.';
+
+  @override
+  String get guideSkip =>
+      'Wenn ihr fertig seid, könnt ihr den Timer überspringen.';
+
+  @override
+  String get guideVoteTitle => '3. Verdacht bestätigen';
+
+  @override
+  String get guideVote =>
+      'Stimmt mündlich ab, wen ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab. Wählt dann die verdächtigte Person oder die verdächtigten Personen in der App aus und bestätigt euren gemeinsamen Verdacht.';
+
+  @override
+  String get guideResultTitle => '4. Auflösung';
+
+  @override
+  String get guideResult =>
+      'Die App zeigt das Wort und wer Imposter war. Die Gruppe gewinnt, wenn sie genau alle Imposter ausgewählt hat. Sonst gewinnen die Imposter. Das gilt auch bei mehreren Impostern.';
+
+  @override
+  String get guideExampleResult =>
+      'Im Beispiel bestätigt die Gruppe die Person, die „Filmpause“ gesagt hat. Die App löst auf: Das Wort war „Popcorn“, diese Person war der einzige Imposter. Die Gruppe gewinnt.';
+
+  @override
   String get settings => 'Einstellungen';
 
   @override
