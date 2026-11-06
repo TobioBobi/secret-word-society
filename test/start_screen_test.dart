@@ -30,11 +30,11 @@ void main() {
     await tester.ensureVisible(guide);
     await tester.tap(guide);
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Handy weitergeben'), 150);
+    await tester.scrollUntilVisible(find.text('Rollenverteilung'), 150);
     await tester.scrollUntilVisible(find.text('Popcorn').first, 150);
     await tester.scrollUntilVisible(find.text('Kino'), 150);
     expect(find.bySemanticsLabel(RegExp(r'Cleo[\s\S]*Kino')), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Hinweise sagen'), 150);
+    await tester.scrollUntilVisible(find.text('Hinweise geben'), 150);
     await tester.scrollUntilVisible(find.text('Filmpause').first, 150);
     expect(
       find.bySemanticsLabel(RegExp(r'Cleo[\s\S]*Filmpause')).first,

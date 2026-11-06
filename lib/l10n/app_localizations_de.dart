@@ -16,11 +16,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get gameGuide => 'Spielanleitung';
 
   @override
-  String get guideRevealTitle => 'Handy weitergeben';
+  String get guideRevealTitle => 'Rollenverteilung';
 
   @override
   String get guideReveal =>
-      'Schaut reihum auf eure Karte und gebt das Handy verdeckt weiter.';
+      'Schaut reihum auf eure Karte und gebt das Handy weiter.';
 
   @override
   String get guideGroupCard => 'Wort';
@@ -44,11 +44,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideThirdPlayer => 'Cleo';
 
   @override
-  String get guideDiscussTitle => 'Hinweise sagen';
+  String get guideDiscussTitle => 'Hinweise geben';
 
   @override
   String get guideDiscuss =>
-      'Sagt reihum einen Hinweis, ohne das Wort zu verraten.';
+      'Gebt reihum einen Hinweis, ohne das Wort zu verraten.';
 
   @override
   String get guideCrunchy => 'knusprig';
@@ -64,7 +64,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get guideVote =>
-      'Stimmt laut ab und bestätigt euren Verdacht in der App.';
+      'Stimmt ab, wer der Imposter ist, und bestätigt euren Verdacht in der App.';
 
   @override
   String get guideResultWord => 'Popcorn!';

@@ -109,13 +109,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideRevealTitle.
   ///
   /// In de, this message translates to:
-  /// **'Handy weitergeben'**
+  /// **'Rollenverteilung'**
   String get guideRevealTitle;
 
   /// No description provided for @guideReveal.
   ///
   /// In de, this message translates to:
-  /// **'Schaut reihum auf eure Karte und gebt das Handy verdeckt weiter.'**
+  /// **'Schaut reihum auf eure Karte und gebt das Handy weiter.'**
   String get guideReveal;
 
   /// No description provided for @guideGroupCard.
@@ -163,13 +163,13 @@ abstract class AppLocalizations {
   /// No description provided for @guideDiscussTitle.
   ///
   /// In de, this message translates to:
-  /// **'Hinweise sagen'**
+  /// **'Hinweise geben'**
   String get guideDiscussTitle;
 
   /// No description provided for @guideDiscuss.
   ///
   /// In de, this message translates to:
-  /// **'Sagt reihum einen Hinweis, ohne das Wort zu verraten.'**
+  /// **'Gebt reihum einen Hinweis, ohne das Wort zu verraten.'**
   String get guideDiscuss;
 
   /// No description provided for @guideCrunchy.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideVote.
   ///
   /// In de, this message translates to:
-  /// **'Stimmt laut ab und bestätigt euren Verdacht in der App.'**
+  /// **'Stimmt ab, wer der Imposter ist, und bestätigt euren Verdacht in der App.'**
   String get guideVote;
 
   /// No description provided for @guideResultWord.
