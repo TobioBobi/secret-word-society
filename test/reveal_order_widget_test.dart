@@ -6,6 +6,7 @@ import 'package:secret_word_society/ui/player_avatar.dart';
 import 'support/handoff.dart';
 import 'widget_test.dart'
     show
+        pumpPreparation,
         addName,
         showStart,
         tapVisible,
@@ -36,7 +37,8 @@ void main() {
             'Benjamin Konstantin',
             'Charlotte Friederike',
           ];
-          await tester.pumpWidget(
+          await pumpPreparation(
+            tester,
             MyApp(catalogLoader: () async => testCatalog),
           );
           for (final name in names) {

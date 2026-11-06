@@ -6,6 +6,7 @@ import 'package:secret_word_society/main.dart';
 import 'support/handoff.dart';
 import 'widget_test.dart'
     show
+        pumpPreparation,
         startTestRound,
         tapVisible,
         expectConcealed,
@@ -140,7 +141,7 @@ void main() {
           ),
         ],
       );
-      await tester.pumpWidget(MyApp(catalogLoader: () async => catalog));
+      await pumpPreparation(tester, MyApp(catalogLoader: () async => catalog));
       for (final name in [
         'Alexandra Maximiliane',
         'Benjamin Konstantin',

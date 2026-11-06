@@ -92,8 +92,14 @@ Future<void> leaveRound(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> pumpPreparation(WidgetTester tester, MyApp app) async {
+  await tester.pumpWidget(app);
+  await tester.pumpAndSettle();
+  await tapVisible(tester, 'Spielen');
+}
+
 Future<void> startTestRound(WidgetTester tester) async {
-  await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
+  await pumpPreparation(tester, MyApp(catalogLoader: () async => testCatalog));
   await readyGroup(tester);
   await showStart(tester);
   await tapVisible(tester, 'Runde starten');
@@ -118,7 +124,7 @@ void main() {
   testWidgets('starts empty and validates names through button and keyboard', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await pumpPreparation(tester, const MyApp());
     await tester.pumpAndSettle();
     expect(find.text('Wer ist dabei?'), findsOneWidget);
     expect(find.text('Noch keine Personen'), findsOneWidget);
@@ -188,7 +194,7 @@ void main() {
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
-    await tester.pumpWidget(const MyApp());
+    await pumpPreparation(tester, const MyApp());
     await readyGroup(tester);
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
@@ -224,7 +230,7 @@ void main() {
     expect(find.text('3 Personen'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pumpWidget(const MyApp());
+    await pumpPreparation(tester, const MyApp());
     await tester.pumpAndSettle();
     expect(find.text('Noch keine Personen'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -235,7 +241,8 @@ void main() {
     (tester) async {
       var calls = 0;
       final pending = Completer<WordCatalog>();
-      await tester.pumpWidget(
+      await pumpPreparation(
+        tester,
         MyApp(
           catalogLoader: () {
             calls++;
@@ -292,7 +299,7 @@ void main() {
     tester,
   ) async {
     final pending = Completer<WordCatalog>();
-    await tester.pumpWidget(MyApp(catalogLoader: () => pending.future));
+    await pumpPreparation(tester, MyApp(catalogLoader: () => pending.future));
     await readyGroup(tester);
     await showStart(tester);
     await tester.tap(find.text('Runde starten'));
@@ -313,7 +320,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.view.resetViewInsets);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await tester.pumpWidget(
+      await pumpPreparation(
+        tester,
         MyApp(catalogLoader: () async => multiHintCatalog),
       );
       const longName = 'AlexandramitbesonderslangemNamen';
@@ -515,7 +523,7 @@ void main() {
           ),
         ],
       );
-      await tester.pumpWidget(MyApp(catalogLoader: () async => catalog));
+      await pumpPreparation(tester, MyApp(catalogLoader: () async => catalog));
       await addName(tester, 'AlexandramitbesonderslangemNamen');
       await addName(tester, 'Ben');
       await addName(tester, 'Cem');

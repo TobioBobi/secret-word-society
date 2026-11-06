@@ -4,7 +4,13 @@ import 'package:secret_word_society/main.dart';
 
 import 'support/handoff.dart';
 import 'widget_test.dart'
-    show readyGroup, showStart, tapVisible, testCatalog, semanticsTree;
+    show
+        pumpPreparation,
+        readyGroup,
+        showStart,
+        tapVisible,
+        testCatalog,
+        semanticsTree;
 
 void main() {
   testWidgets(
@@ -19,7 +25,8 @@ void main() {
       final semantics = tester.ensureSemantics();
 
       var now = DateTime.utc(2026);
-      await tester.pumpWidget(
+      await pumpPreparation(
+        tester,
         MyApp(catalogLoader: () async => testCatalog, now: () => now),
       );
       await readyGroup(tester);

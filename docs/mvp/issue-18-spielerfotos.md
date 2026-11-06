@@ -32,7 +32,7 @@ Cutouts-Avatar würfelt er weiterhin direkt einen neuen Avatar.
   mehrere Gesichter, unvollständige Merkmale und Verarbeitungsfehler liefern
   kurze Hinweise. Ohne Frontkamera oder Kameraberechtigung bleibt Spielen mit
   dem bisherigen Avatar möglich.
-- Kamera bei Unterbrechung oder Öffnen der Datenschutzhinweise freigeben und
+- Kamera bei Unterbrechung freigeben und
   bei Rückkehr gegebenenfalls neu öffnen. Versionskennungen verwerfen alte
   Ergebnisse nach Abbruch oder Unterbrechung.
 - Quellbild, Merkmale und Ergebnis ausschließlich im Sitzungsspeicher. Keine
@@ -48,7 +48,7 @@ Kamera wird erst nach dem bewussten Fotozugang angefordert. Die App funktioniert
 auch auf Geräten ohne Kamera (`uses-feature` optional). Mikrofon- und externe
 Speicherberechtigungen des Kamera-Plugins werden im Manifest entfernt.
 
-„Datenschutz und Lizenzen“ ist in der Gruppe und im Fotoablauf erreichbar.
+„Datenschutz und Lizenzen“ ist seit #39 über die Einstellungen der Startseite erreichbar.
 Flutter liefert die Lizenz-/Copyrighttexte der aufgelösten Dart-Pakete mit.
 `assets/licenses/photo-native.txt` ergänzt die tatsächlich aufgelösten nativen
 Komponenten, die mitgelieferten Third-Party-Notices, Apache 2.0 und libyuv BSD.

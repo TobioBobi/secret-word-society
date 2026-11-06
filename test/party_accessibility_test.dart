@@ -5,6 +5,7 @@ import 'package:secret_word_society/main.dart';
 import 'support/handoff.dart';
 import 'widget_test.dart'
     show
+        pumpPreparation,
         leaveRound,
         readyGroup,
         showStart,
@@ -41,7 +42,8 @@ void main() {
             AppLifecycleState.resumed,
           );
           var now = DateTime.utc(2026, 10, 25);
-          await tester.pumpWidget(
+          await pumpPreparation(
+            tester,
             MyApp(catalogLoader: () async => testCatalog, now: () => now),
           );
           await tester.pumpAndSettle();
@@ -125,7 +127,10 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
+      await pumpPreparation(
+        tester,
+        MyApp(catalogLoader: () async => testCatalog),
+      );
       await readyGroup(tester);
       await showStart(tester);
       await tapVisible(tester, 'Runde starten');

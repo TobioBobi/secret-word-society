@@ -17,7 +17,8 @@ import 'package:secret_word_society/ui/photo_editor.dart';
 import 'package:secret_word_society/ui/player_avatar.dart';
 
 import 'support/handoff.dart';
-import 'widget_test.dart' show testCatalog, readyGroup, tapVisible, showStart;
+import 'widget_test.dart'
+    show pumpPreparation, testCatalog, readyGroup, tapVisible, showStart;
 
 PhotoSource source() {
   final image = img.Image(width: 240, height: 320);
@@ -331,7 +332,8 @@ void main() {
         PhotoEffect.eyes,
       );
       var cancel = false;
-      await tester.pumpWidget(
+      await pumpPreparation(
+        tester,
         MyApp(
           catalogLoader: () async => testCatalog,
           now: () => now,

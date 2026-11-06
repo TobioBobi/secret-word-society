@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'data/word_catalog_loader.dart';
+import 'game/game_session.dart';
 import 'l10n/app_localizations.dart';
 import 'ui/party_theme.dart';
 import 'ui/session_screen.dart';
+import 'ui/start_screen.dart';
 
 void main() {
   LicenseRegistry.addLicense(() async* {
@@ -20,7 +23,7 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({
     super.key,
     this.catalogLoader,
@@ -33,6 +36,20 @@ class MyApp extends StatelessWidget {
   final PhotoEditorLauncher? photoEditorLauncher;
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _session = GameSession();
+  final _name = TextEditingController();
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -40,13 +57,15 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      home: catalogLoader == null
-          ? SessionScreen(now: now, photoEditorLauncher: photoEditorLauncher)
-          : SessionScreen(
-              catalogLoader: catalogLoader!,
-              now: now,
-              photoEditorLauncher: photoEditorLauncher,
-            ),
+      home: StartScreen(
+        buildSession: (_) => SessionScreen(
+          session: _session,
+          nameController: _name,
+          catalogLoader: widget.catalogLoader ?? loadWordCatalog,
+          now: widget.now,
+          photoEditorLauncher: widget.photoEditorLauncher,
+        ),
+      ),
     );
   }
 }

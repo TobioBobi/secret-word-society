@@ -8,7 +8,8 @@ import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/ui/player_avatar.dart';
 
 import 'support/handoff.dart';
-import 'widget_test.dart' show addName, showStart, tapVisible, testCatalog;
+import 'widget_test.dart'
+    show pumpPreparation, addName, showStart, tapVisible, testCatalog;
 
 void main() {
   test('avatar survives rename, group navigation and follow-up rounds', () {
@@ -79,7 +80,8 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         final semantics = tester.ensureSemantics();
         try {
-          await tester.pumpWidget(
+          await pumpPreparation(
+            tester,
             MyApp(catalogLoader: () async => testCatalog),
           );
           await addName(tester, 'Anna');

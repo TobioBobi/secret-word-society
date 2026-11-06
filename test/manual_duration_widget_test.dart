@@ -5,7 +5,8 @@ import 'package:secret_word_society/main.dart';
 import 'package:secret_word_society/platform/round_signal.dart';
 import 'package:secret_word_society/ui/time_up_card.dart';
 
-import 'widget_test.dart' show readyGroup, showStart, tapVisible, testCatalog;
+import 'widget_test.dart'
+    show pumpPreparation, readyGroup, showStart, tapVisible, testCatalog;
 
 Future<void> _change(WidgetTester tester, String tooltip) async {
   final button = find.byTooltip(tooltip);
@@ -51,7 +52,8 @@ void main() {
         tester.binding.handleAppLifecycleStateChanged(
           AppLifecycleState.resumed,
         );
-        await tester.pumpWidget(
+        await pumpPreparation(
+          tester,
           MyApp(catalogLoader: () async => testCatalog, now: () => now),
         );
         await readyGroup(tester);
@@ -127,7 +129,10 @@ void main() {
   }
 
   testWidgets('maximum and manual duration at round start', (tester) async {
-    await tester.pumpWidget(MyApp(catalogLoader: () async => testCatalog));
+    await pumpPreparation(
+      tester,
+      MyApp(catalogLoader: () async => testCatalog),
+    );
     await readyGroup(tester);
     await showStart(tester);
     for (var i = 0; i < 27; i++) {
