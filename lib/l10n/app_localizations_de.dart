@@ -16,17 +16,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get gameGuide => 'Spielanleitung';
 
   @override
-  String get guideRevealTitle => '1. Geheimnisse ansehen';
+  String get guideRevealTitle => 'Handy weitergeben';
 
   @override
   String get guideReveal =>
-      'Schaut euch reihum eure geheime Karte am selben Handy an. Verdeckt die Karte, bevor ihr das Handy weitergebt. Die Gruppe kennt das geheime Wort. Der Imposter sieht seine Rolle und einen Hinweis und blufft mit.';
+      'Schaut reihum auf eure Karte und gebt das Handy verdeckt weiter.';
 
   @override
-  String get guideGroupCard => 'Gruppe · Wort';
+  String get guideGroupCard => 'Wort';
 
   @override
-  String get guideImposterCard => 'Imposter · Hinweis';
+  String get guideImposterCard => 'Imposter';
 
   @override
   String get guideExampleWord => 'Popcorn';
@@ -35,33 +35,45 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideExampleHint => 'Kino';
 
   @override
-  String get guideDiscussTitle => '2. Hinweise geben';
+  String get guideFirstPlayer => 'Anna';
+
+  @override
+  String get guideSecondPlayer => 'Ben';
+
+  @override
+  String get guideThirdPlayer => 'Cleo';
+
+  @override
+  String get guideDiscussTitle => 'Hinweise sagen';
 
   @override
   String get guideDiscuss =>
-      'Während der Timer läuft, gibt jede Person reihum einen eigenen Hinweis, ohne das Wort zu verraten. Im Beispiel sagt jemand aus der Gruppe „knusprig“. Der Imposter blufft mit „Filmpause“.';
+      'Sagt reihum einen Hinweis, ohne das Wort zu verraten.';
 
   @override
-  String get guideSkip =>
-      'Wenn ihr fertig seid, könnt ihr den Timer überspringen.';
+  String get guideCrunchy => 'knusprig';
 
   @override
-  String get guideVoteTitle => '3. Verdacht bestätigen';
+  String get guideSalty => 'salzig';
+
+  @override
+  String get guideMovieBreak => 'Filmpause';
+
+  @override
+  String get guideVoteTitle => 'Verdacht bestätigen';
 
   @override
   String get guideVote =>
-      'Stimmt mündlich ab, wen ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab. Wählt dann die verdächtigte Person oder die verdächtigten Personen in der App aus und bestätigt euren gemeinsamen Verdacht.';
+      'Stimmt laut ab und bestätigt euren Verdacht in der App.';
 
   @override
-  String get guideResultTitle => '4. Auflösung';
+  String get guideResultWord => 'Popcorn!';
 
   @override
-  String get guideResult =>
-      'Die App zeigt das Wort und wer Imposter war. Die Gruppe gewinnt, wenn sie genau alle Imposter ausgewählt hat. Sonst gewinnen die Imposter. Das gilt auch bei mehreren Impostern.';
+  String get guideResultRole => 'Imposter enttarnt.';
 
   @override
-  String get guideExampleResult =>
-      'Im Beispiel bestätigt die Gruppe die Person, die „Filmpause“ gesagt hat. Die App löst auf: Das Wort war „Popcorn“, diese Person war der einzige Imposter. Die Gruppe gewinnt.';
+  String get guideResultWin => 'Die Gruppe gewinnt.';
 
   @override
   String get settings => 'Einstellungen';

@@ -109,25 +109,25 @@ abstract class AppLocalizations {
   /// No description provided for @guideRevealTitle.
   ///
   /// In de, this message translates to:
-  /// **'1. Geheimnisse ansehen'**
+  /// **'Handy weitergeben'**
   String get guideRevealTitle;
 
   /// No description provided for @guideReveal.
   ///
   /// In de, this message translates to:
-  /// **'Schaut euch reihum eure geheime Karte am selben Handy an. Verdeckt die Karte, bevor ihr das Handy weitergebt. Die Gruppe kennt das geheime Wort. Der Imposter sieht seine Rolle und einen Hinweis und blufft mit.'**
+  /// **'Schaut reihum auf eure Karte und gebt das Handy verdeckt weiter.'**
   String get guideReveal;
 
   /// No description provided for @guideGroupCard.
   ///
   /// In de, this message translates to:
-  /// **'Gruppe · Wort'**
+  /// **'Wort'**
   String get guideGroupCard;
 
   /// No description provided for @guideImposterCard.
   ///
   /// In de, this message translates to:
-  /// **'Imposter · Hinweis'**
+  /// **'Imposter'**
   String get guideImposterCard;
 
   /// No description provided for @guideExampleWord.
@@ -142,53 +142,83 @@ abstract class AppLocalizations {
   /// **'Kino'**
   String get guideExampleHint;
 
+  /// No description provided for @guideFirstPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Anna'**
+  String get guideFirstPlayer;
+
+  /// No description provided for @guideSecondPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Ben'**
+  String get guideSecondPlayer;
+
+  /// No description provided for @guideThirdPlayer.
+  ///
+  /// In de, this message translates to:
+  /// **'Cleo'**
+  String get guideThirdPlayer;
+
   /// No description provided for @guideDiscussTitle.
   ///
   /// In de, this message translates to:
-  /// **'2. Hinweise geben'**
+  /// **'Hinweise sagen'**
   String get guideDiscussTitle;
 
   /// No description provided for @guideDiscuss.
   ///
   /// In de, this message translates to:
-  /// **'Während der Timer läuft, gibt jede Person reihum einen eigenen Hinweis, ohne das Wort zu verraten. Im Beispiel sagt jemand aus der Gruppe „knusprig“. Der Imposter blufft mit „Filmpause“.'**
+  /// **'Sagt reihum einen Hinweis, ohne das Wort zu verraten.'**
   String get guideDiscuss;
 
-  /// No description provided for @guideSkip.
+  /// No description provided for @guideCrunchy.
   ///
   /// In de, this message translates to:
-  /// **'Wenn ihr fertig seid, könnt ihr den Timer überspringen.'**
-  String get guideSkip;
+  /// **'knusprig'**
+  String get guideCrunchy;
+
+  /// No description provided for @guideSalty.
+  ///
+  /// In de, this message translates to:
+  /// **'salzig'**
+  String get guideSalty;
+
+  /// No description provided for @guideMovieBreak.
+  ///
+  /// In de, this message translates to:
+  /// **'Filmpause'**
+  String get guideMovieBreak;
 
   /// No description provided for @guideVoteTitle.
   ///
   /// In de, this message translates to:
-  /// **'3. Verdacht bestätigen'**
+  /// **'Verdacht bestätigen'**
   String get guideVoteTitle;
 
   /// No description provided for @guideVote.
   ///
   /// In de, this message translates to:
-  /// **'Stimmt mündlich ab, wen ihr verdächtigt. Bei Gleichstand stimmt ihr erneut ab. Wählt dann die verdächtigte Person oder die verdächtigten Personen in der App aus und bestätigt euren gemeinsamen Verdacht.'**
+  /// **'Stimmt laut ab und bestätigt euren Verdacht in der App.'**
   String get guideVote;
 
-  /// No description provided for @guideResultTitle.
+  /// No description provided for @guideResultWord.
   ///
   /// In de, this message translates to:
-  /// **'4. Auflösung'**
-  String get guideResultTitle;
+  /// **'Popcorn!'**
+  String get guideResultWord;
 
-  /// No description provided for @guideResult.
+  /// No description provided for @guideResultRole.
   ///
   /// In de, this message translates to:
-  /// **'Die App zeigt das Wort und wer Imposter war. Die Gruppe gewinnt, wenn sie genau alle Imposter ausgewählt hat. Sonst gewinnen die Imposter. Das gilt auch bei mehreren Impostern.'**
-  String get guideResult;
+  /// **'Imposter enttarnt.'**
+  String get guideResultRole;
 
-  /// No description provided for @guideExampleResult.
+  /// No description provided for @guideResultWin.
   ///
   /// In de, this message translates to:
-  /// **'Im Beispiel bestätigt die Gruppe die Person, die „Filmpause“ gesagt hat. Die App löst auf: Das Wort war „Popcorn“, diese Person war der einzige Imposter. Die Gruppe gewinnt.'**
-  String get guideExampleResult;
+  /// **'Die Gruppe gewinnt.'**
+  String get guideResultWin;
 
   /// No description provided for @settings.
   ///
