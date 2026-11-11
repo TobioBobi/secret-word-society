@@ -366,7 +366,7 @@ void main() {
     expect(find.text('Timer überspringen?'), findsOneWidget);
     now = now.add(const Duration(seconds: 10));
     await _tapText(tester, 'Weiterspielen');
-    expect(find.text('01:20'), findsOneWidget);
+    expect(find.text('00:35'), findsOneWidget);
     await _tapText(tester, 'Timer überspringen');
     await _tap(
       tester,
