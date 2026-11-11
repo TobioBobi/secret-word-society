@@ -3,10 +3,12 @@
 ## Verhalten
 
 Ohne manuelle Auswahl gelten weiterhin 30 Sekunden pro Person. In der
-Gruppenansicht und auf der Bereit-Ansicht vor dem Timerstart lässt sich die
+Bereit-Ansicht nach der Kartenverteilung direkt vor dem Timerstart lässt sich die
 Dauer über Minus/Plus in Schritten von 30 Sekunden ändern. Erlaubt sind
 00:30 bis 15:00; am jeweiligen Ende ist der passende Button deaktiviert.
 Die gewählte Dauer und der Startbutton zeigen denselben Wert.
+Seit Issue #72 ist dies in Erst- und Folgerunden der einzige Einstellort.
+Die Gruppenansicht zeigt weder einen Zeitregler noch eine Dauer in ihrer Zusammenfassung.
 
 Eine manuelle Dauer bleibt in der laufenden Sitzung für Folgerunden und beim
 Bearbeiten der Gruppe erhalten. Es gibt keinen „Automatisch“-Button.
@@ -36,15 +38,16 @@ auf 320 × 568 bei 200 Prozent Schrift, beide Grenzen, manuelle Folgerunden und 
 Plattformsignal bei Ablauf im Vordergrund bzw. später Rückkehr.
 
 Der Android-Test „manual timer: real 30-second expiry and retained follow-up“
-ändert die Zeit bereits vor der Kartenverteilung, wartet echte 30 Sekunden bis
+ändert die Zeit nach der Kartenverteilung, wartet echte 30 Sekunden bis
 zur Abstimmung und prüft die Übernahme in die Folgerunde samt erneuter
 Anpassung. Er verwendet den gebündelten Katalog
 und die Produktionsuhr.
 
 Echtes TalkBack und ein physischer Handytest bleiben gesonderte Praxisprüfungen.
 
-Lokal auf Android API 36.1 bei 320 × 568 und 200 Prozent Schrift erfolgreich
-geprüft: der neue Ablauf mit Produktionsuhr und gebündeltem Katalog.
+Die ursprüngliche Umsetzung von Issue #30 wurde lokal auf Android API 36.1 bei
+320 × 568 und 200 Prozent Schrift mit Produktionsuhr und gebündeltem Katalog
+geprüft. Der für Issue #72 angepasste Android-Ablauf wurde lokal noch nicht erneut ausgeführt.
 Die visuelle Prüfung mit Roboto umfasst Gruppen- und Bereit-Ansicht auf
 390 × 844 sowie 320 × 568 bei 200 Prozent Schrift. Flutter-Analyse,
 Formatprüfung und die Unit-/Widget-Suite sind Teil der Abschlussprüfung.

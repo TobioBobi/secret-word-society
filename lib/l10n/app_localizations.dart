@@ -331,8 +331,8 @@ abstract class AppLocalizations {
   /// No description provided for @roundSummary.
   ///
   /// In de, this message translates to:
-  /// **'{imposters} Imposter · {duration} Minuten'**
-  String roundSummary(String imposters, String duration);
+  /// **'{imposters} Imposter'**
+  String roundSummary(String imposters);
 
   /// No description provided for @startRound.
   ///

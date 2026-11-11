@@ -50,11 +50,7 @@ void main() {
         }
         await showStart(tester);
         expect(
-          find.text(
-            size == 6
-                ? '1–2 Imposter · 03:00 Minuten'
-                : '2–3 Imposter · 07:00 Minuten',
-          ),
+          find.text(size == 6 ? '1–2 Imposter' : '2–3 Imposter'),
           findsOneWidget,
         );
         await tapVisible(tester, 'Runde starten');

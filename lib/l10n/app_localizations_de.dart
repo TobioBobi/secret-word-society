@@ -153,8 +153,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String roundSummary(String imposters, String duration) {
-    return '$imposters Imposter · $duration Minuten';
+  String roundSummary(String imposters) {
+    return '$imposters Imposter';
   }
 
   @override

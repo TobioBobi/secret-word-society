@@ -402,17 +402,20 @@ void main() {
     await _launchAndCreateGroup(
       tester,
       beforeStart: () async {
-        await _tap(tester, find.byTooltip('30 Sekunden länger'));
-        expect(find.text('02:00'), findsOneWidget);
-        for (var i = 0; i < 3; i++) {
-          await _tap(tester, find.byTooltip('30 Sekunden kürzer'));
-        }
-        expect(find.text('00:30'), findsOneWidget);
+        expect(find.byTooltip('30 Sekunden länger'), findsNothing);
+        expect(find.byTooltip('30 Sekunden kürzer'), findsNothing);
+        expect(find.textContaining('Minuten'), findsNothing);
       },
     );
     for (var i = 0; i < 3; i++) {
       await _passCard(tester);
     }
+    await _tap(tester, find.byTooltip('30 Sekunden länger'));
+    expect(find.text('02:00'), findsOneWidget);
+    for (var i = 0; i < 3; i++) {
+      await _tap(tester, find.byTooltip('30 Sekunden kürzer'));
+    }
+    expect(find.text('00:30'), findsOneWidget);
     await _tapText(tester, '00:30 starten');
     expect(find.byTooltip('30 Sekunden länger'), findsNothing);
     await tester.pump(const Duration(seconds: 2));
