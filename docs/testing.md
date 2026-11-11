@@ -104,7 +104,9 @@ inhaltlich umgesetzt). Rollenstaffelung, Mehrfachabstimmung und unterschiedliche
 Offline-Hinweise stehen in der [Beschreibung von Issue #25](mvp/issue-25-dynamische-runden.md).
 
 Seit Issue #30 kann die Dauer vor dem Start in 30-Sekunden-Schritten zwischen
-00:30 und 15:00 manuell gewählt werden. Die Auswahl bleibt für Folgerunden in
+00:30 und 15:00 manuell gewählt werden. Seit Issue #72 erfolgt dies ausschließlich
+nach der Kartenverteilung direkt vor dem Timerstart. Die Gruppenansicht enthält
+keine Daueranzeige oder Zeitauswahl. Die Auswahl bleibt für Folgerunden in
 der Sitzung erhalten. Ein zusätzlicher Android-Ablauf prüft die manuelle Wahl,
 echten 30-Sekunden-Ablauf und die erneute Anpassung in der Folgerunde. Details:
 [Rundendauer anpassen](mvp/issue-30-rundendauer.md).

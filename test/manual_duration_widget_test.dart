@@ -58,12 +58,25 @@ void main() {
         );
         await readyGroup(tester);
         await showStart(tester);
+        expect(find.text('1 Imposter'), findsOneWidget);
+        expect(find.textContaining('Minuten'), findsNothing);
+        expect(find.text('Rundendauer'), findsNothing);
+        expect(find.byKey(const ValueKey('round-duration')), findsNothing);
+        expect(find.byTooltip('30 Sekunden länger'), findsNothing);
+        expect(find.byTooltip('30 Sekunden kürzer'), findsNothing);
+        await tapVisible(tester, 'Runde starten');
+        await _distribute(tester);
+        await tester.scrollUntilVisible(find.text('01:30 starten'), 160);
+        await tester.pumpAndSettle();
+        expect(find.text('01:30'), findsOneWidget);
+        expect(
+          find.bySemanticsLabel('Rundendauer: 01:30 Minuten'),
+          findsOneWidget,
+        );
         await _change(tester, '30 Sekunden länger');
         expect(find.text('02:00'), findsOneWidget);
         await _change(tester, '30 Sekunden kürzer');
         await _change(tester, '30 Sekunden kürzer');
-        await tapVisible(tester, 'Runde starten');
-        await _distribute(tester);
         await _change(tester, '30 Sekunden kürzer');
         expect(find.text('00:30'), findsOneWidget);
         expect(
@@ -135,6 +148,8 @@ void main() {
     );
     await readyGroup(tester);
     await showStart(tester);
+    await tapVisible(tester, 'Runde starten');
+    await _distribute(tester);
     for (var i = 0; i < 27; i++) {
       await _change(tester, '30 Sekunden länger');
     }
@@ -153,8 +168,6 @@ void main() {
     await _change(tester, '30 Sekunden kürzer');
     expect(find.text('14:30'), findsOneWidget);
     expect(find.text('Automatisch'), findsNothing);
-    await tapVisible(tester, 'Runde starten');
-    await _distribute(tester);
     await tapVisible(tester, '14:30 starten');
     expect(find.text('14:30'), findsOneWidget);
   });

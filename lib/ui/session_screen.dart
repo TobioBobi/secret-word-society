@@ -1411,10 +1411,7 @@ class _SessionScreenState extends State<SessionScreen>
   List<Widget> _buildStartActions(AppLocalizations strings) => [
     Text(
       _session.canStart
-          ? strings.roundSummary(
-              _session.imposterChoice.label,
-              _formatTime(_session.discussionDuration.inSeconds),
-            )
+          ? strings.roundSummary(_session.imposterChoice.label)
           : strings.playersMissing(
               GameRound.minimumPlayers - _session.players.length,
             ),
@@ -1424,8 +1421,6 @@ class _SessionScreenState extends State<SessionScreen>
     if (_session.canStart) ...[
       const SizedBox(height: 12),
       _buildImposterPicker(strings),
-      const SizedBox(height: 12),
-      _buildDurationPicker(strings),
     ],
     if (_catalogFailed)
       Padding(
