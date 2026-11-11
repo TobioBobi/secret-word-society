@@ -388,6 +388,24 @@ abstract class AppLocalizations {
   /// **'Handy an {name}.'**
   String handoffTitle(String name);
 
+  /// No description provided for @handoffNextTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib weiter an {name}.'**
+  String handoffNextTitle(String name);
+
+  /// No description provided for @handoffFirstPrompt.
+  ///
+  /// In de, this message translates to:
+  /// **'Handy an'**
+  String get handoffFirstPrompt;
+
+  /// No description provided for @handoffNextPrompt.
+  ///
+  /// In de, this message translates to:
+  /// **'Gib weiter an'**
+  String get handoffNextPrompt;
+
   /// No description provided for @handoffIntro.
   ///
   /// In de, this message translates to:

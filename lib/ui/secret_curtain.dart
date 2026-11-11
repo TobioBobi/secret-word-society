@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
+import 'handoff_avatar.dart';
+import 'handoff_entrances.dart';
 import 'party_theme.dart';
 
 /// Keeps gesture and cover progress locally. Private content belongs to the round
@@ -17,6 +19,9 @@ class SecretCurtain extends StatefulWidget {
     required this.title,
     required this.name,
     this.avatar,
+    this.recipientPrompt,
+    this.entrances,
+    this.animateAvatar = false,
     required this.onHandoff,
     required this.onInterrupt,
     required this.canAdvance,
@@ -31,6 +36,9 @@ class SecretCurtain extends StatefulWidget {
   final String title;
   final String name;
   final Widget? avatar;
+  final String? recipientPrompt;
+  final HandoffEntrances? entrances;
+  final bool animateAvatar;
   final VoidCallback onHandoff;
   final VoidCallback onInterrupt;
   final bool canAdvance;
@@ -382,7 +390,10 @@ class _SecretCurtainState extends State<SecretCurtain>
                                           child: _identity(
                                             context,
                                             strings,
-                                            showPrompt: !accessible,
+                                            showPrompt:
+                                                widget.recipientPrompt !=
+                                                    null ||
+                                                !accessible,
                                           ),
                                         ),
                                         if (accessible) ...[
@@ -487,7 +498,7 @@ class _SecretCurtainState extends State<SecretCurtain>
           ? 12 +
                 _textSize(
                   context,
-                  strings.curtainYourTurn,
+                  widget.recipientPrompt ?? strings.curtainYourTurn,
                   promptStyle,
                   space.maxWidth,
                 ).height
@@ -544,45 +555,59 @@ class _SecretCurtainState extends State<SecretCurtain>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              key: const ValueKey('curtain-avatar'),
-              width: avatarSize,
+            SizedBox(
+              width: space.maxWidth,
               height: avatarSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: PartyColors.purple,
-                border: Border.all(
-                  color: const Color(0xFF423068),
-                  width: avatarSize * .045,
+              child: widget.entrances == null
+                  ? Center(child: _avatar(avatarSize))
+                  : HandoffAvatar(
+                      entrances: widget.entrances!,
+                      animate: widget.animateAvatar,
+                      child: _avatar(avatarSize),
+                    ),
+            ),
+            if (showPrompt) ...[
+              const SizedBox(height: 12),
+              ExcludeSemantics(
+                child: Text(
+                  widget.recipientPrompt ?? strings.curtainYourTurn,
+                  textAlign: TextAlign.center,
+                  style: promptStyle,
                 ),
               ),
-              child:
-                  widget.avatar ??
-                  const ExcludeSemantics(
-                    child: Icon(
-                      Icons.person_outline_rounded,
-                      size: 32,
-                      color: PartyColors.text,
-                    ),
-                  ),
-            ),
+            ],
             const SizedBox(height: 16),
             SizedBox(
               width: space.maxWidth,
               child: _heading(context, fontSize: fontSize),
             ),
-            if (showPrompt) ...[
-              const SizedBox(height: 12),
-              Text(
-                strings.curtainYourTurn,
-                textAlign: TextAlign.center,
-                style: promptStyle,
-              ),
-            ],
           ],
         ),
       );
     },
+  );
+
+  Widget _avatar(double avatarSize) => Container(
+    key: const ValueKey('curtain-avatar'),
+    width: avatarSize,
+    height: avatarSize,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: PartyColors.purple,
+      border: Border.all(
+        color: const Color(0xFF423068),
+        width: avatarSize * .045,
+      ),
+    ),
+    child:
+        widget.avatar ??
+        const ExcludeSemantics(
+          child: Icon(
+            Icons.person_outline_rounded,
+            size: 32,
+            color: PartyColors.text,
+          ),
+        ),
   );
 
   Size _textSize(

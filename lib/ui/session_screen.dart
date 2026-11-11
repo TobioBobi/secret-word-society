@@ -12,6 +12,7 @@ import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/round_signal.dart';
 import 'party_card.dart';
+import 'handoff_entrances.dart';
 import 'party_theme.dart';
 import 'player_avatar.dart';
 import 'photo_editor.dart';
@@ -52,6 +53,7 @@ class _SessionScreenState extends State<SessionScreen>
   final _nameFocus = FocusNode();
   final _headingFocus = FocusNode();
   final _scroll = ScrollController();
+  final _handoffEntrances = HandoffEntrances();
   NameProblem? _nameProblem;
   bool _starting = false;
   bool _catalogFailed = false;
@@ -557,8 +559,10 @@ class _SessionScreenState extends State<SessionScreen>
     final revealed = round?.phase == GamePhase.secret;
     final title = switch (round?.phase) {
       null => strings.groupTitle,
-      GamePhase.handoff => strings.handoffTitle(round!.currentPlayer!.name),
-      GamePhase.secret => strings.handoffTitle(round!.currentPlayer!.name),
+      GamePhase.handoff || GamePhase.secret =>
+        round!.currentPlayerNumber == 1
+            ? strings.handoffTitle(round.currentPlayer!.name)
+            : strings.handoffNextTitle(round.currentPlayer!.name),
       GamePhase.ready => strings.readyTitle,
       GamePhase.discussion => strings.discussionTitle,
       GamePhase.voting => strings.votingTitle,
@@ -643,6 +647,13 @@ class _SessionScreenState extends State<SessionScreen>
                                     key: ValueKey(round!.currentPlayer!.id),
                                     title: title,
                                     name: round.currentPlayer!.name,
+                                    recipientPrompt:
+                                        round.currentPlayerNumber == 1
+                                        ? strings.handoffFirstPrompt
+                                        : strings.handoffNextPrompt,
+                                    entrances: _handoffEntrances,
+                                    animateAvatar:
+                                        round.currentPlayerNumber != 1,
                                     avatar: PlayerAvatarView(
                                       avatar: round.currentPlayer!.avatar,
                                       photo: round.currentPlayer!.photo,
