@@ -143,6 +143,7 @@ final class GameRound {
 
   /// The public choice never depends on the secret role draw.
   bool canSelectSuspect(String playerId) =>
+      !allowsMultipleSuspects ||
       suspects.length < maximumSuspects ||
       suspects.any((player) => player.id == playerId);
   static const revealDuration = Duration(seconds: 3);
@@ -282,6 +283,9 @@ final class GameRound {
     _requirePhase(GamePhase.voting);
     final index = players.indexWhere((player) => player.id == playerId);
     if (index == -1) throw ArgumentError('Suspect must belong to this round.');
+    if (!allowsMultipleSuspects) {
+      return _copy(phase: phase, suspects: List.unmodifiable([players[index]]));
+    }
     if (!canSelectSuspect(playerId)) return this;
     final selected = suspects.any((player) => player.id == playerId)
         ? suspects.where((player) => player.id != playerId).toList()
