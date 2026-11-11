@@ -104,14 +104,14 @@ void main() {
           random: Random(seed),
         );
         final (ready, ids, _) = _distribute(initial);
-        expect(ready.discussionDuration, Duration(seconds: size * 30));
+        expect(ready.discussionDuration, Duration(seconds: size * 15));
         final minimum = size >= 11 ? 2 : 1;
         final maximum = size >= 11 ? 3 : (size >= 6 ? 2 : 1);
         expect(ids.length, inInclusiveRange(minimum, maximum));
         observedCounts.add(ids.length);
         observedPlayers.addAll(ids);
         final running = ready.startDiscussion(_now);
-        final deadline = _now.add(Duration(seconds: size * 30));
+        final deadline = _now.add(Duration(seconds: size * 15));
         expect(running.discussionEndsAt, deadline);
         expect(
           running.advanceTime(
@@ -226,13 +226,13 @@ void main() {
       expect(session.players.length, 14);
       final first = session.players.first;
       session.startRound(_catalog, random: Random(1));
-      expect(session.round!.discussionDuration, const Duration(minutes: 7));
+      expect(session.round!.discussionDuration, const Duration(seconds: 210));
       session.returnToGroup();
       for (final player in session.players.skip(4)) {
         session.removePlayer(player.id);
       }
       session.startRound(_catalog, random: Random(1));
-      expect(session.round!.discussionDuration, const Duration(minutes: 2));
+      expect(session.round!.discussionDuration, const Duration(minutes: 1));
       expect(session.round!.allowsMultipleSuspects, isFalse);
       expect(session.round!.players.first, same(first));
     },

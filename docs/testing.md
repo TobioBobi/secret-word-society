@@ -97,13 +97,13 @@ bedienen die Flutter-Oberfläche in einer laufenden Android-App. Der Wortkatalog
 wird aus den tatsächlich gebündelten Assets geladen, ohne Testkatalog oder
 ersetzte Plattformkanäle.
 
-Seit Issue #25 beträgt die Rundendauer 30 Sekunden pro Person bei 3–14
-Personen. Drei Personen spielen 01:30, vier 02:00, vierzehn 07:00 Minuten.
+Seit Issue #78 beträgt die Rundendauer 15 Sekunden pro Person bei 3–14
+Personen. Drei Personen spielen 00:45, vier 01:00, vierzehn 03:30 Minuten.
 Der temporäre Zehn-Sekunden-Timer ist entfernt (damit ist auch Issue #22
 inhaltlich umgesetzt). Rollenstaffelung, Mehrfachabstimmung und unterschiedliche
 Offline-Hinweise stehen in der [Beschreibung von Issue #25](mvp/issue-25-dynamische-runden.md).
 
-Seit Issue #30 kann die Dauer vor dem Start in 30-Sekunden-Schritten zwischen
+Seit Issue #78 kann die Dauer vor dem Start in 15-Sekunden-Schritten zwischen
 00:30 und 15:00 manuell gewählt werden. Seit Issue #72 erfolgt dies ausschließlich
 nach der Kartenverteilung direkt vor dem Timerstart. Die Gruppenansicht enthält
 keine Daueranzeige oder Zeitauswahl. Die Auswahl bleibt für Folgerunden in
@@ -158,15 +158,15 @@ Details: [Weiche Vorhangkante](mvp/issue-32-weiche-vorhangkante.md).
    eine Runde starten. Alle drei Karten einzeln aufdecken und wieder verbergen.
    Genau zwei Personen müssen dasselbe Wort und genau eine Person einen der drei
    dazu passenden Hinweise erhalten. Jede Übergabe ist verdeckt; nach der letzten
-   Karte erscheint die Bereit-Ansicht. Anschließend die echten 90 Sekunden
+   Karte erscheint die Bereit-Ansicht. Anschließend die echten 45 Sekunden
    starten und bis zur Abstimmungsansicht warten. Wort und Hinweis bleiben
    dabei verborgen. Ohne Auswahl ist die Bestätigung deaktiviert. Danach den
    tatsächlichen Imposter bzw. gezielt eine andere Person auswählen und
    bestätigen; Gewinner, Verdacht, tatsächlichen Imposter und Wort prüfen.
    „Noch eine Runde“ beginnt bei Person 1 mit verdeckter Karte; alle Karten
-   erneut verteilen und einen frischen Countdown bei 01:30 starten. Seit
+   erneut verteilen und einen frischen Countdown bei 00:45 starten. Seit
    Ticket 7 muss die Folgerunde ein anderes Wort mit zugehörigem Hinweis haben.
-   Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 90 Sekunden
+   Beide Tests brauchen durch die aktuelle Spielzeit jeweils gut 45 Sekunden
    für die Diskussion; die Produktionsuhr wird nicht ersetzt.
 2. Eine sichtbare Karte über Android-Zurück verbergen und den
    Verlassensdialog abbrechen. Dieselbe Person kann dasselbe Geheimnis erneut
@@ -416,11 +416,11 @@ Personen an und verteilen die echten Assets mit unterschiedlichen Hinweisen
 zum selben Wort. Die Mehrfachauswahl endet beim öffentlichen Maximum von zwei
 beziehungsweise drei Personen. Weitere Personen sind dann deaktiviert;
 Abwählen gibt wieder einen Platz frei. Die Grenze folgt nicht der gezogenen
-Imposter-Anzahl. Nach 03:00 beziehungsweise 07:00 Startzeit wird in diesen Tests
-die injizierte Uhr vorgespult; die beiden dreiköpfigen Komplettabläufe warten weiterhin die echten 90 Sekunden.
+Imposter-Anzahl. Nach 01:30 beziehungsweise 03:30 Startzeit wird in diesen Tests
+die injizierte Uhr vorgespult; die beiden dreiköpfigen Komplettabläufe warten weiterhin die echten 45 Sekunden.
 Jeder Test wählt eine unschuldige Person an und wieder ab, bestätigt dann exakt
 die Imposter, prüft den Gruppensieg nach dem geschützten Countdown und bearbeitet
-die Gruppe auf fünf Personen. Die nächste Runde startet mit 02:30.
+die Gruppe auf fünf Personen. Die nächste Runde startet mit 01:15.
 
 Modelltests prüfen alle zwölf Gruppengrößen, beide Rollenanzahlen an jeder
 variablen Staffel, eindeutige Rollen und Hinweise, exakte Zeitgrenzen sowie

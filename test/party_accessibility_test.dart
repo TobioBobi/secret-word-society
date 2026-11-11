@@ -74,9 +74,9 @@ void main() {
             await tapVisible(tester, 'Verdecken und weitergeben');
           }
           await _checkAndroidControls(tester);
-          await tapVisible(tester, '01:30 starten');
+          await tapVisible(tester, '00:45 starten');
           await _checkAndroidControls(tester);
-          now = now.add(const Duration(seconds: 90));
+          now = now.add(const Duration(seconds: 45));
           await tester.pump(const Duration(milliseconds: 250));
           await tester.pumpAndSettle();
           await _checkAndroidControls(tester);

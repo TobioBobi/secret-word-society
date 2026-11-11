@@ -36,8 +36,8 @@ final class ImposterChoice {
 abstract final class RoundRules {
   static const minimumPlayers = 3;
   static const maximumPlayers = 14;
-  static const durationStep = Duration(seconds: 30);
-  static const minimumDuration = durationStep;
+  static const durationStep = Duration(seconds: 15);
+  static const minimumDuration = Duration(seconds: 30);
   static const maximumDuration = Duration(minutes: 15);
 
   static void validateDuration(Duration duration) {
@@ -47,7 +47,7 @@ abstract final class RoundRules {
       throw ArgumentError.value(
         duration,
         'duration',
-        'Expected 30s–15m in 30s steps.',
+        'Expected 30s–15m in 15s steps.',
       );
     }
   }
@@ -60,7 +60,7 @@ abstract final class RoundRules {
 
   static Duration discussionDuration(int count) {
     validate(count);
-    return Duration(seconds: 30 * count);
+    return Duration(seconds: 15 * count);
   }
 
   static int minimumImposters(int count) {

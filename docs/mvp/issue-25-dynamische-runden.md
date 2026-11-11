@@ -6,7 +6,7 @@ einschließlich der Entfernung des Testtimers aus
 
 ## Vereinbarte Regeln
 
-- 3–14 Personen, 30 Sekunden pro Person: 01:30 bis 07:00 Minuten.
+- 3–14 Personen, seit Issue #78 15 Sekunden pro Person: 00:45 bis 03:30 Minuten.
 - 3–5 Personen: ein Imposter. 6–10: zufällig ein oder zwei. 11–14: zwei oder drei.
 - Die gezogene Anzahl bleibt bis zur Auflösung geheim. Die Gruppe sieht nur
   den möglichen Bereich. Imposter erfahren nichts über andere Rollen.

@@ -22,18 +22,34 @@ void main() {
     }
   }
 
+  test('automatic duration is 15 seconds per person', () {
+    for (final (count, seconds) in [(3, 45), (4, 60), (14, 210)]) {
+      final game = session();
+      for (var index = 3; index < count; index++) {
+        game.addPlayer('Person $index');
+      }
+      expect(game.discussionDuration, Duration(seconds: seconds));
+      game.startRound(multiHintCatalog);
+      distribute(game);
+      game.startDiscussion(now);
+      expect(game.round!.discussionEndsAt, now.add(Duration(seconds: seconds)));
+    }
+  });
+
   test('automatic duration follows group edits until manually overridden', () {
     final game = session();
-    expect(game.discussionDuration, const Duration(seconds: 90));
+    expect(game.discussionDuration, const Duration(seconds: 45));
     game.addPlayer('Dana');
-    expect(game.discussionDuration, const Duration(minutes: 2));
-    game.setDiscussionDuration(const Duration(seconds: 30));
+    expect(game.discussionDuration, const Duration(minutes: 1));
+    game.setDiscussionDuration(const Duration(seconds: 75));
     game.addPlayer('Emil');
-    expect(game.discussionDuration, const Duration(seconds: 30));
+    expect(game.discussionDuration, const Duration(seconds: 75));
     game.setDiscussionDuration(null);
     expect(game.hasManualDuration, isFalse);
-    expect(game.discussionDuration, const Duration(seconds: 150));
-    expect(session().hasManualDuration, isFalse);
+    expect(game.discussionDuration, const Duration(seconds: 75));
+    final coldSession = session();
+    expect(coldSession.hasManualDuration, isFalse);
+    expect(coldSession.discussionDuration, const Duration(seconds: 45));
   });
 
   test('reject invalid choices before consuming a word or changing state', () {
@@ -41,9 +57,10 @@ void main() {
     for (final duration in [
       Duration.zero,
       const Duration(seconds: -30),
+      const Duration(seconds: 15),
       const Duration(seconds: 31),
       const Duration(microseconds: 30000001),
-      const Duration(seconds: 930),
+      const Duration(seconds: 915),
     ]) {
       expect(() => game.setDiscussionDuration(duration), throwsArgumentError);
       expect(game.hasManualDuration, isFalse);
@@ -58,6 +75,8 @@ void main() {
     }
     for (final duration in [
       RoundRules.minimumDuration,
+      const Duration(seconds: 45),
+      const Duration(seconds: 75),
       RoundRules.maximumDuration,
     ]) {
       game.setDiscussionDuration(duration);
@@ -76,38 +95,38 @@ void main() {
       throwsStateError,
     );
     distribute(game);
-    game.setDiscussionDuration(const Duration(seconds: 30));
+    game.setDiscussionDuration(const Duration(seconds: 75));
     final ready = game.round!;
     game.startDiscussion(now);
     final running = game.round!;
-    expect(running.discussionEndsAt, now.add(const Duration(seconds: 30)));
+    expect(running.discussionEndsAt, now.add(const Duration(seconds: 75)));
     expect(() => game.setDiscussionDuration(null), throwsStateError);
     expect(
       () => running.withDiscussionDuration(const Duration(minutes: 1)),
       throwsStateError,
     );
-    expect(ready.discussionDuration, const Duration(seconds: 30));
-    game.advanceTime(now.add(const Duration(seconds: 29)));
+    expect(ready.discussionDuration, const Duration(seconds: 75));
+    game.advanceTime(now.add(const Duration(seconds: 74)));
     expect(
-      game.round!.remainingDiscussionTime(now.add(const Duration(seconds: 29))),
+      game.round!.remainingDiscussionTime(now.add(const Duration(seconds: 74))),
       const Duration(seconds: 1),
     );
-    game.advanceTime(now.add(const Duration(seconds: 30)));
+    game.advanceTime(now.add(const Duration(seconds: 75)));
     expect(game.round!.phase, GamePhase.voting);
     game.selectSuspect(game.players.first.id);
     game.confirmSuspect(now);
     game.advanceTime(now.add(GameRound.revealDuration));
     game.newRound();
-    expect(game.round!.discussionDuration, const Duration(seconds: 30));
+    expect(game.round!.discussionDuration, const Duration(seconds: 75));
     expect(game.round!.discussionEndsAt, isNull);
     distribute(game);
     game.setDiscussionDuration(null);
-    expect(game.round!.discussionDuration, const Duration(seconds: 90));
+    expect(game.round!.discussionDuration, const Duration(seconds: 45));
     game.startDiscussion(now);
     game.advanceTime(now.add(const Duration(hours: 2)));
     expect(game.round!.phase, GamePhase.voting);
     game.returnToGroup();
     game.addPlayer('Dana');
-    expect(game.discussionDuration, const Duration(minutes: 2));
+    expect(game.discussionDuration, const Duration(minutes: 1));
   });
 }
