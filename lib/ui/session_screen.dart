@@ -833,10 +833,7 @@ class _SessionScreenState extends State<SessionScreen>
                           !round!.allowsMultipleSuspects
                       ? RadioGroup<String>(
                           groupValue: round.suspects.firstOrNull?.id,
-                          onChanged: (id) => _selectSuspect(
-                            round,
-                            id ?? round.suspects.firstOrNull?.id,
-                          ),
+                          onChanged: (id) => _selectSuspect(round, id),
                           child: scrollView,
                         )
                       : scrollView;
@@ -1061,7 +1058,6 @@ class _SessionScreenState extends State<SessionScreen>
                 )
               : RadioListTile<String>(
                   value: player.id,
-                  toggleable: true,
                   enabled: round.canSelectSuspect(player.id),
                   title: Text(player.name),
                   secondary: PlayerAvatarView(
