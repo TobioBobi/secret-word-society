@@ -41,12 +41,14 @@ void main() {
     expect(game.discussionDuration, const Duration(seconds: 45));
     game.addPlayer('Dana');
     expect(game.discussionDuration, const Duration(minutes: 1));
-    game.setDiscussionDuration(const Duration(seconds: 75));
+    game.setDiscussionDuration(const Duration(seconds: 105));
     game.addPlayer('Emil');
-    expect(game.discussionDuration, const Duration(seconds: 75));
+    expect(game.discussionDuration, const Duration(seconds: 105));
     game.setDiscussionDuration(null);
     expect(game.hasManualDuration, isFalse);
     expect(game.discussionDuration, const Duration(seconds: 75));
+    game.removePlayer(game.players.last.id);
+    expect(game.discussionDuration, const Duration(minutes: 1));
     final coldSession = session();
     expect(coldSession.hasManualDuration, isFalse);
     expect(coldSession.discussionDuration, const Duration(seconds: 45));
