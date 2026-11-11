@@ -12,9 +12,76 @@ import 'package:secret_word_society/ui/session_screen.dart';
 import 'safe_handoff_test.dart' show openCurtain;
 import 'support/handoff.dart';
 import 'widget_test.dart'
-    show startTestRound, expectConcealed, testCatalog, semanticsTree;
+    show
+        startTestRound,
+        expectConcealed,
+        testCatalog,
+        semanticsTree,
+        tapVisible;
 
 void main() {
+  for (final interruption in ['cancel', 'dialog', 'background']) {
+    for (final completed in [false, true]) {
+      testWidgets(
+        'same card keeps its entrance after $interruption, completed=$completed',
+        (tester) async {
+          await startTestRound(tester);
+          final first = await openCurtain(tester);
+          await first.up();
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 300));
+          await tester.pump();
+          final name = handoffName(tester);
+          final avatar = find.byKey(const ValueKey('curtain-avatar'));
+          await tester.pump(Duration(milliseconds: completed ? 500 : 300));
+          final before = tester.getRect(avatar);
+          final active = await openCurtain(tester);
+          switch (interruption) {
+            case 'cancel':
+              await active.cancel();
+            case 'dialog':
+              await tester.binding.handlePopRoute();
+            case 'background':
+              tester.binding.handleAppLifecycleStateChanged(
+                AppLifecycleState.inactive,
+              );
+              tester.binding.handleAppLifecycleStateChanged(
+                AppLifecycleState.resumed,
+              );
+          }
+          await tester.pump();
+          if (completed) {
+            expect(
+              tester.getRect(avatar),
+              before,
+              reason: 'A completed entrance must not start again.',
+            );
+          }
+          // At 500 ms from the original start, even an interrupted entrance
+          // must have reached its resting position, rather than restarting.
+          await tester.pump(const Duration(milliseconds: 200));
+          final atDeadline = tester.getRect(avatar);
+          await tester.pumpAndSettle();
+          expect(tester.getRect(avatar), atDeadline);
+          expect(handoffName(tester), name);
+          expectConcealed(tester);
+          if (interruption != 'cancel') await active.up();
+          if (interruption == 'dialog') {
+            await tapVisible(tester, 'Weiterspielen');
+          }
+          await tester.pumpAndSettle();
+          expect(handoffName(tester), name);
+          expectConcealed(tester);
+          final fresh = await openCurtain(tester);
+          await fresh.up();
+          await tester.pumpAndSettle();
+          expect(handoffName(tester), isNot(name));
+          expectConcealed(tester);
+        },
+      );
+    }
+  }
+
   for (final reduced in [false, true]) {
     testWidgets(
       'photo handoffs stay accessible at large text, reduced=$reduced',

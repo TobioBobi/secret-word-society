@@ -61,6 +61,8 @@ class _SecretCurtainState extends State<SecretCurtain>
     duration: const Duration(milliseconds: 280),
   );
   static const _fullyOpenAt = 0.95;
+  // Keep the entrance when concealRevision replaces the gesture subtree.
+  final _avatarEntranceKey = GlobalKey();
 
   Timer? _accessibleTimer;
   double? _lastDragY;
@@ -561,6 +563,7 @@ class _SecretCurtainState extends State<SecretCurtain>
               child: widget.entrances == null
                   ? Center(child: _avatar(avatarSize))
                   : HandoffAvatar(
+                      key: _avatarEntranceKey,
                       entrances: widget.entrances!,
                       animate: widget.animateAvatar,
                       child: _avatar(avatarSize),
