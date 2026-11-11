@@ -62,28 +62,27 @@ void main() {
         expect(find.textContaining('Minuten'), findsNothing);
         expect(find.text('Rundendauer'), findsNothing);
         expect(find.byKey(const ValueKey('round-duration')), findsNothing);
-        expect(find.byTooltip('30 Sekunden länger'), findsNothing);
-        expect(find.byTooltip('30 Sekunden kürzer'), findsNothing);
+        expect(find.byTooltip('15 Sekunden länger'), findsNothing);
+        expect(find.byTooltip('15 Sekunden kürzer'), findsNothing);
         await tapVisible(tester, 'Runde starten');
         await _distribute(tester);
-        await tester.scrollUntilVisible(find.text('01:30 starten'), 160);
+        await tester.scrollUntilVisible(find.text('00:45 starten'), 160);
         await tester.pumpAndSettle();
-        expect(find.text('01:30'), findsOneWidget);
+        expect(find.text('00:45'), findsOneWidget);
         expect(
-          find.bySemanticsLabel('Rundendauer: 01:30 Minuten'),
+          find.bySemanticsLabel('Rundendauer: 00:45 Minuten'),
           findsOneWidget,
         );
-        await _change(tester, '30 Sekunden länger');
-        expect(find.text('02:00'), findsOneWidget);
-        await _change(tester, '30 Sekunden kürzer');
-        await _change(tester, '30 Sekunden kürzer');
-        await _change(tester, '30 Sekunden kürzer');
+        await _change(tester, '15 Sekunden länger');
+        expect(find.text('01:00'), findsOneWidget);
+        await _change(tester, '15 Sekunden kürzer');
+        await _change(tester, '15 Sekunden kürzer');
         expect(find.text('00:30'), findsOneWidget);
         expect(
           tester
               .widget<IconButton>(
                 find.ancestor(
-                  of: find.byTooltip('30 Sekunden kürzer'),
+                  of: find.byTooltip('15 Sekunden kürzer'),
                   matching: find.byType(IconButton),
                 ),
               )
@@ -92,14 +91,15 @@ void main() {
         );
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-        await tapVisible(tester, '00:30 starten');
-        expect(find.byTooltip('30 Sekunden länger'), findsNothing);
+        await _change(tester, '15 Sekunden länger');
+        await tapVisible(tester, '00:45 starten');
+        expect(find.byTooltip('15 Sekunden länger'), findsNothing);
         final arm = calls.singleWhere((call) => call.method == 'arm');
         expect(
           arm.arguments['deadlineMillis'],
-          now.add(const Duration(seconds: 30)).millisecondsSinceEpoch,
+          now.add(const Duration(seconds: 45)).millisecondsSinceEpoch,
         );
-        now = now.add(const Duration(seconds: 29));
+        now = now.add(const Duration(seconds: 44));
         await tester.pump(const Duration(milliseconds: 250));
         expect(find.text('00:01'), findsOneWidget);
         if (background) {
@@ -129,10 +129,10 @@ void main() {
         await tester.pumpAndSettle();
         await tapVisible(tester, 'Noch eine Runde');
         await _distribute(tester);
-        await tester.scrollUntilVisible(find.text('00:30 starten'), 160);
+        await tester.scrollUntilVisible(find.text('00:45 starten'), 160);
         await tester.pumpAndSettle();
-        expect(find.text('00:30'), findsOneWidget);
-        await _change(tester, '30 Sekunden länger');
+        expect(find.text('00:45'), findsOneWidget);
+        await _change(tester, '15 Sekunden länger');
         expect(find.text('01:00'), findsOneWidget);
         expect(find.text('Automatisch'), findsNothing);
         expect(tester.takeException(), isNull);
@@ -150,25 +150,25 @@ void main() {
     await showStart(tester);
     await tapVisible(tester, 'Runde starten');
     await _distribute(tester);
-    for (var i = 0; i < 27; i++) {
-      await _change(tester, '30 Sekunden länger');
+    for (var i = 0; i < 57; i++) {
+      await _change(tester, '15 Sekunden länger');
     }
     expect(find.text('15:00'), findsOneWidget);
     expect(
       tester
           .widget<IconButton>(
             find.ancestor(
-              of: find.byTooltip('30 Sekunden länger'),
+              of: find.byTooltip('15 Sekunden länger'),
               matching: find.byType(IconButton),
             ),
           )
           .onPressed,
       isNull,
     );
-    await _change(tester, '30 Sekunden kürzer');
-    expect(find.text('14:30'), findsOneWidget);
+    await _change(tester, '15 Sekunden kürzer');
+    expect(find.text('14:45'), findsOneWidget);
     expect(find.text('Automatisch'), findsNothing);
-    await tapVisible(tester, '14:30 starten');
-    expect(find.text('14:30'), findsOneWidget);
+    await tapVisible(tester, '14:45 starten');
+    expect(find.text('14:45'), findsOneWidget);
   });
 }

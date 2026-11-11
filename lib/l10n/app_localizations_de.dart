@@ -164,10 +164,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get roundDuration => 'Rundendauer';
 
   @override
-  String get shortenDuration => '30 Sekunden kürzer';
+  String get shortenDuration => '15 Sekunden kürzer';
 
   @override
-  String get extendDuration => '30 Sekunden länger';
+  String get extendDuration => '15 Sekunden länger';
 
   @override
   String selectedDuration(String duration) {

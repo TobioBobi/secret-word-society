@@ -53,7 +53,7 @@ void main() {
   }
 
   Future<void> expire(WidgetTester tester) async {
-    now = now.add(const Duration(seconds: 90));
+    now = now.add(const Duration(seconds: 45));
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pump();
   }
@@ -63,11 +63,11 @@ void main() {
     (tester) async {
       final semantics = tester.ensureSemantics();
       await ready(tester);
-      await tapVisible(tester, '01:30 starten');
+      await tapVisible(tester, '00:45 starten');
       final arm = calls.singleWhere((c) => c.method == 'arm');
       expect(
         arm.arguments['deadlineMillis'],
-        now.add(const Duration(seconds: 90)).millisecondsSinceEpoch,
+        now.add(const Duration(seconds: 45)).millisecondsSinceEpoch,
       );
       expect(calls.where((c) => c.method == 'finish'), isEmpty);
       await expire(tester);
@@ -97,7 +97,7 @@ void main() {
       await tester.pumpAndSettle();
       await tapVisible(tester, 'Noch eine Runde');
       await distribute(tester);
-      await tapVisible(tester, '01:30 starten');
+      await tapVisible(tester, '00:45 starten');
       await expire(tester);
       await tester.pumpAndSettle();
       final arms = calls.where((c) => c.method == 'arm').toList();
@@ -114,7 +114,7 @@ void main() {
     'late background return stays silent and shows a static end card',
     (tester) async {
       await ready(tester);
-      await tapVisible(tester, '01:30 starten');
+      await tapVisible(tester, '00:45 starten');
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       now = now.add(const Duration(minutes: 2));
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
@@ -136,7 +136,7 @@ void main() {
     tester,
   ) async {
     await ready(tester);
-    await tapVisible(tester, '01:30 starten');
+    await tapVisible(tester, '00:45 starten');
     await leaveRound(tester);
     await tester.tap(
       find.widgetWithText(TextButton, 'Timer überspringen').last,
@@ -153,13 +153,13 @@ void main() {
     tester,
   ) async {
     await ready(tester);
-    await tapVisible(tester, '01:30 starten');
+    await tapVisible(tester, '00:45 starten');
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     now = now.add(const Duration(seconds: 4));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.text('01:26'), findsOneWidget);
-    now = now.add(const Duration(seconds: 86));
+    expect(find.text('00:41'), findsOneWidget);
+    now = now.add(const Duration(seconds: 41));
     await tester.pump(const Duration(milliseconds: 250));
     await tester.pumpAndSettle();
     expect(calls.where((c) => c.method == 'arm'), hasLength(1));
@@ -181,7 +181,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await ready(tester);
-    await tapVisible(tester, '01:30 starten');
+    await tapVisible(tester, '00:45 starten');
     await expire(tester);
     await tester.ensureVisible(find.byType(TimeUpCard));
     await tester.pumpAndSettle();

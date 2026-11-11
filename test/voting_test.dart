@@ -48,7 +48,7 @@ Future<String> _distribute(WidgetTester tester, List<String> names) async {
 Future<void> _reachVoting(
   WidgetTester tester,
   _Clock clock, {
-  int seconds = 90,
+  int seconds = 45,
 }) async {
   final time =
       "${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}";
@@ -564,7 +564,7 @@ void main() {
     await showStart(tester);
     await tapVisible(tester, 'Runde starten');
     await _distribute(tester, names);
-    await _reachVoting(tester, clock, seconds: 360);
+    await _reachVoting(tester, clock, seconds: 180);
     await tapVisible(tester, longName);
     await tapVisible(tester, '$longName verdächtigen');
     await _finishReveal(tester, clock);
