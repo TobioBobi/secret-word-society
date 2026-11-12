@@ -5,7 +5,7 @@ import 'party_theme.dart';
 /// Shared paper geometry. Insets leave text clear of every clipped corner.
 abstract final class Cutout {
   static const gap = 16.0;
-  static const padding = EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+  static const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 16);
   static const shadowOffset = Offset(4, 6);
 }
 

@@ -1,5 +1,21 @@
 # Android-Integrationstests
 
+## Cutout-Startseite (Issue #85)
+
+Die Startseite verwendet kantige Papieraktionen mit versetztem Schatten und
+das unveränderte freigestellte Logo. Die übrigen Ansichten werden schrittweise
+umgestellt; Gestaltung und Wiederverwendung beschreibt
+[`design/cutout-foundation.md`](design/cutout-foundation.md).
+
+174 Unit-/Widget-Tests bestanden am 12.11.2026. Die sechs Startseitentests
+prüfen Navigation und Sitzungserhalt, Anleitung/Einstellungen/Datenschutz,
+Tastaturaktivierung und Button-Semantik bei 320 × 568 mit 200 Prozent Schrift,
+Druckabbruch und reduzierte Bewegung. Analyse und Android-Release-Build
+sind erfolgreich. Die native Sichtprüfung auf API 36.1 umfasst normale
+Darstellung sowie 320 × 568 mit 200 Prozent Systemschrift und Scrollen zu
+allen Aktionen. Physisches Gerät und tatsächliche TalkBack-Ausgabe bleiben
+offen; die vollständige native Spieltestsuite wurde hierfür nicht wiederholt.
+
 ## Textbezogene Übergabe (Issue #82)
 
 Die Weitergabe verlangt seit #82 ungefähr halb sichtbaren Wort-/Hinweistext.
