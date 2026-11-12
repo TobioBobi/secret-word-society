@@ -654,6 +654,7 @@ class _SessionScreenState extends State<SessionScreen>
                                     entrances: _handoffEntrances,
                                     animateAvatar:
                                         round.currentPlayerNumber != 1,
+                                    hintActive: _canAct(round),
                                     avatar: PlayerAvatarView(
                                       avatar: round.currentPlayer!.avatar,
                                       photo: round.currentPlayer!.photo,

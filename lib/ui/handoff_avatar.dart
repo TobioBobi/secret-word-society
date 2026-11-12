@@ -9,11 +9,13 @@ class HandoffAvatar extends StatefulWidget {
     required this.entrances,
     required this.animate,
     required this.child,
+    this.onCompleted,
   });
 
   final HandoffEntrances entrances;
   final bool animate;
   final Widget child;
+  final VoidCallback? onCompleted;
 
   @override
   State<HandoffAvatar> createState() => _HandoffAvatarState();
@@ -28,6 +30,23 @@ class _HandoffAvatarState extends State<HandoffAvatar>
     value: 1,
   );
   bool _started = false;
+  bool _reportedCompleted = false;
+
+  void _reportCompleted() {
+    if (_reportedCompleted) return;
+    _reportedCompleted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onCompleted?.call();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) _reportCompleted();
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -39,6 +58,7 @@ class _HandoffAvatarState extends State<HandoffAvatar>
       _started = true;
       if (_entrance != null) _controller.forward(from: 0);
     }
+    if (_controller.isCompleted) _reportCompleted();
   }
 
   @override
