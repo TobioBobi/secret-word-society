@@ -206,7 +206,7 @@ final class GameRound {
     );
   }
 
-  /// Records the complete viewing required before handing off.
+  /// Records that enough of the secret was viewed to allow handing off.
   GameRound markSecretViewed() {
     _requirePhase(GamePhase.secret);
     return hasViewedSecret ? this : _copy(phase: phase, hasViewedSecret: true);

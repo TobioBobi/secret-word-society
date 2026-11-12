@@ -231,11 +231,11 @@ class _SessionScreenState extends State<SessionScreen>
     GameRound expected,
     bool reveal,
     int expectedRevision, {
-    bool fullyOpen = false,
+    bool markAsViewed = false,
   }) {
     if (expectedRevision != _concealRevision) return;
     final current = _session.round;
-    // Preparing, fully opening and releasing can all precede the next frame.
+    // Preparing, viewing and releasing can all precede the next frame.
     // Completion and concealment must still apply only to the same person.
     if (current != null &&
         identical(current.players, expected.players) &&
@@ -245,14 +245,14 @@ class _SessionScreenState extends State<SessionScreen>
         setState(_session.concealSecret);
         return;
       }
-      if (fullyOpen && current.phase == GamePhase.secret) {
+      if (markAsViewed && current.phase == GamePhase.secret) {
         setState(_session.markSecretViewed);
         return;
       }
     }
     if (!_canAct(expected)) return;
     if (reveal && expected.phase == GamePhase.handoff) {
-      setState(() => _session.revealSecret(markAsViewed: fullyOpen));
+      setState(() => _session.revealSecret(markAsViewed: markAsViewed));
     }
   }
 
@@ -667,21 +667,23 @@ class _SessionScreenState extends State<SessionScreen>
                                     headingFocus: _headingFocus,
                                     revealed: revealed,
                                     concealRevision: concealRevision,
-                                    onReveal: (fullyOpen) => _peekCard(
+                                    onReveal: (markAsViewed) => _peekCard(
                                       round,
                                       true,
                                       concealRevision,
-                                      fullyOpen: fullyOpen,
+                                      markAsViewed: markAsViewed,
                                     ),
                                     onConceal: () => _peekCard(
                                       round,
                                       false,
                                       concealRevision,
                                     ),
-                                    secretBuilder: (_) => _buildSecretContent(
-                                      strings,
-                                      round.currentSecret!,
-                                    ),
+                                    secretBuilder: (_, textKey) =>
+                                        _buildSecretContent(
+                                          strings,
+                                          round.currentSecret!,
+                                          textKey,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -1451,32 +1453,36 @@ class _SessionScreenState extends State<SessionScreen>
     ),
   ];
 
-  Widget _buildSecretContent(AppLocalizations strings, PlayerSecret secret) =>
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (secret.role == PlayerRole.imposter) ...[
-            Text(
-              _session.round!.allowsMultipleSuspects
-                  ? strings.multipleImposterRole
-                  : strings.imposterRole,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 16),
-          ],
-          Text(
-            secret.role == PlayerRole.imposter
-                ? strings.secretHint
-                : strings.secretWord,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            secret.text,
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
-          ),
-        ],
-      );
+  Widget _buildSecretContent(
+    AppLocalizations strings,
+    PlayerSecret secret,
+    Key textKey,
+  ) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      if (secret.role == PlayerRole.imposter) ...[
+        Text(
+          _session.round!.allowsMultipleSuspects
+              ? strings.multipleImposterRole
+              : strings.imposterRole,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 16),
+      ],
+      Text(
+        secret.role == PlayerRole.imposter
+            ? strings.secretHint
+            : strings.secretWord,
+      ),
+      const SizedBox(height: 12),
+      Text(
+        secret.text,
+        key: textKey,
+        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+      ),
+    ],
+  );
 
   Widget _buildReadyCard(AppLocalizations strings) =>
       _buildStatusCard(strings.readyCard, Icons.check_circle_outline);

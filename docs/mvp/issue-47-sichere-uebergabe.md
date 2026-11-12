@@ -2,13 +2,15 @@
 
 Fachlicher Umfang: [Issue #47](https://github.com/TobioBobi/secret-word-society/issues/47).
 
-Der normale Vorhangablauf hat keinen Weiter-Button mehr. Die vollständige
-Freilegung merkt das Ansehen vor; erst normales Loslassen und der vollständig
+Der normale Vorhangablauf hat keinen Weiter-Button mehr. Seit
+[Issue #82](issue-82-textbezogene-weitergabe.md) merkt ungefähr halb sichtbarer
+Geheimnistext das Ansehen vor; erst normales Loslassen und der vollständig
 geschlossene Vorhang geben an die nächste Person weiter. Beim Zurückführen mit
-gehaltenem Finger bleibt dieselbe Person dran. Teilöffnungen allein genügen nicht.
+gehaltenem Finger bleibt dieselbe Person dran. Öffnungen unterhalb der
+Textschwelle genügen nicht.
 Erneutes Greifen stoppt den Rücklauf einschließlich seines alten Abschlusses.
 
-`GameRound.canAdvanceCard` verlangt vollständiges Ansehen. Die UI meldet die
+`GameRound.canAdvanceCard` verlangt die Ansehen-Freigabe. Die UI meldet die
 Übergabe erst nach dem Schließende; Personenidentität, Rundengruppe und
 Unterbrechungsrevision schützen gegen alte Abschlüsse. Unterbrechungen und echte
 Gestenabbrüche setzen auch die Ansehen-Freigabe zurück. Die Reihenfolge aus #48

@@ -10,6 +10,7 @@ import 'package:secret_word_society/game/player_avatar.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart' as app;
 import 'package:secret_word_society/ui/player_avatar.dart';
+import 'package:secret_word_society/ui/secret_curtain.dart';
 
 import 'support/game_test_selection.dart';
 
@@ -71,6 +72,9 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     await _releasePeek(tester);
   }
   if (text == 'Geheimnis kurz ansehen') {
+    final recipient = tester
+        .widget<SecretCurtain>(find.byType(SecretCurtain))
+        .name;
     final target = find.byKey(const ValueKey('secret-curtain-gesture'));
     await tester.ensureVisible(target);
     await _settle(tester);
@@ -92,7 +96,8 @@ Future<void> _tapText(WidgetTester tester, String text) async {
     final panel = tester.getRect(
       find.byKey(const ValueKey('secret-curtain-panel')),
     );
-    await _peekGesture!.moveBy(const Offset(0, -30));
+    // Preview without reaching the text-based handoff threshold (#82).
+    await _peekGesture!.moveBy(const Offset(0, -24));
     await tester.pump();
     final preview = find.byKey(const ValueKey('secret-curtain-opening'));
     expect(preview, findsOneWidget);
@@ -100,8 +105,6 @@ Future<void> _tapText(WidgetTester tester, String text) async {
       find.descendant(of: preview, matching: find.byType(Text)),
       findsWidgets,
     );
-    await _peekGesture!.moveBy(const Offset(0, -60));
-    await tester.pump();
     final clip = openingBounds(tester);
     expect(clip.top, greaterThan(0));
     expect(clip.height, greaterThan(0));
@@ -111,6 +114,11 @@ Future<void> _tapText(WidgetTester tester, String text) async {
       // re-grab the lower grip rather than injecting off-screen pointers.
       await _releasePeek(tester);
       expect(preview, findsNothing);
+      expect(
+        find.text(recipient),
+        findsOneWidget,
+        reason: 'The preview must stay below the text-based handoff threshold',
+      );
       await tester.ensureVisible(target);
       await _settle(tester);
       gripStart = tester.getCenter(target);

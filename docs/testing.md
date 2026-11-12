@@ -1,5 +1,22 @@
 # Android-Integrationstests
 
+## Textbezogene Übergabe (Issue #82)
+
+Die Weitergabe verlangt seit #82 ungefähr halb sichtbaren Wort-/Hinweistext.
+Die bisherige 95-Prozent-Schwelle bleibt für private Semantik und Positionierung
+erhalten. `test/text_handoff_test.dart` prüft die neue Freigabe an der gerenderten
+Kurvenmaske, einschließlich mehrzeiliger Texte, großer Schrift auf kleinem Display,
+beider Rollen, letzter Person, Zurückziehen und Unterbrechungen. Die bestehenden
+Vorhangtests prüfen zusätzlich Tastatur-/Semantikaktionen und den visuellen Hinweis.
+Ältere Berichte über vollständiges Ansehen beschreiben die frühere Schwelle.
+
+Die native Aufdeckhilfe beginnt mit einer kurzen 24-Pixel-Vorschau. Beim
+Loslassen und erneuten Greifen prüft sie ausdrücklich dieselbe Empfängerperson.
+Die frühere 90-Pixel-Vorschau erreichte bereits die neue Textschwelle und gab
+beim Loslassen unbeabsichtigt eine Karte weiter; das anschließende Aufdecken
+übersprang dadurch Karten im Testablauf. Die eigentlichen Spielprüfungen und
+die vollständige Verteilung bleiben erhalten.
+
 ## Aufnahmefreigabe (Issue #62)
 
 Android-Screenshots, Bildschirmaufnahmen und Bildschirmübertragung sind in allen

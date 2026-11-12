@@ -43,10 +43,13 @@ void main() {
                     concealRevision: 0,
                     onReveal: (_) => update(() => revealed = true),
                     onConceal: () => update(() => revealed = false),
-                    secretBuilder: (_) => const SizedBox(
-                      key: ValueKey('white-secret'),
+                    secretBuilder: (_, textKey) => SizedBox(
+                      key: textKey,
                       height: 120,
-                      child: ColoredBox(color: Colors.white),
+                      child: const ColoredBox(
+                        key: ValueKey('white-secret'),
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
