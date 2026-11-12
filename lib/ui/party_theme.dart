@@ -7,8 +7,27 @@ abstract final class PartyColors {
   static const text = Color(0xFFFBF7FF);
   static const muted = Color(0xFFC6BDD2);
   static const purple = Color(0xFF6842D9);
+  static const paperShadow = Color(0xFF40277D);
   static const lime = Color(0xFFD6F76B);
   static const coral = Color(0xFFFFAB91);
+}
+
+abstract final class PartyTypography {
+  static const heading = TextStyle(
+    fontFamily: 'Roboto',
+    fontSize: 34,
+    height: 1.12,
+    fontWeight: FontWeight.w900,
+    letterSpacing: -.7,
+    color: PartyColors.text,
+  );
+  static const action = TextStyle(
+    fontFamily: 'Roboto',
+    fontSize: 23,
+    height: 1.2,
+    fontWeight: FontWeight.w900,
+    letterSpacing: -.4,
+  );
 }
 
 ThemeData buildPartyTheme() {
@@ -35,12 +54,7 @@ ThemeData buildPartyTheme() {
   );
   return base.copyWith(
     textTheme: base.textTheme.copyWith(
-      headlineLarge: const TextStyle(
-        fontSize: 34,
-        height: 1.12,
-        fontWeight: FontWeight.w800,
-        color: PartyColors.text,
-      ),
+      headlineLarge: PartyTypography.heading,
       bodyLarge: const TextStyle(fontSize: 17, height: 1.45),
       bodyMedium: const TextStyle(fontSize: 16, height: 1.45),
     ),
