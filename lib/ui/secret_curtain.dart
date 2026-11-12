@@ -47,10 +47,11 @@ class SecretCurtain extends StatefulWidget {
   final FocusNode headingFocus;
   final bool revealed;
   final int concealRevision;
-  // False prepares a visual preview; true confirms a complete viewing.
+  // False prepares a visual preview; true confirms enough text was visible.
   final ValueChanged<bool> onReveal;
   final VoidCallback onConceal;
-  final WidgetBuilder secretBuilder;
+  // Attach the supplied key to the actual word/hint, excluding role and labels.
+  final Widget Function(BuildContext context, Key textKey) secretBuilder;
 
   @override
   State<SecretCurtain> createState() => _SecretCurtainState();
@@ -63,6 +64,8 @@ class _SecretCurtainState extends State<SecretCurtain>
     duration: const Duration(milliseconds: 280),
   );
   static const _fullyOpenAt = 0.95;
+  final _secretTextKey = GlobalKey();
+  final _panelKey = GlobalKey();
   late final _hint = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 600),
@@ -239,7 +242,28 @@ class _SecretCurtainState extends State<SecretCurtain>
     _lastDragY = y;
     // Global coordinates keep movement 1:1 even while the surface moves.
     _cover.value = (_cover.value + movement / travel).clamp(0.0, 1.0);
-    if (_cover.value >= _fullyOpenAt && !_requestedViewed) {
+    _confirmVisibleText(travel);
+    // The first drag frame creates and lays out the private content.
+    if (_secretTextKey.currentContext == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _confirmVisibleText(travel);
+      });
+    }
+  }
+
+  void _confirmVisibleText(double travel) {
+    if (!_dragging || _requestedViewed) return;
+    final text = _secretTextKey.currentContext?.findRenderObject();
+    final panel = _panelKey.currentContext?.findRenderObject();
+    if (text is! RenderBox || panel is! RenderBox || !text.hasSize) return;
+    // Include FittedBox scaling and the curve at the rendered text's center,
+    // which can sit off-center when a long secret is scaled down.
+    final middle = text.localToGlobal(text.size.center(Offset.zero));
+    final x = panel.globalToLocal(middle).dx / panel.size.width;
+    final curveY = panel.size.height - 32 + 96 * x * (1 - x);
+    final edge =
+        panel.localToGlobal(Offset(0, curveY)).dy - travel * _cover.value;
+    if (edge <= middle.dy) {
       _requestedViewed = true;
       _viewed = true;
       widget.onReveal(true);
@@ -285,6 +309,7 @@ class _SecretCurtainState extends State<SecretCurtain>
         }
         final contentTop = height - travel * _fullyOpenAt + 8;
         return Listener(
+          key: _panelKey,
           onPointerDown: (event) {
             if (_activePointer != null) return;
             _activePointer = event.pointer;
@@ -368,7 +393,10 @@ class _SecretCurtainState extends State<SecretCurtain>
                                         alignment: Alignment.bottomLeft,
                                         child: SizedBox(
                                           width: space.maxWidth,
-                                          child: widget.secretBuilder(context),
+                                          child: widget.secretBuilder(
+                                            context,
+                                            _secretTextKey,
+                                          ),
                                         ),
                                       ),
                                     ),
