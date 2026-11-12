@@ -259,8 +259,10 @@ class _SecretCurtainState extends State<SecretCurtain>
     // Include FittedBox scaling and the curve at the rendered text's center,
     // which can sit off-center when a long secret is scaled down.
     final middle = text.localToGlobal(text.size.center(Offset.zero));
-    final x = panel.globalToLocal(middle).dx / panel.size.width;
-    final curveY = panel.size.height - 32 + 96 * x * (1 - x);
+    final curveY = _SoftEdgeClipper.edgeY(
+      panel.size,
+      panel.globalToLocal(middle).dx,
+    );
     final edge =
         panel.localToGlobal(Offset(0, curveY)).dy - travel * _cover.value;
     if (edge <= middle.dy) {
@@ -738,14 +740,22 @@ class _SecretCurtainState extends State<SecretCurtain>
 class _SoftEdgeClipper extends CustomClipper<Path> {
   const _SoftEdgeClipper();
 
+  static const _inset = 32.0;
+  static const _controlDepth = 16.0;
+
+  static double edgeY(Size size, double x) {
+    final t = (x / size.width).clamp(0.0, 1.0);
+    return size.height - _inset + 2 * (_inset + _controlDepth) * t * (1 - t);
+  }
+
   @override
   Path getClip(Size size) => Path()
-    ..lineTo(0, size.height - 32)
+    ..lineTo(0, size.height - _inset)
     ..quadraticBezierTo(
       size.width * .5,
-      size.height + 16,
+      size.height + _controlDepth,
       size.width,
-      size.height - 32,
+      size.height - _inset,
     )
     ..lineTo(size.width, 0)
     ..close();
