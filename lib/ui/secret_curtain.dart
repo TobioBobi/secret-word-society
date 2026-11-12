@@ -22,6 +22,7 @@ class SecretCurtain extends StatefulWidget {
     this.recipientPrompt,
     this.entrances,
     this.animateAvatar = false,
+    this.hintActive = true,
     required this.onHandoff,
     required this.onInterrupt,
     required this.canAdvance,
@@ -39,6 +40,7 @@ class SecretCurtain extends StatefulWidget {
   final String? recipientPrompt;
   final HandoffEntrances? entrances;
   final bool animateAvatar;
+  final bool hintActive;
   final VoidCallback onHandoff;
   final VoidCallback onInterrupt;
   final bool canAdvance;
@@ -55,12 +57,19 @@ class SecretCurtain extends StatefulWidget {
 }
 
 class _SecretCurtainState extends State<SecretCurtain>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final _cover = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 280),
   );
   static const _fullyOpenAt = 0.95;
+  late final _hint = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  );
+  late bool _avatarReady = !widget.animateAvatar || widget.entrances == null;
+  bool _hintDismissed = false;
+  Timer? _hintTimer;
   // Keep the entrance when concealRevision replaces the gesture subtree.
   final _avatarEntranceKey = GlobalKey();
 
@@ -73,6 +82,44 @@ class _SecretCurtainState extends State<SecretCurtain>
   bool _accessibleMode = false;
   int? _activePointer;
   int _returnRevision = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncHint();
+  }
+
+  void _syncHint() {
+    final eligible =
+        widget.hintActive &&
+        _avatarReady &&
+        !_hintDismissed &&
+        !widget.revealed &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        TickerMode.valuesOf(context).enabled;
+    if (!eligible) {
+      _hintTimer?.cancel();
+      _hintTimer = null;
+      _hint.reset();
+    } else {
+      _hintTimer ??= Timer(const Duration(seconds: 2), () {
+        _hint.forward(from: 0);
+        _hintTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+          _hint.forward(from: 0);
+        });
+      });
+    }
+  }
+
+  void _dismissHint() {
+    _hintDismissed = true;
+    _syncHint();
+  }
+
+  void _avatarCompleted() {
+    _avatarReady = true;
+    _syncHint();
+  }
 
   @override
   void didUpdateWidget(SecretCurtain oldWidget) {
@@ -88,11 +135,14 @@ class _SecretCurtainState extends State<SecretCurtain>
       _activePointer = null;
       _cover.value = 0;
     }
+    _syncHint();
   }
 
   @override
   void dispose() {
     _accessibleTimer?.cancel();
+    _hintTimer?.cancel();
+    _hint.dispose();
     _cover.dispose();
     super.dispose();
   }
@@ -143,6 +193,7 @@ class _SecretCurtainState extends State<SecretCurtain>
 
   void _accessiblePeek() {
     if (_dragging || _returning) return;
+    _dismissHint();
     setState(() => _accessibleMode = true);
     _returnRevision++;
     _returning = false;
@@ -170,6 +221,7 @@ class _SecretCurtainState extends State<SecretCurtain>
   }
 
   void _startDrag(DragStartDetails details) {
+    _dismissHint();
     _returnRevision++;
     setState(() => _returning = false);
     _accessibleTimer?.cancel();
@@ -326,10 +378,16 @@ class _SecretCurtainState extends State<SecretCurtain>
                         ),
                       ),
                       AnimatedBuilder(
-                        animation: _cover,
+                        animation: Listenable.merge([_cover, _hint]),
                         builder: (context, child) => Transform.translate(
                           key: const ValueKey('secret-curtain-cover'),
-                          offset: Offset(0, -travel * _cover.value),
+                          // Hint motion never changes opening progress or builds
+                          // private content; the purple backing stays empty.
+                          offset: Offset(
+                            0,
+                            -travel * _cover.value -
+                                12 * math.sin(math.pi * _hint.value),
+                          ),
                           child: child,
                         ),
                         child: GestureDetector(
@@ -566,6 +624,7 @@ class _SecretCurtainState extends State<SecretCurtain>
                       key: _avatarEntranceKey,
                       entrances: widget.entrances!,
                       animate: widget.animateAvatar,
+                      onCompleted: _avatarCompleted,
                       child: _avatar(avatarSize),
                     ),
             ),
