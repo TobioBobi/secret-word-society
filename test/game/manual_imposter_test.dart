@@ -99,6 +99,19 @@ void main() {
               .startDiscussion(now)
               .advanceTime(now.add(round.discussionDuration));
           expect(round.maximumSuspects, choice.maximum);
+          expect(round.allowsMultipleSuspects, choice.maximum > 1);
+          // Even a secret draw of one keeps checkbox behaviour for 1–2.
+          if (choice.maximum > 1) {
+            final first = round.selectSuspect('0');
+            final second = first.selectSuspect('1');
+            expect(second.suspects.map((p) => p.id), ['0', '1']);
+            expect(second.selectSuspect('0').suspects.map((p) => p.id), ['1']);
+            if (choice.maximum == 2) {
+              expect(second.canSelectSuspect('2'), isFalse);
+              expect(second.selectSuspect('2'), same(second));
+              expect(first.canSelectSuspect('2'), isTrue);
+            }
+          }
           for (final id in ids) {
             round = round.selectSuspect(id);
           }

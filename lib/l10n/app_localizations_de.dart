@@ -192,6 +192,17 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String handoffNextTitle(String name) {
+    return 'Gib weiter an $name.';
+  }
+
+  @override
+  String get handoffFirstPrompt => 'Handy an';
+
+  @override
+  String get handoffNextPrompt => 'Gib weiter an';
+
+  @override
   String get handoffIntro => 'Nur du schaust auf den Bildschirm.';
 
   @override

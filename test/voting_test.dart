@@ -1,4 +1,5 @@
-import 'dart:ui' show Tristate;
+import 'dart:ui'
+    show CheckedState, SemanticsAction, SemanticsActionEvent, Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -127,6 +128,71 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(RoundSignal.channel, null);
   });
+  for (final largeText in [false, true]) {
+    testWidgets(
+      'single suspicion uses radio interaction: largeText=$largeText',
+      (tester) async {
+        if (largeText) {
+          tester.view.physicalSize = const Size(320, 568);
+          tester.view.devicePixelRatio = 1;
+          tester.platformDispatcher.textScaleFactorTestValue = 2;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        }
+        final semantics = tester.ensureSemantics();
+        final clock = _Clock();
+        await _voting(tester, clock);
+        expect((await _action(tester)).onPressed, isNull);
+
+        Future<void> expectRadio(String name, bool selected) async {
+          final tile = find.widgetWithText(RadioListTile<String>, name);
+          await tester.ensureVisible(tile);
+          await tester.pumpAndSettle();
+          expect(
+            tester.widget<RadioListTile<String>>(tile).toggleable,
+            isFalse,
+          );
+          final flags = tester
+              .getSemantics(find.bySemanticsLabel(name))
+              .getSemanticsData()
+              .flagsCollection;
+          expect(flags.isInMutuallyExclusiveGroup, isTrue);
+          expect(flags.isEnabled, Tristate.isTrue);
+          expect(
+            flags.isChecked,
+            selected ? CheckedState.isTrue : CheckedState.isFalse,
+          );
+        }
+
+        for (final name in _names) {
+          await expectRadio(name, false);
+        }
+        await tapVisible(tester, 'Anna');
+        await expectRadio('Ben', false);
+        // Exercise the same semantic tap action exposed to a screenreader.
+        final node = tester.getSemantics(find.bySemanticsLabel('Ben'));
+        tester.binding.performSemanticsAction(
+          SemanticsActionEvent(
+            nodeId: node.id,
+            viewId: tester.view.viewId,
+            type: SemanticsAction.tap,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await expectRadio('Anna', false);
+        await expectRadio('Ben', true);
+        await tapVisible(tester, 'Ben');
+        await expectRadio('Ben', true);
+        expectConcealed(tester);
+        expect(find.text('Wer hat geblufft?'), findsNothing);
+        expect(find.text('Die Auflösung'), findsNothing);
+        await tapVisible(tester, 'Ben verdächtigen');
+        await _finishReveal(tester, clock);
+        semantics.dispose();
+      },
+    );
+  }
   testWidgets(
     'countdown freezes across background and leave dialog without restarting',
     (tester) async {

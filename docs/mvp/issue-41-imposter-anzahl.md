@@ -25,6 +25,11 @@ unterscheiden sich höchstens um eins. Der Katalog braucht keine neuen Hinweise.
 
 Das öffentliche Maximum bestimmt die Abstimmungsgrenze unabhängig vom geheimen
 Ziehergebnis. Nur genau alle Imposter ohne Unschuldige bedeuten Gruppensieg.
+Bei Maximum eins gilt seit #74 Radio-Verhalten: keine Vorauswahl, direkter
+Wechsel und keine Abwahl durch erneutes Antippen. Alle Personen bleiben
+auswählbar. Bei Maximum größer eins (auch 1–2) bleiben Mehrfachauswahl,
+Abwahl und das Deaktivieren weiterer Personen an der Grenze erhalten.
+Erst die bewusste Bestätigung startet die Auflösung.
 Mindestens eine Person kennt immer das Wort. Countdown, Unterbrechungsschutz und
 verdeckte Übergaben bleiben erhalten.
 
