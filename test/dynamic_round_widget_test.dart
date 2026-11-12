@@ -85,11 +85,11 @@ void main() {
           imposters.length,
           size == 6 ? inInclusiveRange(1, 2) : inInclusiveRange(2, 3),
         );
-        final time = size == 6 ? '03:00' : '07:00';
+        final time = size == 6 ? '01:30' : '03:30';
         await tapVisible(tester, '$time starten');
         expect(find.text(time), findsOneWidget);
         tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-        now = now.add(Duration(seconds: size * 30));
+        now = now.add(Duration(seconds: size * 15));
         tester.binding.handleAppLifecycleStateChanged(
           AppLifecycleState.resumed,
         );

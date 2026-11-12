@@ -291,7 +291,7 @@ void main() {
           find.text('Imposter-Anzahl: ${fixed ? '5' : '4–5'}'),
           findsOneWidget,
         );
-        await _tapText(tester, '03:00 starten');
+        await _tapText(tester, '01:30 starten');
         now = now.add(const Duration(minutes: 3));
         await tester.pump(const Duration(milliseconds: 300));
         await _settle(tester);
@@ -361,12 +361,12 @@ void main() {
       await _passCard(tester);
     }
     expect(find.text('Timer überspringen'), findsNothing);
-    await _tapText(tester, '01:30 starten');
+    await _tapText(tester, '00:45 starten');
     await _leaveRound(tester);
     expect(find.text('Timer überspringen?'), findsOneWidget);
     now = now.add(const Duration(seconds: 10));
     await _tapText(tester, 'Weiterspielen');
-    expect(find.text('01:20'), findsOneWidget);
+    expect(find.text('00:35'), findsOneWidget);
     await _tapText(tester, 'Timer überspringen');
     await _tap(
       tester,
@@ -385,9 +385,9 @@ void main() {
     for (var i = 0; i < 3; i++) {
       await _passCard(tester);
     }
-    await _tapText(tester, '01:30 starten');
+    await _tapText(tester, '00:45 starten');
     await _tapText(tester, 'Timer überspringen');
-    now = now.add(const Duration(seconds: 90));
+    now = now.add(const Duration(seconds: 45));
     await tester.pump(const Duration(milliseconds: 500));
     await _settle(tester);
     expect(find.byType(AlertDialog), findsNothing);
@@ -402,22 +402,22 @@ void main() {
     await _launchAndCreateGroup(
       tester,
       beforeStart: () async {
-        expect(find.byTooltip('30 Sekunden länger'), findsNothing);
-        expect(find.byTooltip('30 Sekunden kürzer'), findsNothing);
+        expect(find.byTooltip('15 Sekunden länger'), findsNothing);
+        expect(find.byTooltip('15 Sekunden kürzer'), findsNothing);
         expect(find.textContaining('Minuten'), findsNothing);
       },
     );
     for (var i = 0; i < 3; i++) {
       await _passCard(tester);
     }
-    await _tap(tester, find.byTooltip('30 Sekunden länger'));
-    expect(find.text('02:00'), findsOneWidget);
-    for (var i = 0; i < 3; i++) {
-      await _tap(tester, find.byTooltip('30 Sekunden kürzer'));
+    await _tap(tester, find.byTooltip('15 Sekunden länger'));
+    expect(find.text('01:00'), findsOneWidget);
+    for (var i = 0; i < 2; i++) {
+      await _tap(tester, find.byTooltip('15 Sekunden kürzer'));
     }
     expect(find.text('00:30'), findsOneWidget);
     await _tapText(tester, '00:30 starten');
-    expect(find.byTooltip('30 Sekunden länger'), findsNothing);
+    expect(find.byTooltip('15 Sekunden länger'), findsNothing);
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('00:30'), findsNothing);
     await tester.pump(const Duration(seconds: 29));
@@ -431,10 +431,10 @@ void main() {
     for (var i = 0; i < 3; i++) {
       await _passCard(tester);
     }
-    await _tap(tester, find.byTooltip('30 Sekunden länger'));
-    expect(find.text('01:00'), findsOneWidget);
+    await _tap(tester, find.byTooltip('15 Sekunden länger'));
+    expect(find.text('00:45'), findsOneWidget);
     expect(find.text('Automatisch'), findsNothing);
-    await _tapText(tester, '01:00 starten');
+    await _tapText(tester, '00:45 starten');
     // The production clock may tick while the native tap helper settles.
     final countdown = tester.widget<Text>(
       find.byWidgetPredicate(
@@ -444,7 +444,7 @@ void main() {
       ),
     );
     final digits = countdown.data!.split(':').map(int.parse).toList();
-    expect(digits[0] * 60 + digits[1], inInclusiveRange(55, 60));
+    expect(digits[0] * 60 + digits[1], inInclusiveRange(40, 45));
     expect(tester.takeException(), isNull);
   });
 
@@ -496,7 +496,7 @@ void main() {
         expect(find.text('Alle Geheimnisse sind verteilt.'), findsOneWidget);
         expect(find.text('Geheimnis kurz ansehen'), findsNothing);
 
-        await _tapText(tester, '01:30 starten');
+        await _tapText(tester, '00:45 starten');
         expect(find.text('Jetzt wird geblufft.'), findsOneWidget);
         expect(find.byType(FilledButton), findsNothing);
         _expectConcealed(catalog);
@@ -511,8 +511,8 @@ void main() {
           ),
         );
         final digits = countdown.data!.split(':').map(int.parse).toList();
-        expect(digits[0] * 60 + digits[1], inInclusiveRange(85, 88));
-        await tester.pump(const Duration(seconds: 89));
+        expect(digits[0] * 60 + digits[1], inInclusiveRange(40, 43));
+        await tester.pump(const Duration(seconds: 44));
         await _settle(tester);
         expect(
           find.text('Wem vertraut ihr nicht?'),
@@ -637,8 +637,8 @@ void main() {
         );
         expect(find.text('Alle eingeweiht?'), findsOneWidget);
         _expectConcealed(catalog);
-        await _tapText(tester, '01:30 starten');
-        expect(find.text('01:30'), findsOneWidget);
+        await _tapText(tester, '00:45 starten');
+        expect(find.text('00:45'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
@@ -766,14 +766,14 @@ void main() {
           (pair) => pair.word == words.single,
         );
         expect(pair.hints, containsAll(hints));
-        final time = size == 6 ? '03:00' : '07:00';
+        final time = size == 6 ? '01:30' : '03:30';
         await _tapText(tester, '$time starten');
         expect(find.text(time), findsOneWidget);
-        // Real-clock 90-second expiry is covered by both three-person flows above.
+        // Real-clock 45-second expiry is covered by both three-person flows above.
         // Advance the injected clock here to exercise larger native groups without
-        // making every CI run wait another three or seven minutes.
+        // making every CI run wait another 90 seconds or three and a half minutes.
         tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-        now = now.add(Duration(seconds: size * 30));
+        now = now.add(Duration(seconds: size * 15));
         tester.binding.handleAppLifecycleStateChanged(
           AppLifecycleState.resumed,
         );
@@ -855,8 +855,8 @@ void main() {
         for (var i = 0; i < 5; i++) {
           await _passCard(tester);
         }
-        await _tapText(tester, '02:30 starten');
-        expect(find.text('02:30'), findsOneWidget);
+        await _tapText(tester, '01:15 starten');
+        expect(find.text('01:15'), findsOneWidget);
         _expectConcealed(catalog);
         expect(tester.takeException(), isNull);
       },

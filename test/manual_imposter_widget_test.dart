@@ -69,8 +69,8 @@ void main() {
         await tapVisible(tester, 'Verdecken und weitergeben');
       }
       expect(imposters, hasLength(2));
-      await tapVisible(tester, '01:30 starten');
-      now = now.add(const Duration(seconds: 90));
+      await tapVisible(tester, '00:45 starten');
+      now = now.add(const Duration(seconds: 45));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
       for (final name in imposters) {

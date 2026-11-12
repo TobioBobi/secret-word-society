@@ -349,13 +349,13 @@ abstract class AppLocalizations {
   /// No description provided for @shortenDuration.
   ///
   /// In de, this message translates to:
-  /// **'30 Sekunden kürzer'**
+  /// **'15 Sekunden kürzer'**
   String get shortenDuration;
 
   /// No description provided for @extendDuration.
   ///
   /// In de, this message translates to:
-  /// **'30 Sekunden länger'**
+  /// **'15 Sekunden länger'**
   String get extendDuration;
 
   /// No description provided for @selectedDuration.

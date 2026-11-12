@@ -2,9 +2,9 @@
 
 ## Verhalten
 
-Ohne manuelle Auswahl gelten weiterhin 30 Sekunden pro Person. In der
+Ohne manuelle Auswahl gelten seit Issue #78 15 Sekunden pro Person. In der
 Bereit-Ansicht nach der Kartenverteilung direkt vor dem Timerstart lässt sich die
-Dauer über Minus/Plus in Schritten von 30 Sekunden ändern. Erlaubt sind
+Dauer über Minus/Plus in Schritten von 15 Sekunden ändern. Erlaubt sind
 00:30 bis 15:00; am jeweiligen Ende ist der passende Button deaktiviert.
 Die gewählte Dauer und der Startbutton zeigen denselben Wert.
 Seit Issue #72 ist dies in Erst- und Folgerunden der einzige Einstellort.
