@@ -184,6 +184,8 @@ void main() {
     );
     await tester.ensureVisible(find.byType(TextField));
     await tester.enterText(find.byType(TextField), 'Ben');
+    await tester.ensureVisible(find.byTooltip('Name hinzufügen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Name hinzufügen'));
     await tester.pumpAndSettle();
     expect(find.text('3 Personen'), findsOneWidget);
