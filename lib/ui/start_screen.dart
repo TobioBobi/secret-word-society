@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import 'cutout.dart';
 import 'game_guide_screen.dart';
 import 'photo_privacy.dart';
 
@@ -20,30 +21,35 @@ class StartScreen extends StatelessWidget {
             child: CustomScrollView(
               slivers: [
                 SliverPadding(
-                  // Keep the top-right area free for language selection.
-                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+                  padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                   sliver: SliverFillRemaining(
                     hasScrollBody: false,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const Align(
+                          alignment: Alignment.centerRight,
+                          child: PaperConfetti(),
+                        ),
+                        const SizedBox(height: Cutout.gap),
                         Image.asset(
                           'assets/branding/start-logo.png',
                           semanticLabel: s.appTitle,
                           height: (MediaQuery.sizeOf(context).height * .32)
-                              .clamp(96, 220),
+                              .clamp(128, 240),
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(height: 24),
-                        FilledButton(
+                        const SizedBox(height: 32),
+                        CutoutAction(
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(builder: buildSession),
                           ),
                           child: Text(s.play, textAlign: TextAlign.center),
                         ),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
+                        const SizedBox(height: Cutout.gap),
+                        CutoutAction(
+                          style: CutoutActionStyle.secondary,
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => const GameGuideScreen(),
@@ -51,14 +57,23 @@ class StartScreen extends StatelessWidget {
                           ),
                           child: Text(s.gameGuide, textAlign: TextAlign.center),
                         ),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
+                        const SizedBox(height: Cutout.gap),
+                        CutoutAction(
+                          style: CutoutActionStyle.outlined,
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => const _SettingsScreen(),
                             ),
                           ),
                           child: Text(s.settings, textAlign: TextAlign.center),
+                        ),
+                        const SizedBox(height: 32),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: RotatedBox(
+                            quarterTurns: 2,
+                            child: PaperConfetti(),
+                          ),
                         ),
                       ],
                     ),
