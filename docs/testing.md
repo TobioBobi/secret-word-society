@@ -461,3 +461,26 @@ falsche, unvollständige und überzählige Verdachtsmengen. Widget-Tests prüfen
 zusätzlich sechs und vierzehn Personen, verdeckte Inhalte im Semantikbaum,
 Dialog-/Lifecycle-Schutz, alte Aktionen und Folgerunden; 14 Personen auch bei
 320 × 568 und 200 Prozent Schrift.
+
+## Cutout-Gruppenvorbereitung (Issue #86, 12.11.2026)
+
+- 175 Unit-/Widget-Tests sowie statische Analyse erfolgreich. Die finale
+  Testsuite wurde nach der Android-bedingten Dialogkorrektur erneut ausgeführt.
+- Neue Widget-Regression bei 320 × 568 mit 200 Prozent Schrift: lange mehrteilige
+  Namen behalten lesbare Breite; im Umbenennen-Dialog lässt sich das gesamte
+  Eingabefeld bei eingeblendeter Tastatur anzeigen und anschließend speichern.
+  Beide Engpässe sind zunächst mit fehlschlagenden Prüfungen belegt worden.
+- Bestehende Prüfungen sichern Namen/Fehler, Tastatureingabe, Avatar-/Fotoaktionen,
+  Imposter-Auswahl, Sitzungserhalt und Runden mit bis zu vierzehn Personen ab.
+  Touchflächen, beschriftete Aktionen, Kontrast und Semantik bleiben geprüft.
+- Getrennte Standards- und Spec-Reviews einschließlich der abschließenden
+  Eingabe-/Dialogkorrekturen ohne offene Befunde.
+- Native Prüfung auf Android API 36.1 mit Release-APK: normale Ansicht sowie
+  320 × 568 mit 200 Prozent Systemschrift, leere Gruppe/Fehler, drei Personen
+  einschließlich langem Namen, Umbenennen mit Tastatur, Imposter-Auswahl und
+  Übergang zur verdeckten ersten Geheimniskarte. Bilder und Protokolle liegen
+  lokal im ignorierten QA-Verzeichnis.
+- Physisches Gerät und tatsächliche TalkBack-Ausgabe bleiben offen. Die gesamte
+  native Spieltestsuite wurde für diesen Gestaltungsumfang nicht wiederholt.
+  Aufnahme und Bearbeitung selbst bleiben Gegenstand des Foto-Teiltickets;
+  die gemeinsame visuelle Gesamtabnahme erfolgt in der Theme-Story #84.

@@ -367,7 +367,8 @@ void main() {
       tester.view.viewInsets = const FakeViewPadding(bottom: 300);
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).last, 'Anni');
-      await tester.tap(find.text('Übernehmen'));
+      await tester.pumpAndSettle();
+      await tapVisible(tester, 'Übernehmen');
       tester.view.resetViewInsets();
       await tester.pumpAndSettle();
       final annaRow = find.byKey(const ValueKey('player-0'));

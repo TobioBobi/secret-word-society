@@ -54,6 +54,9 @@ Bildinhalt, ohne Saatwert, Foto, Zuschnitt oder optionale Effekte zu verändern.
 Vorbereitung. `PaperInputBorder` übernimmt die gemeinsame Papierkontur und lässt
 die Lücke für schwebende Beschriftungen sowie native Fokus-/Fehlerzustände frei.
 Der Umbenennen-Dialog bekommt dasselbe Theme auch auf seiner eigenen Route.
+Titel, Eingabe und Aktionen scrollen dort gemeinsam, damit eine eingeblendete
+Tastatur bei großer Schrift dem Eingabefeld nicht den Platz nimmt. Die native
+Dialogbezeichnung und die Überschriftensemantik bleiben erhalten.
 Die Hauptaktion verwendet `CutoutAction`, einschließlich deaktiviertem Start
 und Ladezustand. Der Zustandscontroller kennt den initial deaktivierten Zustand
 bereits vor dem Aufbau des nativen Buttons.

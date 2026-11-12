@@ -101,7 +101,7 @@ void main() {
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
           await tapVisible(tester, 'Anna');
           await tester.enterText(find.byType(TextField).last, 'Anni');
-          await tester.tap(find.text('\u00dcbernehmen'));
+          await tapVisible(tester, '\u00dcbernehmen');
           await tester.pumpAndSettle();
           expect(find.text('Anni'), findsOneWidget);
           expect(

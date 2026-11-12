@@ -83,6 +83,18 @@ class PaperInputBorder extends OutlineInputBorder {
       getOuterPath(rect.deflate(borderSide.width));
 
   @override
+  PaperInputBorder scale(double t) =>
+      PaperInputBorder(borderSide: borderSide.scale(t));
+
+  @override
+  void paintInterior(
+    Canvas canvas,
+    Rect rect,
+    Paint paint, {
+    TextDirection? textDirection,
+  }) => canvas.drawPath(getOuterPath(rect), paint);
+
+  @override
   void paint(
     Canvas canvas,
     Rect rect, {

@@ -146,43 +146,64 @@ class _SessionScreenState extends State<SessionScreen>
         builder: (context, updateDialog) => Theme(
           data: buildGroupCutoutTheme(Theme.of(context)),
           child: AlertDialog(
-            scrollable: true,
-            title: Text(strings.renamePlayer),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              autocorrect: false,
-              decoration: InputDecoration(
-                labelText: strings.nameLabel,
-                errorText: problem == null
-                    ? null
-                    : (problem == NameProblem.empty
-                          ? strings.nameEmpty
-                          : strings.nameDuplicate),
+            semanticLabel: strings.renamePlayer,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      strings.renamePlayer,
+                      style: Theme.of(context).dialogTheme.titleTextStyle,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.words,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: strings.nameLabel,
+                      errorText: problem == null
+                          ? null
+                          : (problem == NameProblem.empty
+                                ? strings.nameEmpty
+                                : strings.nameDuplicate),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  OverflowBar(
+                    alignment: MainAxisAlignment.end,
+                    spacing: 8,
+                    overflowSpacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: Text(strings.cancelEdit),
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          final result = _session.renamePlayer(
+                            player.id,
+                            controller.text,
+                          );
+                          if (result != null) {
+                            updateDialog(() => problem = result);
+                          } else {
+                            setState(() {});
+                            Navigator.pop(dialogContext);
+                          }
+                        },
+                        child: Text(strings.saveName),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(strings.cancelEdit),
-              ),
-              FilledButton(
-                onPressed: () {
-                  final result = _session.renamePlayer(
-                    player.id,
-                    controller.text,
-                  );
-                  if (result != null) {
-                    updateDialog(() => problem = result);
-                  } else {
-                    setState(() {});
-                    Navigator.pop(dialogContext);
-                  }
-                },
-                child: Text(strings.saveName),
-              ),
-            ],
           ),
         ),
       ),
