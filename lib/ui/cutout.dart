@@ -9,6 +9,46 @@ abstract final class Cutout {
   static const shadowOffset = Offset(4, 6);
 }
 
+/// Paper surfaces grow with their contents; the shadow never clips the text.
+class CutoutSurface extends StatelessWidget {
+  const CutoutSurface({
+    super.key,
+    required this.child,
+    this.padding = Cutout.padding,
+    this.color = PartyColors.surface,
+    this.foregroundColor = PartyColors.text,
+    this.shadowColor = PartyColors.purple,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final Color color;
+  final Color foregroundColor;
+  final Color shadowColor;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(right: 4, bottom: 6),
+    child: DecoratedBox(
+      decoration: ShapeDecoration(
+        color: color,
+        shape: const PaperBorder(side: BorderSide(color: PartyColors.outline)),
+        shadows: [BoxShadow(color: shadowColor, offset: Cutout.shadowOffset)],
+      ),
+      child: Padding(
+        padding: padding,
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: foregroundColor),
+          child: IconTheme.merge(
+            data: IconThemeData(color: foregroundColor),
+            child: child,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 /// A slightly irregular, straight-edged sheet, shared by fills and outlines.
 class PaperBorder extends OutlinedBorder {
   const PaperBorder({super.side});

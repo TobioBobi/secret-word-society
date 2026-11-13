@@ -529,18 +529,41 @@ class _SessionScreenState extends State<SessionScreen>
     route = DialogRoute<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        scrollable: true,
-        title: Text(strings.skipTimerTitle),
-        actions: [
-          TextButton(
-            onPressed: () => answer(false),
-            child: Text(strings.keepPlaying),
+        semanticLabel: strings.skipTimerTitle,
+        shape: const PaperBorder(side: BorderSide(color: PartyColors.outline)),
+        shadowColor: PartyColors.purple,
+        contentPadding: const EdgeInsets.all(24),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  strings.skipTimerTitle,
+                  style: PartyTypography.heading.copyWith(fontSize: 26),
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextButton(
+                style: TextButton.styleFrom(shape: const PaperBorder()),
+                onPressed: () => answer(false),
+                child: Text(strings.keepPlaying, textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: const PaperBorder(),
+                  backgroundColor: PartyColors.lime,
+                  foregroundColor: PartyColors.background,
+                ),
+                onPressed: () => answer(true),
+                child: Text(strings.skipTimer, textAlign: TextAlign.center),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => answer(true),
-            child: Text(strings.skipTimer),
-          ),
-        ],
+        ),
       ),
     );
     _skipTimerDialog = route;
@@ -830,9 +853,13 @@ class _SessionScreenState extends State<SessionScreen>
                                       GamePhase.discussion) ...[
                                     _buildCountdown(strings),
                                     const SizedBox(height: 16),
-                                    TextButton(
+                                    CutoutAction(
+                                      style: CutoutActionStyle.outlined,
                                       onPressed: _confirmSkipTimer,
-                                      child: Text(strings.skipTimer),
+                                      child: Text(
+                                        strings.skipTimer,
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ] else if (round.phase == GamePhase.voting)
                                     _buildVotingCard(strings)
@@ -889,7 +916,11 @@ class _SessionScreenState extends State<SessionScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: ShapeDecoration(
         color: PartyColors.surface,
-        shape: _session.round == null || _session.round!.currentPlayer != null
+        shape:
+            _session.round == null ||
+                _session.round!.currentPlayer != null ||
+                _session.round!.phase == GamePhase.ready ||
+                _session.round!.phase == GamePhase.discussion
             ? const PaperBorder(side: BorderSide(color: PartyColors.outline))
             : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -1036,7 +1067,7 @@ class _SessionScreenState extends State<SessionScreen>
         if (round.phase == GamePhase.ready) ...[
           _buildDurationPicker(strings),
           const SizedBox(height: 16),
-          FilledButton(
+          CutoutAction(
             onPressed: () => _startDiscussion(round),
             child: Text(
               strings.startDiscussion(
@@ -1410,6 +1441,7 @@ class _SessionScreenState extends State<SessionScreen>
               ? duration < RoundRules.maximumDuration
               : duration > RoundRules.minimumDuration);
       return IconButton.outlined(
+        style: groupIconStyle(),
         tooltip: increase ? strings.extendDuration : strings.shortenDuration,
         onPressed: enabled
             ? () => _setDiscussionDuration(
@@ -1422,7 +1454,7 @@ class _SessionScreenState extends State<SessionScreen>
       );
     }
 
-    return PartyCard(
+    return CutoutSurface(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1579,10 +1611,10 @@ class _SessionScreenState extends State<SessionScreen>
   Widget _buildCountdown(AppLocalizations strings) {
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
-    return PartyCard(
+    return CutoutSurface(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
       color: PartyColors.purple,
-      outlined: false,
+      shadowColor: PartyColors.paperShadow,
       child: Semantics(
         // Available on exploration, without a live announcement every second.
         label: strings.discussionRemaining(_remainingSeconds),
@@ -1643,7 +1675,7 @@ class _SessionScreenState extends State<SessionScreen>
     ),
   );
 
-  Widget _buildStatusCard(String label, IconData icon) => PartyCard(
+  Widget _buildStatusCard(String label, IconData icon) => CutoutSurface(
     padding: const EdgeInsets.all(20),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,

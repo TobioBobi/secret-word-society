@@ -1,5 +1,31 @@
 # Android-Integrationstests
 
+## Cutout-Rundendauer und Diskussion (Issue #88)
+
+Bereit-Ansicht, Dauerauswahl, laufender Timer, Überspringen-Dialog und
+Zeitablauf verwenden die gemeinsame Papiergestaltung. Die Dauer bleibt nach
+der Geheimnisverteilung einstellbar; Regeln und Phasensteuerung bleiben erhalten.
+
+Am 13.11.2026 bestanden 178 Unit-/Widget-Tests, Analyse und Formatprüfung.
+Die vorhandenen Diskussionstests prüfen Start, natürlichen Ablauf, bestätigtes
+und abgebrochenes Überspringen, Zurück, Unterbrechungen und einen Ablauf bei
+offener Bestätigung einschließlich veralteter Dialogaktion. Die Dauertests
+decken Grenzen, Schritte und Erhalt der manuellen Auswahl ab. Eine ergänzte
+Tastaturprüfung aktiviert Dauerschritte und Start, erreicht beide Dialogaktionen
+bei 320 × 568 mit 200 Prozent Schrift und schließt die Bestätigung mit Escape.
+Die vorhandene Prüfung für reduzierte Bewegung bleibt erfolgreich.
+
+Getrennte Standards- und Spec-Reviews ergaben keine offenen Befunde.
+Der Android-Release-Build ist erfolgreich. Die native Prüfung auf API 36.1
+umfasst normale Darstellung sowie 320 × 568 mit 200 Prozent Systemschrift:
+Geheimnisverteilung, Dauerschritte, Start, Zurück, Weiterspielen und bestätigtes
+Überspringen bis zur Abstimmung. Ein echter 30-Sekunden-Timer läuft bei offener
+Bestätigung ab; der Dialog verschwindet und die Abstimmung bleibt aktiv.
+Bereit-Karte, Dauerauswahl, Timer, Dialog und Zeitablauf wurden visuell geprüft.
+Die Android-Fehlerlogs sind unauffällig. Physisches Gerät und tatsächliche
+TalkBack-Ausgabe bleiben gesonderte Abnahmen; die gemeinsame visuelle
+Gesamtabnahme bleibt bei #84.
+
 ## Cutout-Startseite (Issue #85)
 
 Die Startseite verwendet kantige Papieraktionen mit versetztem Schatten und

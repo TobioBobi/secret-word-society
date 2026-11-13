@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
-import 'party_card.dart';
+import 'cutout.dart';
 import 'party_theme.dart';
 
 /// A single finite burst, with the same readable card when motion is disabled.
@@ -63,10 +63,10 @@ class _TimeUpCardState extends State<TimeUpCard>
         final burst = math.sin(_controller.value * math.pi).clamp(0.0, 1.0);
         return Transform.scale(
           scale: 1 - 0.04 * burst,
-          child: PartyCard(
+          child: CutoutSurface(
+            padding: const EdgeInsets.all(24),
             color: PartyColors.lime,
             foregroundColor: PartyColors.background,
-            outlined: false,
             child: Column(
               children: [
                 ExcludeSemantics(
