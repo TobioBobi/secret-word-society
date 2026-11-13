@@ -484,3 +484,32 @@ Dialog-/Lifecycle-Schutz, alte Aktionen und Folgerunden; 14 Personen auch bei
   native Spieltestsuite wurde für diesen Gestaltungsumfang nicht wiederholt.
   Aufnahme und Bearbeitung selbst bleiben Gegenstand des Foto-Teiltickets;
   die gemeinsame visuelle Gesamtabnahme erfolgt in der Theme-Story #84.
+
+## Cutout-Geheimnisse und Übergabe (Issue #87, 13.11.2026)
+
+- 176 Unit-/Widget-Tests sowie statische Analyse, Format- und Diff-Prüfung
+  erfolgreich. Nach der nativen Wortumbruchkorrektur wurde die vollständige
+  Suite erneut ausgeführt. Beide unabhängigen Reviewachsen einschließlich
+  dieser Korrektur haben keine offenen Befunde.
+- Der Render-Test prüft zusätzlich die opake, flache Vorhangfläche. Die neue
+  Wortumbruchregression prüft bei 320 × 568 und 200 Prozent Schrift, dass lange
+  Einzelwörter in Wort- und Hinweiskarten zusammenbleiben und alle drei Karten
+  bis zur Bereit-Ansicht weitergegeben werden können. Beide Änderungen sind
+  mit zunächst fehlschlagenden Tests abgesichert.
+- Bestehende Tests sichern die tatsächliche halbe Texthöhe als Freigabe,
+  mehrzeilige Geheimnisse, lange Namen, normale und zugängliche Übergabe,
+  Tastatur/Screenreader-Semantik, Unterbrechungen, Abbruch, Rückgabeanimation,
+  Vorhanghinweis, Avatarauftritte und reduzierte Bewegung ab.
+- Android API 36.1: geschlossene Übergabe, lange Namen, Wort- und Imposterkarte,
+  Tastatur-Aufdecken und vollständige Weitergabe bis zur Bereit-Ansicht bei
+  390 × 844/100 Prozent und 320 × 568/200 Prozent nativ geprüft. Ein gesonderter
+  lokaler QA-Einstieg injizierte lange Inhalte über den vorhandenen Kataloglader:
+  „Wasserkocher“ sowie „Gemeinsames besonderes Erlebnis“. Der zuerst beobachtete
+  abgetrennte Endbuchstabe und die unnötig schmale Hinweiskarte sind korrigiert
+  und erneut nativ geprüft. Bilder liegen im lokalen ignorierten QA-Verzeichnis.
+- Der anschließende Android-Release-Build verwendet den regulären App-Einstieg
+  und den unveränderten Offline-Katalog. Die QA-Version wird nicht bereitgestellt.
+- Physisches Gerät und tatsächliche TalkBack-Ausgabe bleiben gesonderte
+  Prüfungen. Die vollständige native Spieltestsuite wurde für diesen
+  Gestaltungsumfang nicht wiederholt. Die gemeinsame visuelle Gesamtabnahme
+  gehört weiterhin zur Theme-Story #84.
