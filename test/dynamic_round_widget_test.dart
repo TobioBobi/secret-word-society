@@ -1,3 +1,5 @@
+import 'dart:ui' show CheckedState, Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
@@ -124,8 +126,22 @@ void main() {
               .onChanged,
           isNotNull,
         );
+        final selectedFlags = tester
+            .getSemantics(find.bySemanticsLabel(names[maximum - 1]))
+            .getSemanticsData()
+            .flagsCollection;
+        expect(selectedFlags.isInMutuallyExclusiveGroup, isFalse);
+        expect(selectedFlags.isChecked, CheckedState.isTrue);
+        expect(selectedFlags.isEnabled, Tristate.isTrue);
         // A disabled extra person cannot be added, even by tapping their row.
         await select(names[maximum]);
+        final disabledFlags = tester
+            .getSemantics(find.bySemanticsLabel(names[maximum]))
+            .getSemanticsData()
+            .flagsCollection;
+        expect(disabledFlags.isInMutuallyExclusiveGroup, isFalse);
+        expect(disabledFlags.isChecked, CheckedState.isFalse);
+        expect(disabledFlags.isEnabled, Tristate.isFalse);
         expect(
           tester
               .widget<CheckboxListTile>(

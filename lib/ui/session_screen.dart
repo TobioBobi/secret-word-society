@@ -11,7 +11,6 @@ import '../game/round_rules.dart';
 import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/round_signal.dart';
-import 'party_card.dart';
 import 'cutout.dart';
 import 'group_cutout.dart';
 import 'handoff_entrances.dart';
@@ -475,20 +474,42 @@ class _SessionScreenState extends State<SessionScreen>
     final leave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        scrollable: true,
-        title: Text(strings.leaveRoundTitle),
-        content: Text(strings.leaveRoundBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(strings.keepPlaying),
+        semanticLabel: strings.leaveRoundTitle,
+        shape: const PaperBorder(side: BorderSide(color: PartyColors.outline)),
+        shadowColor: PartyColors.purple,
+        contentPadding: const EdgeInsets.all(24),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  strings.leaveRoundTitle,
+                  style: PartyTypography.heading.copyWith(fontSize: 26),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(strings.leaveRoundBody),
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                style: TextButton.styleFrom(shape: const PaperBorder()),
+                child: Text(strings.keepPlaying, textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: PartyColors.coral,
+                  shape: const PaperBorder(),
+                ),
+                child: Text(strings.leaveRound, textAlign: TextAlign.center),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: PartyColors.coral),
-            child: Text(strings.leaveRound),
-          ),
-        ],
+        ),
       ),
     );
     if (!mounted) return;
@@ -813,9 +834,8 @@ class _SessionScreenState extends State<SessionScreen>
                                     child: Text(
                                       title,
                                       style: compactReveal
-                                          ? const TextStyle(
+                                          ? PartyTypography.heading.copyWith(
                                               fontSize: 26,
-                                              fontWeight: FontWeight.w800,
                                             )
                                           : Theme.of(context)
                                                 .textTheme
@@ -916,13 +936,7 @@ class _SessionScreenState extends State<SessionScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: ShapeDecoration(
         color: PartyColors.surface,
-        shape:
-            _session.round == null ||
-                _session.round!.currentPlayer != null ||
-                _session.round!.phase == GamePhase.ready ||
-                _session.round!.phase == GamePhase.discussion
-            ? const PaperBorder(side: BorderSide(color: PartyColors.outline))
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: const PaperBorder(side: BorderSide(color: PartyColors.outline)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1036,7 +1050,7 @@ class _SessionScreenState extends State<SessionScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (round.phase == GamePhase.voting) ...[
-          FilledButton(
+          CutoutAction(
             onPressed: round.suspects.isEmpty
                 ? null
                 : () => _confirmSuspect(round),
@@ -1046,18 +1060,20 @@ class _SessionScreenState extends State<SessionScreen>
                   : (round.suspects.length == 1
                         ? strings.confirmSuspect(round.suspects.single.name)
                         : strings.confirmSuspects(round.suspects.length)),
+              style: PartyTypography.action.copyWith(fontSize: 20),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 12),
         ],
         if (round.phase == GamePhase.result) ...[
-          FilledButton(
+          CutoutAction(
             onPressed: () => _newRound(round),
             child: Text(strings.nextRound, textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
+          CutoutAction(
+            style: CutoutActionStyle.outlined,
             onPressed: () {
               if (_canAct(round)) _returnToGroup();
             },
@@ -1091,60 +1107,72 @@ class _SessionScreenState extends State<SessionScreen>
         final selected = round.suspects.any(
           (suspect) => suspect.id == player.id,
         );
+        final enabled = round.canSelectSuspect(player.id);
+        final foreground = selected
+            ? PartyColors.background
+            : (enabled ? PartyColors.text : PartyColors.muted);
+        final shape = PaperBorder(
+          side: BorderSide(
+            color: selected ? PartyColors.text : PartyColors.outline,
+            width: selected ? 2 : 1,
+          ),
+        );
+        // Keep native radio/checkbox interaction and merged row semantics.
+        // Long names get the full line; short names keep a compact row.
+        final title = Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            PlayerAvatarView(avatar: player.avatar, photo: player.photo),
+            Text(player.name),
+          ],
+        );
         return Padding(
           key: ValueKey(player.id),
-          padding: const EdgeInsets.only(bottom: 8),
-          child: round.allowsMultipleSuspects
-              ? CheckboxListTile(
-                  value: selected,
-                  onChanged: round.canSelectSuspect(player.id)
-                      ? (_) => _selectSuspect(round, player.id)
-                      : null,
-                  title: Text(player.name),
-                  secondary: PlayerAvatarView(
-                    avatar: player.avatar,
-                    photo: player.photo,
-                  ),
-                  activeColor: PartyColors.lime,
-                  checkColor: PartyColors.background,
-                  selected: selected,
-                  tileColor: PartyColors.surface,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: selected ? PartyColors.lime : PartyColors.outline,
-                      width: selected ? 2 : 1,
-                    ),
-                  ),
-                )
-              : RadioListTile<String>(
-                  value: player.id,
-                  enabled: round.canSelectSuspect(player.id),
-                  title: Text(player.name),
-                  secondary: PlayerAvatarView(
-                    avatar: player.avatar,
-                    photo: player.photo,
-                  ),
-                  selected: selected,
-                  activeColor: PartyColors.lime,
-                  tileColor: PartyColors.surface,
-                  selectedTileColor: PartyColors.surface,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: selected ? PartyColors.lime : PartyColors.outline,
-                      width: selected ? 2 : 1,
-                    ),
-                  ),
+          padding: const EdgeInsets.only(right: 4, bottom: 14),
+          child: DecoratedBox(
+            decoration: ShapeDecoration(
+              shape: shape,
+              shadows: const [
+                BoxShadow(
+                  color: PartyColors.purple,
+                  offset: Cutout.shadowOffset,
                 ),
+              ],
+            ),
+            child: Material(
+              color: selected ? PartyColors.lime : PartyColors.surface,
+              shape: shape,
+              clipBehavior: Clip.antiAlias,
+              child: ListTileTheme(
+                textColor: foreground,
+                selectedColor: foreground,
+                child: round.allowsMultipleSuspects
+                    ? CheckboxListTile(
+                        value: selected,
+                        onChanged: enabled
+                            ? (_) => _selectSuspect(round, player.id)
+                            : null,
+                        title: title,
+                        activeColor: PartyColors.background,
+                        checkColor: PartyColors.lime,
+                        selected: selected,
+                        contentPadding: Cutout.padding,
+                        shape: shape,
+                      )
+                    : RadioListTile<String>(
+                        value: player.id,
+                        enabled: enabled,
+                        title: title,
+                        selected: selected,
+                        activeColor: PartyColors.background,
+                        contentPadding: Cutout.padding,
+                        shape: shape,
+                      ),
+              ),
+            ),
+          ),
         );
       },
     ),
@@ -1155,10 +1183,9 @@ class _SessionScreenState extends State<SessionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PartyCard(
+        CutoutSurface(
           color: groupWon ? PartyColors.lime : PartyColors.coral,
           foregroundColor: PartyColors.background,
-          outlined: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1178,16 +1205,16 @@ class _SessionScreenState extends State<SessionScreen>
                 groupWon
                     ? strings.groupWins
                     : strings.imposterWins(result.imposters.length),
-                style: const TextStyle(
+                style: PartyTypography.heading.copyWith(
                   fontSize: 26,
-                  fontWeight: FontWeight.w800,
+                  color: PartyColors.background,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        PartyCard(
+        CutoutSurface(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1654,9 +1681,8 @@ class _SessionScreenState extends State<SessionScreen>
     ],
   );
 
-  Widget _buildRevealCountdown(AppLocalizations strings) => PartyCard(
+  Widget _buildRevealCountdown(AppLocalizations strings) => CutoutSurface(
     color: PartyColors.purple,
-    outlined: false,
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
     child: Semantics(
       liveRegion: true,
