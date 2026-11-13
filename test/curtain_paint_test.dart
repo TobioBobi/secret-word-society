@@ -81,6 +81,9 @@ void main() {
       }))!;
     }
 
+    // The closed paper is opaque and flat, including over the private layer.
+    expect((await samples())[0], [38, 32, 51, 255]);
+
     final grip = find.byKey(const ValueKey('secret-curtain-gesture'));
     final gesture = await tester.startGesture(tester.getCenter(grip));
     await gesture.moveBy(const Offset(0, -60));

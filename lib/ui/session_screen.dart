@@ -889,7 +889,7 @@ class _SessionScreenState extends State<SessionScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: ShapeDecoration(
         color: PartyColors.surface,
-        shape: _session.round == null
+        shape: _session.round == null || _session.round!.currentPlayer != null
             ? const PaperBorder(side: BorderSide(color: PartyColors.outline))
             : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -1486,31 +1486,91 @@ class _SessionScreenState extends State<SessionScreen>
     AppLocalizations strings,
     PlayerSecret secret,
     Key textKey,
-  ) => Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      if (secret.role == PlayerRole.imposter) ...[
-        Text(
-          _session.round!.allowsMultipleSuspects
-              ? strings.multipleImposterRole
-              : strings.imposterRole,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 16),
+  ) => DecoratedBox(
+    decoration: const ShapeDecoration(
+      color: PartyColors.text,
+      shape: PaperBorder(),
+      shadows: [
+        BoxShadow(color: PartyColors.paperShadow, offset: Cutout.shadowOffset),
       ],
-      Text(
-        secret.role == PlayerRole.imposter
-            ? strings.secretHint
-            : strings.secretWord,
+    ),
+    child: Padding(
+      padding: Cutout.padding,
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: PartyColors.background),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (secret.role == PlayerRole.imposter) ...[
+              Text(
+                _session.round!.allowsMultipleSuspects
+                    ? strings.multipleImposterRole
+                    : strings.imposterRole,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            Text(
+              secret.role == PlayerRole.imposter
+                  ? strings.secretHint
+                  : strings.secretWord,
+            ),
+            const SizedBox(height: 12),
+            _buildSecretText(secret.text, textKey),
+          ],
+        ),
       ),
-      const SizedBox(height: 12),
-      Text(
-        secret.text,
+    ),
+  );
+
+  Widget _buildSecretText(String text, Key textKey) => LayoutBuilder(
+    builder: (context, space) {
+      const style = TextStyle(fontSize: 30, fontWeight: FontWeight.w800);
+      final painter = TextPainter(
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        locale: Localizations.localeOf(context),
+      );
+      final words = text.split(RegExp(r'\s+'));
+      final inherited = DefaultTextStyle.of(context).style.merge(style);
+      bool fits(double fontSize) {
+        for (final word in words) {
+          painter.text = TextSpan(
+            text: word,
+            style: inherited.copyWith(fontSize: fontSize),
+          );
+          painter.layout();
+          if (painter.width > space.maxWidth) return false;
+        }
+        return true;
+      }
+
+      // Keep words intact while allowing phrases to wrap at their spaces.
+      var fontSize = 30.0;
+      if (!fits(fontSize)) {
+        var lower = 1.0;
+        var upper = fontSize;
+        for (var step = 0; step < 12; step++) {
+          final candidate = (lower + upper) / 2;
+          if (fits(candidate)) {
+            lower = candidate;
+          } else {
+            upper = candidate;
+          }
+        }
+        fontSize = lower;
+      }
+      painter.dispose();
+      return Text(
+        text,
         key: textKey,
-        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
-      ),
-    ],
+        style: style.copyWith(fontSize: fontSize),
+      );
+    },
   );
 
   Widget _buildReadyCard(AppLocalizations strings) =>

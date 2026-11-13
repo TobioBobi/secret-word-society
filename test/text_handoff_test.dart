@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/game/word_catalog.dart';
 import 'package:secret_word_society/main.dart';
@@ -67,6 +68,43 @@ Future<void> _moveToVisibleFraction(
 }
 
 void main() {
+  testWidgets('long secret words stay whole at 320px and 200% text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final catalog = WordCatalog(
+      languageCode: 'de',
+      pairs: [
+        WordPair(id: 'long', word: 'Wasserkocher', hint: 'Geburtstagsgeschenk'),
+      ],
+    );
+    await pumpPreparation(tester, MyApp(catalogLoader: () async => catalog));
+    for (final name in ['Anna', 'Ben', 'Cem']) {
+      await addName(tester, name);
+    }
+    await showStart(tester);
+    await tapVisible(tester, 'Runde starten');
+    for (var person = 0; person < 3; person++) {
+      await tapVisible(tester, 'Geheimnis kurz ansehen');
+      final text = find.text('Wasserkocher').evaluate().isNotEmpty
+          ? 'Wasserkocher'
+          : 'Geburtstagsgeschenk';
+      final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+      expect(
+        paragraph.getBoxesForSelection(
+          TextSelection(baseOffset: 0, extentOffset: text.length),
+        ),
+        hasLength(1),
+      );
+      await tapVisible(tester, 'Verdecken und weitergeben');
+    }
+    expect(find.text('Alle eingeweiht?'), findsOneWidget);
+  });
+
   for (final large in [false, true]) {
     for (final accessible in [false, true]) {
       testWidgets(
