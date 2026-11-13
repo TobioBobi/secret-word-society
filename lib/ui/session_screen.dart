@@ -1520,15 +1520,57 @@ class _SessionScreenState extends State<SessionScreen>
                   : strings.secretWord,
             ),
             const SizedBox(height: 12),
-            Text(
-              secret.text,
-              key: textKey,
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
-            ),
+            _buildSecretText(secret.text, textKey),
           ],
         ),
       ),
     ),
+  );
+
+  Widget _buildSecretText(String text, Key textKey) => LayoutBuilder(
+    builder: (context, space) {
+      const style = TextStyle(fontSize: 30, fontWeight: FontWeight.w800);
+      final painter = TextPainter(
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        locale: Localizations.localeOf(context),
+      );
+      final words = text.split(RegExp(r'\s+'));
+      final inherited = DefaultTextStyle.of(context).style.merge(style);
+      bool fits(double fontSize) {
+        for (final word in words) {
+          painter.text = TextSpan(
+            text: word,
+            style: inherited.copyWith(fontSize: fontSize),
+          );
+          painter.layout();
+          if (painter.width > space.maxWidth) return false;
+        }
+        return true;
+      }
+
+      // Keep words intact while allowing phrases to wrap at their spaces.
+      var fontSize = 30.0;
+      if (!fits(fontSize)) {
+        var lower = 1.0;
+        var upper = fontSize;
+        for (var step = 0; step < 12; step++) {
+          final candidate = (lower + upper) / 2;
+          if (fits(candidate)) {
+            lower = candidate;
+          } else {
+            upper = candidate;
+          }
+        }
+        fontSize = lower;
+      }
+      painter.dispose();
+      return Text(
+        text,
+        key: textKey,
+        style: style.copyWith(fontSize: fontSize),
+      );
+    },
   );
 
   Widget _buildReadyCard(AppLocalizations strings) =>

@@ -77,6 +77,9 @@ behält den Bildinhalt und bewegt sich weiterhin mit dem Vorhang. Wort und
 Imposter-Hinweis stehen auf einer hellen Papierkarte mit dunkler Schrift und
 versetztem violettem Schatten. Der Messschlüssel bleibt am Geheimnistext,
 unabhängig von Kartenpolsterung und Rollenbezeichnung.
+Lange Einzelwörter werden mit den tatsächlichen Schriftmetriken in die verfügbare
+Zeile eingepasst; mehrteilige Geheimnisse dürfen zwischen Wörtern umbrechen.
+Das verhindert einzelne abgetrennte Endbuchstaben bei großer Systemschrift.
 
 Die zugängliche Weitergabe bleibt ein nativer Button mit Papierkontur,
 deaktiviertem Zustand und eigener Fokuslinie. Öffentliche und private Semantik,
