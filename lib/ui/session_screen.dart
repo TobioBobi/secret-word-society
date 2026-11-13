@@ -12,6 +12,8 @@ import '../game/word_catalog.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/round_signal.dart';
 import 'party_card.dart';
+import 'cutout.dart';
+import 'group_cutout.dart';
 import 'handoff_entrances.dart';
 import 'party_theme.dart';
 import 'player_avatar.dart';
@@ -141,44 +143,68 @@ class _SessionScreenState extends State<SessionScreen>
     final route = DialogRoute<void>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, updateDialog) => AlertDialog(
-          scrollable: true,
-          title: Text(strings.renamePlayer),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: strings.nameLabel,
-              errorText: problem == null
-                  ? null
-                  : (problem == NameProblem.empty
-                        ? strings.nameEmpty
-                        : strings.nameDuplicate),
+        builder: (context, updateDialog) => Theme(
+          data: buildGroupCutoutTheme(Theme.of(context)),
+          child: AlertDialog(
+            semanticLabel: strings.renamePlayer,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      strings.renamePlayer,
+                      style: Theme.of(context).dialogTheme.titleTextStyle,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.words,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: strings.nameLabel,
+                      errorText: problem == null
+                          ? null
+                          : (problem == NameProblem.empty
+                                ? strings.nameEmpty
+                                : strings.nameDuplicate),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  OverflowBar(
+                    alignment: MainAxisAlignment.end,
+                    spacing: 8,
+                    overflowSpacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: Text(strings.cancelEdit),
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          final result = _session.renamePlayer(
+                            player.id,
+                            controller.text,
+                          );
+                          if (result != null) {
+                            updateDialog(() => problem = result);
+                          } else {
+                            setState(() {});
+                            Navigator.pop(dialogContext);
+                          }
+                        },
+                        child: Text(strings.saveName),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(strings.cancelEdit),
-            ),
-            FilledButton(
-              onPressed: () {
-                final result = _session.renamePlayer(
-                  player.id,
-                  controller.text,
-                );
-                if (result != null) {
-                  updateDialog(() => problem = result);
-                } else {
-                  setState(() {});
-                  Navigator.pop(dialogContext);
-                }
-              },
-              child: Text(strings.saveName),
-            ),
-          ],
         ),
       ),
     );
@@ -606,241 +632,249 @@ class _SessionScreenState extends State<SessionScreen>
             ? strings.groupWinIntro(result!.imposters.length)
             : strings.imposterWinIntro(result!.imposters.length),
     };
-    return PopScope(
-      canPop: round == null,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) _confirmLeaveRound();
-      },
-      child: Scaffold(
-        appBar: round == null ? AppBar() : null,
-        body: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final inset = constraints.maxWidth < 360 ? 16.0 : 24.0;
-                  if (round?.currentPlayer != null) {
-                    return CustomScrollView(
-                      controller: _scroll,
-                      slivers: [
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  24,
-                                  12,
-                                  24,
-                                  8,
-                                ),
-                                child: _buildPhaseLabel(phaseLabel, phaseIcon),
-                              ),
-                              Expanded(
-                                child: SizedBox(
-                                  // Gives the sliver an intrinsic minimum without
-                                  // asking the curtain's LayoutBuilder to measure.
-                                  height: 420,
-                                  child: SecretCurtain(
-                                    key: ValueKey(round!.currentPlayer!.id),
-                                    title: title,
-                                    name: round.currentPlayer!.name,
-                                    recipientPrompt:
-                                        round.currentPlayerNumber == 1
-                                        ? strings.handoffFirstPrompt
-                                        : strings.handoffNextPrompt,
-                                    entrances: _handoffEntrances,
-                                    animateAvatar:
-                                        round.currentPlayerNumber != 1,
-                                    hintActive: _canAct(round),
-                                    avatar: PlayerAvatarView(
-                                      avatar: round.currentPlayer!.avatar,
-                                      photo: round.currentPlayer!.photo,
-                                      size: 182,
-                                    ),
-                                    onHandoff: () =>
-                                        _handoffCard(round, concealRevision),
-                                    onInterrupt: _concealSecret,
-                                    canAdvance: round.canAdvanceCard,
-                                    headingFocus: _headingFocus,
-                                    revealed: revealed,
-                                    concealRevision: concealRevision,
-                                    onReveal: (markAsViewed) => _peekCard(
-                                      round,
-                                      true,
-                                      concealRevision,
-                                      markAsViewed: markAsViewed,
-                                    ),
-                                    onConceal: () => _peekCard(
-                                      round,
-                                      false,
-                                      concealRevision,
-                                    ),
-                                    secretBuilder: (_, textKey) =>
-                                        _buildSecretContent(
-                                          strings,
-                                          round.currentSecret!,
-                                          textKey,
-                                        ),
+    return Theme(
+      data: round == null
+          ? buildGroupCutoutTheme(Theme.of(context))
+          : Theme.of(context),
+      child: PopScope(
+        canPop: round == null,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) _confirmLeaveRound();
+        },
+        child: Scaffold(
+          appBar: round == null ? AppBar() : null,
+          body: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final inset = constraints.maxWidth < 360 ? 16.0 : 24.0;
+                    if (round?.currentPlayer != null) {
+                      return CustomScrollView(
+                        controller: _scroll,
+                        slivers: [
+                          SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    24,
+                                    12,
+                                    24,
+                                    8,
+                                  ),
+                                  child: _buildPhaseLabel(
+                                    phaseLabel,
+                                    phaseIcon,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  final scrollView = CustomScrollView(
-                    controller: _scroll,
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    slivers: [
-                      SliverPadding(
-                        padding: EdgeInsets.fromLTRB(inset, 24, inset, 0),
-                        sliver: SliverToBoxAdapter(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (!compactReveal) ...[
-                                Row(
-                                  children: [
-                                    const ExcludeSemantics(
-                                      child: Icon(
-                                        Icons.auto_awesome_outlined,
-                                        size: 24,
-                                        color: PartyColors.lime,
+                                Expanded(
+                                  child: SizedBox(
+                                    // Gives the sliver an intrinsic minimum without
+                                    // asking the curtain's LayoutBuilder to measure.
+                                    height: 420,
+                                    child: SecretCurtain(
+                                      key: ValueKey(round!.currentPlayer!.id),
+                                      title: title,
+                                      name: round.currentPlayer!.name,
+                                      recipientPrompt:
+                                          round.currentPlayerNumber == 1
+                                          ? strings.handoffFirstPrompt
+                                          : strings.handoffNextPrompt,
+                                      entrances: _handoffEntrances,
+                                      animateAvatar:
+                                          round.currentPlayerNumber != 1,
+                                      hintActive: _canAct(round),
+                                      avatar: PlayerAvatarView(
+                                        avatar: round.currentPlayer!.avatar,
+                                        photo: round.currentPlayer!.photo,
+                                        size: 182,
                                       ),
+                                      onHandoff: () =>
+                                          _handoffCard(round, concealRevision),
+                                      onInterrupt: _concealSecret,
+                                      canAdvance: round.canAdvanceCard,
+                                      headingFocus: _headingFocus,
+                                      revealed: revealed,
+                                      concealRevision: concealRevision,
+                                      onReveal: (markAsViewed) => _peekCard(
+                                        round,
+                                        true,
+                                        concealRevision,
+                                        markAsViewed: markAsViewed,
+                                      ),
+                                      onConceal: () => _peekCard(
+                                        round,
+                                        false,
+                                        concealRevision,
+                                      ),
+                                      secretBuilder: (_, textKey) =>
+                                          _buildSecretContent(
+                                            strings,
+                                            round.currentSecret!,
+                                            textKey,
+                                          ),
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        strings.appTitle.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    final scrollView = CustomScrollView(
+                      controller: _scroll,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      slivers: [
+                        SliverPadding(
+                          padding: EdgeInsets.fromLTRB(inset, 24, inset, 0),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (!compactReveal) ...[
+                                  Row(
+                                    children: [
+                                      const ExcludeSemantics(
+                                        child: Icon(
+                                          Icons.auto_awesome_outlined,
+                                          size: 24,
                                           color: PartyColors.lime,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                _buildPhaseLabel(phaseLabel, phaseIcon),
-                              ],
-                              if (round?.currentPlayerNumber != null) ...[
-                                const SizedBox(height: 12),
-                                ExcludeSemantics(
-                                  child: LinearProgressIndicator(
-                                    value:
-                                        (round!.currentPlayerNumber! - 1) /
-                                        round.players.length,
-                                    minHeight: 4,
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: PartyColors.lime,
-                                    backgroundColor: PartyColors.surface,
-                                  ),
-                                ),
-                              ],
-                              const SizedBox(height: 12),
-                              Focus(
-                                key: ValueKey(
-                                  '${round?.phase}-${round?.currentPlayerNumber}',
-                                ),
-                                focusNode: _headingFocus,
-                                skipTraversal: true,
-                                child: Semantics(
-                                  header: true,
-                                  child: Text(
-                                    title,
-                                    style: compactReveal
-                                        ? const TextStyle(
-                                            fontSize: 26,
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          strings.appTitle.toUpperCase(),
+                                          style: const TextStyle(
+                                            fontSize: 12,
                                             fontWeight: FontWeight.w800,
-                                          )
-                                        : Theme.of(context)
-                                              .textTheme
-                                              .headlineLarge,
+                                            letterSpacing: 2,
+                                            color: PartyColors.lime,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                              if (!compactReveal) ...[
-                                const SizedBox(height: 16),
-                                Text(
-                                  intro,
-                                  style: const TextStyle(
-                                    color: PartyColors.muted,
+                                  const SizedBox(height: 24),
+                                  _buildPhaseLabel(phaseLabel, phaseIcon),
+                                ],
+                                if (round?.currentPlayerNumber != null) ...[
+                                  const SizedBox(height: 12),
+                                  ExcludeSemantics(
+                                    child: LinearProgressIndicator(
+                                      value:
+                                          (round!.currentPlayerNumber! - 1) /
+                                          round.players.length,
+                                      minHeight: 4,
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: PartyColors.lime,
+                                      backgroundColor: PartyColors.surface,
+                                    ),
                                   ),
-                                ),
-                              ],
-                              const SizedBox(height: 24),
-                              if (round == null) _buildNameInput(strings),
-                              if (round != null &&
-                                  (round.phase == GamePhase.ready ||
-                                      round.phase == GamePhase.discussion ||
-                                      round.phase == GamePhase.voting)) ...[
-                                Text(
-                                  strings.selectedImposters(
-                                    round.imposterChoice.label,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                                ],
                                 const SizedBox(height: 12),
-                              ],
-                              if (round != null)
-                                if (round.phase == GamePhase.ready)
-                                  _buildReadyCard(strings)
-                                else if (round.phase ==
-                                    GamePhase.discussion) ...[
-                                  _buildCountdown(strings),
-                                  const SizedBox(height: 16),
-                                  TextButton(
-                                    onPressed: _confirmSkipTimer,
-                                    child: Text(strings.skipTimer),
+                                Focus(
+                                  key: ValueKey(
+                                    '${round?.phase}-${round?.currentPlayerNumber}',
                                   ),
-                                ] else if (round.phase == GamePhase.voting)
-                                  _buildVotingCard(strings)
-                                else if (round.phase == GamePhase.reveal)
-                                  _buildRevealCountdown(strings)
-                                else if (result != null)
-                                  _buildResult(strings, result),
-                            ],
+                                  focusNode: _headingFocus,
+                                  skipTraversal: true,
+                                  child: Semantics(
+                                    header: true,
+                                    child: Text(
+                                      title,
+                                      style: compactReveal
+                                          ? const TextStyle(
+                                              fontSize: 26,
+                                              fontWeight: FontWeight.w800,
+                                            )
+                                          : Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge,
+                                    ),
+                                  ),
+                                ),
+                                if (!compactReveal) ...[
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    intro,
+                                    style: const TextStyle(
+                                      color: PartyColors.muted,
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 24),
+                                if (round == null) _buildNameInput(strings),
+                                if (round != null &&
+                                    (round.phase == GamePhase.ready ||
+                                        round.phase == GamePhase.discussion ||
+                                        round.phase == GamePhase.voting)) ...[
+                                  Text(
+                                    strings.selectedImposters(
+                                      round.imposterChoice.label,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                if (round != null)
+                                  if (round.phase == GamePhase.ready)
+                                    _buildReadyCard(strings)
+                                  else if (round.phase ==
+                                      GamePhase.discussion) ...[
+                                    _buildCountdown(strings),
+                                    const SizedBox(height: 16),
+                                    TextButton(
+                                      onPressed: _confirmSkipTimer,
+                                      child: Text(strings.skipTimer),
+                                    ),
+                                  ] else if (round.phase == GamePhase.voting)
+                                    _buildVotingCard(strings)
+                                  else if (round.phase == GamePhase.reveal)
+                                    _buildRevealCountdown(strings)
+                                  else if (result != null)
+                                    _buildResult(strings, result),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      if (round == null) _buildPlayers(strings, inset),
-                      if (round?.phase == GamePhase.voting)
-                        _buildSuspects(round!, inset),
-                      SliverPadding(
-                        padding: EdgeInsets.fromLTRB(inset, 24, inset, 24),
-                        sliver: round == null
-                            ? SliverFillRemaining(
-                                hasScrollBody: false,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: _buildStartActions(strings),
+                        if (round == null) _buildPlayers(strings, inset),
+                        if (round?.phase == GamePhase.voting)
+                          _buildSuspects(round!, inset),
+                        SliverPadding(
+                          padding: EdgeInsets.fromLTRB(inset, 24, inset, 24),
+                          sliver: round == null
+                              ? SliverFillRemaining(
+                                  hasScrollBody: false,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: _buildStartActions(strings),
+                                  ),
+                                )
+                              : SliverToBoxAdapter(
+                                  child: _buildRoundActions(strings, round),
                                 ),
-                              )
-                            : SliverToBoxAdapter(
-                                child: _buildRoundActions(strings, round),
-                              ),
-                      ),
-                    ],
-                  );
-                  return round?.phase == GamePhase.voting &&
-                          !round!.allowsMultipleSuspects
-                      ? RadioGroup<String>(
-                          groupValue: round.suspects.firstOrNull?.id,
-                          onChanged: (id) => _selectSuspect(round, id),
-                          child: scrollView,
-                        )
-                      : scrollView;
-                },
+                        ),
+                      ],
+                    );
+                    return round?.phase == GamePhase.voting &&
+                            !round!.allowsMultipleSuspects
+                        ? RadioGroup<String>(
+                            groupValue: round.suspects.firstOrNull?.id,
+                            onChanged: (id) => _selectSuspect(round, id),
+                            child: scrollView,
+                          )
+                        : scrollView;
+                  },
+                ),
               ),
             ),
           ),
@@ -853,9 +887,11 @@ class _SessionScreenState extends State<SessionScreen>
     alignment: Alignment.centerLeft,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: PartyColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        shape: _session.round == null
+            ? const PaperBorder(side: BorderSide(color: PartyColors.outline))
+            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -923,13 +959,8 @@ class _SessionScreenState extends State<SessionScreen>
                       _session.players.length >= RoundRules.maximumPlayers
                   ? null
                   : _addPlayer,
-              style: IconButton.styleFrom(
-                minimumSize: const Size(56, 56),
-                backgroundColor: PartyColors.purple,
-                foregroundColor: PartyColors.text,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
+              style: groupIconStyle(primary: true).copyWith(
+                minimumSize: const WidgetStatePropertyAll(Size(56, 56)),
               ),
               icon: const Icon(Icons.add),
             ),
@@ -1203,89 +1234,87 @@ class _SessionScreenState extends State<SessionScreen>
           final player = players[index];
           return Padding(
             key: ValueKey(player.id),
-            padding: const EdgeInsets.only(bottom: 8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: PartyColors.surface,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PlayerAvatarView(
-                          avatar: player.avatar,
-                          photo: player.photo,
-                        ),
-                        IconButton(
-                          key: ValueKey('reroll-${player.id}'),
-                          tooltip: player.photo == null
-                              ? strings.rerollAvatar(player.name)
-                              : strings.rollEffect,
+            padding: const EdgeInsets.only(bottom: 12),
+            child: CutoutSurface(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextButton(
                           onPressed: _starting
                               ? null
-                              : () {
-                                  if (player.photo != null) {
-                                    _editPhoto(player, reroll: true);
-                                  } else {
-                                    setState(
-                                      () => _session.rerollAvatar(player.id),
-                                    );
-                                  }
-                                },
-                          icon: const Icon(Icons.casino_outlined),
+                              : () => _renamePlayer(player),
+                          style: TextButton.styleFrom(
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Text(player.name),
                         ),
-                      ],
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextButton(
+                      ),
+                      IconButton(
+                        tooltip: strings.removePlayer(player.name),
                         onPressed: _starting
                             ? null
-                            : () => _renamePlayer(player),
-                        child: Text(player.name, textAlign: TextAlign.center),
+                            : () => setState(
+                                () => _session.removePlayer(player.id),
+                              ),
+                        icon: const Icon(Icons.close),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      PlayerAvatarView(
+                        avatar: player.avatar,
+                        photo: player.photo,
+                      ),
+                      IconButton(
+                        key: ValueKey('reroll-${player.id}'),
+                        tooltip: player.photo == null
+                            ? strings.rerollAvatar(player.name)
+                            : strings.rollEffect,
+                        onPressed: _starting
+                            ? null
+                            : () {
+                                if (player.photo != null) {
+                                  _editPhoto(player, reroll: true);
+                                } else {
+                                  setState(
+                                    () => _session.rerollAvatar(player.id),
+                                  );
+                                }
+                              },
+                        icon: const Icon(Icons.casino_outlined),
+                      ),
+                      IconButton(
+                        tooltip: strings.photoFor(player.name),
+                        onPressed: _starting ? null : () => _editPhoto(player),
+                        icon: const Icon(Icons.add_a_photo_outlined),
+                      ),
+                      if (player.photo != null)
                         IconButton(
-                          tooltip: strings.photoFor(player.name),
+                          tooltip: strings.removePhoto,
                           onPressed: _starting
                               ? null
-                              : () => _editPhoto(player),
-                          icon: const Icon(Icons.add_a_photo_outlined),
+                              : () => setState(
+                                  () => _session.setPhoto(player.id, null),
+                                ),
+                          icon: const Icon(Icons.no_photography_outlined),
                         ),
-                        if (player.photo != null)
-                          IconButton(
-                            tooltip: strings.removePhoto,
-                            onPressed: _starting
-                                ? null
-                                : () => setState(
-                                    () => _session.setPhoto(player.id, null),
-                                  ),
-                            icon: const Icon(Icons.no_photography_outlined),
-                          ),
-                      ],
-                    ),
-                    IconButton(
-                      tooltip: strings.removePlayer(player.name),
-                      onPressed: _starting
-                          ? null
-                          : () => setState(
-                              () => _session.removePlayer(player.id),
-                            ),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
           );
@@ -1317,7 +1346,7 @@ class _SessionScreenState extends State<SessionScreen>
           : null,
       icon: Icon(increase ? Icons.add : Icons.remove),
     );
-    return PartyCard(
+    return CutoutSurface(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1444,7 +1473,7 @@ class _SessionScreenState extends State<SessionScreen>
         ),
       ),
     const SizedBox(height: 12),
-    FilledButton(
+    CutoutAction(
       onPressed: _session.canStart && !_starting ? _startRound : null,
       child: Text(
         _starting ? strings.startingRound : strings.startRound,

@@ -41,3 +41,25 @@ sowie Tastaturfokus, Aktivierung und Button-Semantik bei 320 × 568 mit
 200 Prozent Schrift. Zusätzliche Render- und Android-Prüfungen kontrollieren
 Logo, Papierlagen, Textumbrüche, Scrollen und erreichbare Aktionen.
 Physisches Gerät und tatsächliche TalkBack-Ausgabe bleiben gesonderte Abnahmen.
+
+## Gruppenvorbereitung (#86)
+
+Die Gruppenansicht verwendet `CutoutSurface` für Personen und Imposter-Anzahl.
+Namen erhalten eine eigene breite Zeile; Avatar und Fotoaktionen stehen darunter
+und können umbrechen. Die Sliver-Liste bleibt auch für vierzehn Personen scrollbar.
+Der gemeinsame `PlayerAvatarView` setzt einen Papier-Rahmen um den bisherigen
+Bildinhalt, ohne Saatwert, Foto, Zuschnitt oder optionale Effekte zu verändern.
+
+`buildGroupCutoutTheme` begrenzt Eingabe-, Symbol- und Dialoggestaltung auf die
+Vorbereitung. `PaperInputBorder` übernimmt die gemeinsame Papierkontur und lässt
+die Lücke für schwebende Beschriftungen sowie native Fokus-/Fehlerzustände frei.
+Der Umbenennen-Dialog bekommt dasselbe Theme auch auf seiner eigenen Route.
+Titel, Eingabe und Aktionen scrollen dort gemeinsam, damit eine eingeblendete
+Tastatur bei großer Schrift dem Eingabefeld nicht den Platz nimmt. Die native
+Dialogbezeichnung und die Überschriftensemantik bleiben erhalten.
+Die Hauptaktion verwendet `CutoutAction`, einschließlich deaktiviertem Start
+und Ladezustand. Der Zustandscontroller kennt den initial deaktivierten Zustand
+bereits vor dem Aufbau des nativen Buttons.
+
+Die Regeln für Gruppengröße, Namen, Imposter-Anzahl, Sitzung und Rundenstart
+bleiben unverändert. Aufnahme und Bearbeitung selbst folgen im Foto-Teilticket.

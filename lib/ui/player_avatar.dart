@@ -6,6 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../game/player_avatar.dart';
 import '../game/player_photo.dart';
 import 'photo_image.dart';
+import 'cutout.dart';
+import 'party_theme.dart';
 
 /// One style definition; no network, role, or name enters the renderer.
 class PlayerAvatarView extends StatelessWidget {
@@ -30,10 +32,22 @@ class PlayerAvatarView extends StatelessWidget {
   Widget build(BuildContext context) => ExcludeSemantics(
     child: SizedBox.square(
       dimension: size,
-      child: ClipOval(
-        child: photo == null
-            ? SvgPicture.string(svgFor(avatar))
-            : PhotoImage(bytes: photo!.bytes),
+      child: DecoratedBox(
+        decoration: const ShapeDecoration(
+          color: PartyColors.text,
+          shape: PaperBorder(),
+          shadows: [
+            BoxShadow(color: PartyColors.paperShadow, offset: Offset(2, 3)),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(3),
+          child: ClipOval(
+            child: photo == null
+                ? SvgPicture.string(svgFor(avatar))
+                : PhotoImage(bytes: photo!.bytes),
+          ),
+        ),
       ),
     ),
   );

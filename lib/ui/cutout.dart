@@ -70,7 +70,15 @@ class CutoutAction extends StatefulWidget {
 }
 
 class _CutoutActionState extends State<CutoutAction> {
-  final _states = WidgetStatesController();
+  late final _states = WidgetStatesController({
+    if (widget.onPressed == null) WidgetState.disabled,
+  });
+
+  @override
+  void didUpdateWidget(CutoutAction oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _states.update(WidgetState.disabled, widget.onPressed == null);
+  }
 
   @override
   void dispose() {
