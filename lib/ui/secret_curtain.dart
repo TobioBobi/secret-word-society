@@ -395,7 +395,13 @@ class _SecretCurtainState extends State<SecretCurtain>
                                         fit: BoxFit.scaleDown,
                                         alignment: Alignment.bottomLeft,
                                         child: SizedBox(
-                                          width: space.maxWidth,
+                                          // Lay out enlarged type on a wider sheet
+                                          // before fitting. Otherwise early wrapping
+                                          // shrinks the whole card a second time.
+                                          width:
+                                              space.maxWidth *
+                                              MediaQuery.textScalerOf(context)
+                                                  .scale(1),
                                           child: widget.secretBuilder(
                                             context,
                                             _secretTextKey,
