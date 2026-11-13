@@ -936,13 +936,7 @@ class _SessionScreenState extends State<SessionScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: ShapeDecoration(
         color: PartyColors.surface,
-        shape:
-            _session.round == null ||
-                _session.round!.currentPlayer != null ||
-                _session.round!.phase == GamePhase.ready ||
-                _session.round!.phase == GamePhase.discussion
-            ? const PaperBorder(side: BorderSide(color: PartyColors.outline))
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: const PaperBorder(side: BorderSide(color: PartyColors.outline)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
