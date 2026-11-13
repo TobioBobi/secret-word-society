@@ -513,3 +513,22 @@ Dialog-/Lifecycle-Schutz, alte Aktionen und Folgerunden; 14 Personen auch bei
   Prüfungen. Die vollständige native Spieltestsuite wurde für diesen
   Gestaltungsumfang nicht wiederholt. Die gemeinsame visuelle Gesamtabnahme
   gehört weiterhin zur Theme-Story #84.
+
+### PR #95: vergrößerte Systemschrift erhalten
+
+Die Reparatur entfernt die Multiplikation der Kartenbreite mit dem Schriftfaktor.
+Diese hatte selbst bei ausreichend Platz eine inverse Verkleinerung der gesamten
+Karte ausgelöst. Die Karte beginnt nun mit der verfügbaren Breite und wird nur
+bei tatsächlichem Überlauf verkleinert.
+
+`test/secret_text_scale_test.dart` misst die gezeichneten Textgrenzen einschließlich
+aller Transformationen: Rolle, Beschriftung und ein kurzes Geheimnis müssen bei
+200 Prozent linearer Schrift die doppelte Höhe behalten, wenn sie hineinpassen.
+Der Test scheiterte zunächst mit 22 statt 44 Pixeln für die Rolle und besteht nach
+der Korrektur. Alle 177 Unit-/Widget-Tests und die Analyse sind erfolgreich;
+getrennte Standards- und Spec-Reviews des Reparaturdiffs haben keine Befunde.
+Der reguläre Release-Build und die erneute native Prüfung auf API 36.1 bei
+390 × 844/100 Prozent und 320 × 568/200 Prozent sind erfolgreich: Wort- und
+Hinweiskarten, lange Namen und jeweils drei Tastaturweitergaben bis zur
+Bereit-Ansicht. Das Android-Fehlerprotokoll blieb leer. Physisches Gerät und
+tatsächliche TalkBack-Ausgabe bleiben offen.
