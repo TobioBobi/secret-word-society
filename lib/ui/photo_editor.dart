@@ -11,6 +11,7 @@ import '../l10n/app_localizations.dart';
 import '../platform/photo_processing.dart';
 import 'photo_image.dart';
 import 'cutout.dart';
+import 'group_cutout.dart';
 import 'party_theme.dart';
 
 class PhotoEditor extends StatefulWidget {
@@ -237,6 +238,10 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
     final photo = _photo;
     return Scaffold(
       appBar: AppBar(
+        leading: IconButtonTheme(
+          data: IconButtonThemeData(style: groupIconStyle()),
+          child: const BackButton(),
+        ),
         backgroundColor: PartyColors.background,
         surfaceTintColor: Colors.transparent,
       ),

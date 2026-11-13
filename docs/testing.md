@@ -1,5 +1,13 @@
 # Android-Integrationstests
 
+## Cutout-Gesamtprüfung (Issue #92)
+
+Der zusammenhängende Prüfstand nach #85–#91, die vier Android-Referenzsituationen
+und die ausdrücklich noch offene gemeinsame visuelle Abnahme sind in
+[`design/cutout-acceptance.md`](design/cutout-acceptance.md) dokumentiert.
+Erfolgreiche automatisierte Prüfungen ersetzen weder die Zustimmung zur
+Gestaltung noch die gesonderte physische Geräte-/TalkBack-Prüfung.
+
 ## Cutout-Fotoeditor (Issue #90)
 
 Aufnahmehilfe, Kamera-/Fotovorschau, Aktionen, Verarbeitung und Fehler verwenden
