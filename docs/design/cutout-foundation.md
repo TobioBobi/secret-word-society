@@ -152,3 +152,29 @@ liegenden Buttons erreicht. Native Buttonrollen, deaktivierte Zustände, Fokus-
 und Druckreaktionen stammen aus `CutoutAction`. Verarbeitung bleibt eine einzelne
 Live-Ansage; Fehler verwenden zusätzlich zu ihrer Akzentfarbe ein Fehlersymbol
 und die vorhandene konkrete Meldung. Dekorative Symbole erzeugen keine Ansagen.
+
+## Anleitung und Nebenansichten (#91)
+
+`CutoutPage` hält Rücknavigation in der Werkzeugleiste und lässt die vollständige
+Routenüberschrift mit dem Inhalt scrollen. Überschriften behalten Header- und
+Routensemantik; Inhalte und Aktionen sind auch außerhalb des sichtbaren Bereichs
+für die Tastatur aufgebaut. Comic-Szenen, Sprech-/Rollenkarten und Datenschutz
+verwenden `CutoutSurface`, Nebenaktionen die nativen Buttons aus `CutoutAction`.
+Texte, Figuren, Beispiele und Sitzung bleiben erhalten.
+
+Die Lizenzübersicht liest weiterhin `LicenseRegistry.licenses`, gruppiert nach
+Paket und zeigt sämtliche Einträge einschließlich Absätzen und Einrückungen.
+Sie erhält eigene Papierflächen statt der festen Titelzeilen von `LicensePage`,
+die lange Paketnamen bei großer Schrift kürzen. Die bisherigen Anwendungshinweise,
+Lizenzanzahlen, Paketaktionen und Rückwege bleiben erhalten. Lange Lizenzdetails
+verwenden eine Sliver-Liste: Nur sichtbare Absätze werden ausgelegt, auch beim
+rund 1 MB großen nativen Foto-Lizenztext. Die Überschrift scrollt weiter mit;
+einzelne Papierabsätze erhalten weiterhin Einrückungen und zentrierte Titel.
+Lade- und Fehlerzustände
+liegen ebenfalls auf Papierflächen. Lizenzen werden nicht nachgeladen.
+
+`test/side_screens_test.dart` sichert vollständige Titel, letzte Lizenzabsätze,
+Tastaturfokus/-aktivierung, Buttonsemantik und Sitzungserhalt bei 320 × 568 und
+200 Prozent Schrift ab. Die vorhandenen Startseitentests prüfen weiterhin alle
+Comic-Szenen bis zum Ergebnis. Diese Gestaltung ersetzt weder die beobachtete
+Erstspieler-Abnahme aus #17 noch die tatsächliche TalkBack-/Geräteabnahme.

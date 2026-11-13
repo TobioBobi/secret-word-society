@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import 'cutout.dart';
+import 'cutout_page.dart';
 import 'game_guide_screen.dart';
 import 'photo_privacy.dart';
 
@@ -94,19 +95,15 @@ class _SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(s.settings)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            OutlinedButton(
-              onPressed: () => showPhotoPrivacy(context),
-              child: Text(s.privacyAndLicenses, textAlign: TextAlign.center),
-            ),
-          ],
+    return CutoutPage(
+      title: s.settings,
+      children: [
+        CutoutAction(
+          style: CutoutActionStyle.outlined,
+          onPressed: () => showPhotoPrivacy(context),
+          child: Text(s.privacyAndLicenses, textAlign: TextAlign.center),
         ),
-      ),
+      ],
     );
   }
 }
