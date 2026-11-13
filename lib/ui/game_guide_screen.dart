@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../game/player_avatar.dart';
 import '../l10n/app_localizations.dart';
-import 'party_card.dart';
+import 'cutout.dart';
+import 'cutout_page.dart';
 import 'party_theme.dart';
 import 'player_avatar.dart';
 
@@ -17,106 +18,96 @@ class GameGuideScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context);
     final theme = Theme.of(context).textTheme;
-    return Scaffold(
-      appBar: AppBar(title: Text(s.gameGuide)),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              children: [
-                _Scene(
-                  title: s.guideRevealTitle,
-                  caption: s.guideReveal,
-                  icon: Icons.visibility_off_outlined,
-                  characters: [
-                    _Character(
-                      avatar: _first,
-                      name: s.guideFirstPlayer,
-                      label: s.guideGroupCard,
-                      words: s.guideExampleWord,
-                    ),
-                    _Character(
-                      avatar: _second,
-                      name: s.guideSecondPlayer,
-                      label: s.guideGroupCard,
-                      words: s.guideExampleWord,
-                    ),
-                    _Character(
-                      avatar: _imposter,
-                      name: s.guideThirdPlayer,
-                      label: s.guideImposterCard,
-                      words: s.guideExampleHint,
-                      accent: PartyColors.coral,
-                    ),
-                    const _PhoneHandoff(),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _Scene(
-                  title: s.guideDiscussTitle,
-                  caption: s.guideDiscuss,
-                  icon: Icons.timer_outlined,
-                  characters: [
-                    _Character(
-                      avatar: _first,
-                      name: s.guideFirstPlayer,
-                      words: s.guideCrunchy,
-                    ),
-                    _Character(
-                      avatar: _second,
-                      name: s.guideSecondPlayer,
-                      words: s.guideSalty,
-                    ),
-                    _Character(
-                      avatar: _imposter,
-                      name: s.guideThirdPlayer,
-                      words: s.guideMovieBreak,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _Scene(
-                  title: s.guideVoteTitle,
-                  caption: s.guideVote,
-                  icon: Icons.how_to_vote_outlined,
-                  characters: [
-                    _Character(avatar: _first, name: s.guideFirstPlayer),
-                    _Character(avatar: _second, name: s.guideSecondPlayer),
-                    _Character(
-                      avatar: _imposter,
-                      name: s.guideThirdPlayer,
-                      words: s.guideMovieBreak,
-                      accent: PartyColors.lime,
-                      selected: true,
-                    ),
-                  ],
-                  result: Column(
-                    children: [
-                      const Divider(height: 24),
-                      Text(
-                        s.guideResultWord,
-                        style: theme.headlineSmall?.copyWith(
-                          color: PartyColors.lime,
-                          fontWeight: FontWeight.w800,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(s.guideResultRole, textAlign: TextAlign.center),
-                      Text(
-                        s.guideResultWin,
-                        style: theme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return CutoutPage(
+      title: s.gameGuide,
+      children: [
+        _Scene(
+          title: s.guideRevealTitle,
+          caption: s.guideReveal,
+          icon: Icons.visibility_off_outlined,
+          characters: [
+            _Character(
+              avatar: _first,
+              name: s.guideFirstPlayer,
+              label: s.guideGroupCard,
+              words: s.guideExampleWord,
             ),
+            _Character(
+              avatar: _second,
+              name: s.guideSecondPlayer,
+              label: s.guideGroupCard,
+              words: s.guideExampleWord,
+            ),
+            _Character(
+              avatar: _imposter,
+              name: s.guideThirdPlayer,
+              label: s.guideImposterCard,
+              words: s.guideExampleHint,
+              accent: PartyColors.coral,
+            ),
+            const _PhoneHandoff(),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _Scene(
+          title: s.guideDiscussTitle,
+          caption: s.guideDiscuss,
+          icon: Icons.timer_outlined,
+          characters: [
+            _Character(
+              avatar: _first,
+              name: s.guideFirstPlayer,
+              words: s.guideCrunchy,
+            ),
+            _Character(
+              avatar: _second,
+              name: s.guideSecondPlayer,
+              words: s.guideSalty,
+            ),
+            _Character(
+              avatar: _imposter,
+              name: s.guideThirdPlayer,
+              words: s.guideMovieBreak,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _Scene(
+          title: s.guideVoteTitle,
+          caption: s.guideVote,
+          icon: Icons.how_to_vote_outlined,
+          characters: [
+            _Character(avatar: _first, name: s.guideFirstPlayer),
+            _Character(avatar: _second, name: s.guideSecondPlayer),
+            _Character(
+              avatar: _imposter,
+              name: s.guideThirdPlayer,
+              words: s.guideMovieBreak,
+              accent: PartyColors.lime,
+              selected: true,
+            ),
+          ],
+          result: Column(
+            children: [
+              const Divider(height: 24),
+              Text(
+                s.guideResultWord,
+                style: theme.headlineSmall?.copyWith(
+                  color: PartyColors.lime,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(s.guideResultRole, textAlign: TextAlign.center),
+              Text(
+                s.guideResultWin,
+                style: theme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -137,23 +128,19 @@ class _Scene extends StatelessWidget {
   final Widget? result;
 
   @override
-  Widget build(BuildContext context) => PartyCard(
+  Widget build(BuildContext context) => CutoutSurface(
     padding: const EdgeInsets.all(12),
-    outlined: false,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Icon(icon, color: PartyColors.lime),
+            ExcludeSemantics(child: Icon(icon, color: PartyColors.lime)),
             const SizedBox(width: 8),
             Expanded(
               child: Semantics(
                 header: true,
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                child: Text(title, style: PartyTypography.action),
               ),
             ),
           ],
@@ -177,18 +164,20 @@ class _PhoneHandoff extends StatelessWidget {
   const _PhoneHandoff();
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    width: double.infinity,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.arrow_forward_rounded, color: PartyColors.muted),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Icon(Icons.phonelink_lock, color: PartyColors.lime),
-        ),
-        Icon(Icons.arrow_forward_rounded, color: PartyColors.muted),
-      ],
+  Widget build(BuildContext context) => const ExcludeSemantics(
+    child: SizedBox(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.arrow_forward_rounded, color: PartyColors.muted),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Icon(Icons.phonelink_lock, color: PartyColors.lime),
+          ),
+          Icon(Icons.arrow_forward_rounded, color: PartyColors.muted),
+        ],
+      ),
     ),
   );
 }
@@ -237,33 +226,30 @@ class _Character extends StatelessWidget {
               Icon(Icons.arrow_drop_up, size: 16, color: accent)
             else
               const SizedBox(height: 6),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: accent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (label != null)
-                      Text(
-                        label!,
-                        style: theme.labelSmall?.copyWith(
-                          color: PartyColors.background,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+            CutoutSurface(
+              color: accent,
+              foregroundColor: PartyColors.background,
+              shadowColor: PartyColors.paperShadow,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (label != null)
                     Text(
-                      words!,
-                      style: theme.labelLarge?.copyWith(
+                      label!,
+                      style: theme.labelSmall?.copyWith(
                         color: PartyColors.background,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ],
-                ),
+                  Text(
+                    words!,
+                    style: theme.labelLarge?.copyWith(
+                      color: PartyColors.background,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ],
