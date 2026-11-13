@@ -1,8 +1,9 @@
 # Cutout-Grundlage
 
-Die Startseite verwendet die in #84 bestätigte Bildsprache. Das vorhandene,
+Die App verwendet die in #84 bestätigte Bildsprache. Das vorhandene,
 freigestellte Logo und sämtliche Texte und Ziele bleiben erhalten.
-Die übrigen Ansichten werden in den Folgetickets umgestellt.
+Die Umsetzung der Ansichten aus #85–#91 ist integriert. Prüfstand und gemeinsame
+visuelle Abnahme stehen in [Cutout-Gesamtprüfung](cutout-acceptance.md).
 
 ## Wiederverwendung
 
@@ -15,8 +16,7 @@ Die übrigen Ansichten werden in den Folgetickets umgestellt.
 - `PaperBorder` zeichnet dieselbe leicht unregelmäßige, kantige Kontur für
   gefüllte und umrandete Flächen. Sie ist als `OutlinedBorder` für Material,
   ShapeDecoration, Karten, Dialoge, Symbolaktionen und Auswahlflächen nutzbar.
-  Eingabefelder können dieselbe Kontur über eine passende InputBorder-Adaption
-  erhalten, sobald ihre Ansichten umgestellt werden.
+  Eingabefelder verwenden dieselbe Kontur über `PaperInputBorder`.
 - `Cutout.padding`, `.gap` und `.shadowOffset` legen sichere Textabstände,
   Gruppierung und die flache Schattenlage fest. Inhalte bestimmen die Höhe;
   Papierflächen haben keine festen Textabmessungen.
@@ -27,11 +27,10 @@ Die übrigen Ansichten werden in den Folgetickets umgestellt.
   behalten native deaktivierte Semantik und reagieren nicht auf Eingaben.
 - `PaperConfetti` ist rein dekorativ und aus der Semantik ausgeschlossen.
 
-Diese Bausteine werden schrittweise in den Spielansichten angewendet.
-Phasenkennzeichnung, Auswahl, Mengen-/Dauerauswahl und Statusmeldungen können
-die Papierkontur und Tokens übernehmen; ihre fachlichen Zustände und
-Semantik bleiben in den jeweiligen Komponenten. Noch unbenötigte Varianten
-oder ein separater Showroom werden nicht vorab eingeführt.
+Diese Bausteine werden in den Spielansichten angewendet.
+Phasenkennzeichnung, Auswahl, Mengen-/Dauerauswahl und Statusmeldungen verwenden
+die Papierkontur und Tokens; ihre fachlichen Zustände und
+Semantik bleiben in den jeweiligen Komponenten.
 
 ## Prüfung
 
