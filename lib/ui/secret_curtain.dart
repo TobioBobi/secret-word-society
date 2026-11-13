@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
+import 'cutout.dart';
 import 'handoff_avatar.dart';
 import 'handoff_entrances.dart';
 import 'party_theme.dart';
@@ -256,15 +257,15 @@ class _SecretCurtainState extends State<SecretCurtain>
     final text = _secretTextKey.currentContext?.findRenderObject();
     final panel = _panelKey.currentContext?.findRenderObject();
     if (text is! RenderBox || panel is! RenderBox || !text.hasSize) return;
-    // Include FittedBox scaling and the curve at the rendered text's center,
+    // Include FittedBox scaling and the paper edge at the rendered text's center,
     // which can sit off-center when a long secret is scaled down.
     final middle = text.localToGlobal(text.size.center(Offset.zero));
-    final curveY = _SoftEdgeClipper.edgeY(
+    final edgeY = _PaperEdgeClipper.edgeY(
       panel.size,
       panel.globalToLocal(middle).dx,
     );
     final edge =
-        panel.localToGlobal(Offset(0, curveY)).dy - travel * _cover.value;
+        panel.localToGlobal(Offset(0, edgeY)).dy - travel * _cover.value;
     if (edge <= middle.dy) {
       _requestedViewed = true;
       _viewed = true;
@@ -378,9 +379,9 @@ class _SecretCurtainState extends State<SecretCurtain>
                           builder: (context, _) =>
                               widget.revealed && _cover.value > 0
                               ? LayoutBuilder(
-                                  // The curved cover is the visual mask. A second,
+                                  // The paper cover is the visual mask. A second,
                                   // rectangular clip would hide the text beyond
-                                  // that curve and make the moving edge look flat.
+                                  // the cut edge and conceal otherwise visible text.
                                   builder: (context, space) => ExcludeSemantics(
                                     key: const ValueKey(
                                       'secret-curtain-opening',
@@ -446,23 +447,10 @@ class _SecretCurtainState extends State<SecretCurtain>
                             // Losing before a drag starts is not a canceled viewing.
                             if (_dragging) _interrupt();
                           },
-                          child: PhysicalShape(
-                            clipper: const _SoftEdgeClipper(),
-                            clipBehavior: Clip.antiAlias,
-                            color: PartyColors.surface,
-                            elevation: 8,
-                            shadowColor: Colors.black54,
+                          child: _PaperCover(
                             child: DecoratedBox(
                               decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Color(0xFF2D2042),
-                                    Color(0xFF231A34),
-                                    PartyColors.background,
-                                  ],
-                                ),
+                                color: PartyColors.surface,
                               ),
                               child: Stack(
                                 fit: StackFit.expand,
@@ -489,6 +477,26 @@ class _SecretCurtainState extends State<SecretCurtain>
                                         if (accessible) ...[
                                           const SizedBox(height: 16),
                                           FilledButton(
+                                            style:
+                                                FilledButton.styleFrom(
+                                                  shape: const PaperBorder(),
+                                                  elevation: 0,
+                                                ).copyWith(
+                                                  side:
+                                                      WidgetStateProperty.resolveWith(
+                                                        (states) => BorderSide(
+                                                          color: PartyColors
+                                                              .background,
+                                                          width:
+                                                              states.contains(
+                                                                WidgetState
+                                                                    .focused,
+                                                              )
+                                                              ? 3
+                                                              : 0,
+                                                        ),
+                                                      ),
+                                                ),
                                             onPressed:
                                                 widget.canAdvance && !_returning
                                                 ? () => unawaited(
@@ -544,11 +552,9 @@ class _SecretCurtainState extends State<SecretCurtain>
                                             ),
                                             const SizedBox(height: 8),
                                             const DecoratedBox(
-                                              decoration: BoxDecoration(
+                                              decoration: ShapeDecoration(
                                                 color: PartyColors.lime,
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(4),
-                                                ),
+                                                shape: PaperBorder(),
                                               ),
                                               child: SizedBox(
                                                 width: 88,
@@ -683,14 +689,14 @@ class _SecretCurtainState extends State<SecretCurtain>
     key: const ValueKey('curtain-avatar'),
     width: avatarSize,
     height: avatarSize,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
+    decoration: const ShapeDecoration(
+      shape: PaperBorder(),
       color: PartyColors.purple,
-      border: Border.all(
-        color: const Color(0xFF423068),
-        width: avatarSize * .045,
-      ),
+      shadows: [
+        BoxShadow(color: PartyColors.paperShadow, offset: Cutout.shadowOffset),
+      ],
     ),
+    padding: EdgeInsets.all(avatarSize * .045),
     child:
         widget.avatar ??
         const ExcludeSemantics(
@@ -737,29 +743,86 @@ class _SecretCurtainState extends State<SecretCurtain>
   );
 }
 
-class _SoftEdgeClipper extends CustomClipper<Path> {
-  const _SoftEdgeClipper();
+class _PaperCover extends StatelessWidget {
+  const _PaperCover({required this.child});
 
-  static const _inset = 32.0;
-  static const _controlDepth = 16.0;
+  final Widget child;
 
-  static double edgeY(Size size, double x) {
-    final t = (x / size.width).clamp(0.0, 1.0);
-    return size.height - _inset + 2 * (_inset + _controlDepth) * t * (1 - t);
+  @override
+  Widget build(BuildContext context) => PhysicalShape(
+    clipper: const _PaperEdgeClipper(),
+    clipBehavior: Clip.antiAlias,
+    color: PartyColors.surface,
+    child: CustomPaint(
+      foregroundPainter: const _PaperEdgePainter(),
+      child: child,
+    ),
+  );
+}
+
+/// The purple paper lip stays inside the mask, so it cannot hide extra text.
+class _PaperEdgePainter extends CustomPainter {
+  const _PaperEdgePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path();
+    for (final (index, point) in _PaperEdgeClipper._edge.indexed) {
+      if (index == 0) {
+        path.moveTo(size.width * point.dx, size.height + point.dy);
+      } else {
+        path.lineTo(size.width * point.dx, size.height + point.dy);
+      }
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = PartyColors.purple
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 12,
+    );
   }
 
   @override
-  Path getClip(Size size) => Path()
-    ..lineTo(0, size.height - _inset)
-    ..quadraticBezierTo(
-      size.width * .5,
-      size.height + _controlDepth,
-      size.width,
-      size.height - _inset,
-    )
-    ..lineTo(size.width, 0)
-    ..close();
+  bool shouldRepaint(_PaperEdgePainter oldDelegate) => false;
+}
+
+class _PaperEdgeClipper extends CustomClipper<Path> {
+  const _PaperEdgeClipper();
+
+  // A shallow cut-paper edge. Rendering and text eligibility share this line.
+  static const _edge = [
+    Offset(0, -32),
+    Offset(.2, -18),
+    Offset(.5, -8),
+    Offset(.8, -17),
+    Offset(1, -32),
+  ];
+
+  static double edgeY(Size size, double x) {
+    final t = (x / size.width).clamp(0.0, 1.0);
+    for (var i = 1; i < _edge.length; i++) {
+      final left = _edge[i - 1];
+      final right = _edge[i];
+      if (t <= right.dx) {
+        final fraction = (t - left.dx) / (right.dx - left.dx);
+        return size.height + left.dy + (right.dy - left.dy) * fraction;
+      }
+    }
+    return size.height + _edge.last.dy;
+  }
 
   @override
-  bool shouldReclip(_SoftEdgeClipper oldClipper) => false;
+  Path getClip(Size size) {
+    final path = Path();
+    for (final point in _edge) {
+      path.lineTo(size.width * point.dx, size.height + point.dy);
+    }
+    return path
+      ..lineTo(size.width, 0)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(_PaperEdgeClipper oldClipper) => false;
 }

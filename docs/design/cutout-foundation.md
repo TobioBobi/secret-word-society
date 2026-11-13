@@ -63,3 +63,22 @@ bereits vor dem Aufbau des nativen Buttons.
 
 Die Regeln für Gruppengröße, Namen, Imposter-Anzahl, Sitzung und Rundenstart
 bleiben unverändert. Aufnahme und Bearbeitung selbst folgen im Foto-Teilticket.
+
+## Geheimnisse und Übergabe (#87)
+
+Der Vorhang verwendet eine flache auberginefarbene Papierfläche mit kantiger
+Unterkante und violetter Papierlage. Diese Lage bleibt innerhalb der Maske,
+damit sie keinen zusätzlichen Geheimnistext verdeckt. Dieselbe Kantenlinie
+bestimmt die sichtbare Texthälfte für die bestehende Weitergabefreigabe.
+Anschlag, Gesten, Vorhanghinweis und Übergabeanimationen bleiben erhalten.
+
+Identität und Fortschritt übernehmen die Papierkontur. Der Avatar-/Fotorahmen
+behält den Bildinhalt und bewegt sich weiterhin mit dem Vorhang. Wort und
+Imposter-Hinweis stehen auf einer hellen Papierkarte mit dunkler Schrift und
+versetztem violettem Schatten. Der Messschlüssel bleibt am Geheimnistext,
+unabhängig von Kartenpolsterung und Rollenbezeichnung.
+
+Die zugängliche Weitergabe bleibt ein nativer Button mit Papierkontur,
+deaktiviertem Zustand und eigener Fokuslinie. Öffentliche und private Semantik,
+zeitbegrenztes Aufdecken, Unterbrechungsverdeckung und reduzierte Bewegung
+behalten ihre bisherigen Regeln. Die Bereit-Ansicht folgt separat.
