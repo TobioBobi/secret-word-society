@@ -80,6 +80,9 @@ unabhängig von Kartenpolsterung und Rollenbezeichnung.
 Lange Einzelwörter werden mit den tatsächlichen Schriftmetriken in die verfügbare
 Zeile eingepasst; mehrteilige Geheimnisse dürfen zwischen Wörtern umbrechen.
 Das verhindert einzelne abgetrennte Endbuchstaben bei großer Systemschrift.
+Die Ausgangsbreite bleibt auf den verfügbaren Platz begrenzt. Vergrößerte
+Systemschrift bleibt erhalten, wenn die Inhalte passen; die gesamte Karte wird
+nur bei tatsächlichem Überlauf verkleinert.
 
 Die zugängliche Weitergabe bleibt ein nativer Button mit Papierkontur,
 deaktiviertem Zustand und eigener Fokuslinie. Öffentliche und private Semantik,
