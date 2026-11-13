@@ -1,5 +1,34 @@
 # Android-Integrationstests
 
+## Cutout-Fotoeditor (Issue #90)
+
+Aufnahmehilfe, Kamera-/Fotovorschau, Aktionen, Verarbeitung und Fehler verwenden
+die gemeinsame Papiergestaltung. Bildverarbeitung, bestehende optionale Effekte,
+Systemberechtigungen und Sitzungserhalt bleiben unverändert.
+
+Am 13.11.2026 bestanden alle 180 Unit-/Widget-Tests, Analyse und Formatprüfung.
+Der neue Regressionstest zeigte zunächst den abgeschnittenen langen Fototitel
+bei 320 × 568 mit 200 Prozent Schrift. Die ergänzte Tastaturprüfung zeigte,
+dass zunächst außerhalb der aufgebauten Liste liegende Aktionen per Tab nicht
+erreichbar waren. Beide Fälle sind behoben: Der vollständige Titel scrollt mit,
+alle Aktionen bleiben im Fokusablauf, und Enter übernimmt dasselbe Fotoobjekt.
+Die bisherigen Fototests prüfen Effekte, Abbruch, Unterbrechung, fehlende Kamera,
+verweigerte Berechtigung, Übernahme und Fotoerhalt bis zur Folgerunde.
+
+Die Android-Prüfung auf API 36.1 umfasst normale Größe und 320 × 568 mit
+200 Prozent Systemschrift: Vorschau mit langem Namen, Effektwechsel, Übernahme,
+Abbruch, Verarbeitung, deaktivierte Aktionen, Effektfehler und Fotoerhalt in der
+Gruppe. Die echte Emulator-Frontkamera zeigt die Aufnahmehilfe und liefert nach
+Aufnahme den erwarteten verständlichen Fehler für ein Bild ohne Gesicht.
+Verweigerter Kamerazugriff, Wiederholen und Abbrechen sind ebenfalls geprüft.
+Für gezielt erzeugte Foto-/Fehlerzustände wurde ein ausschließlich lokaler
+Prüfeinstieg verwendet; die bereitgestellte Release-APK verwendet den regulären
+Produktionseinstieg. Die Android-Fehlerlogs sind unauffällig.
+
+Der Android-Release-Build und getrennte lokale Standards-/Spec-Reviews sind
+erfolgreich. Physisches Gerät, echte Selfies und tatsächliche TalkBack-Ausgabe
+bleiben gesonderte Abnahmen. Die gemeinsame visuelle Gesamtabnahme bleibt bei #84.
+
 ## Cutout-Rundendauer und Diskussion (Issue #88)
 
 Bereit-Ansicht, Dauerauswahl, laufender Timer, Überspringen-Dialog und

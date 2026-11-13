@@ -135,3 +135,20 @@ Ergebnis und die bestehenden Enthüllungs-/Unterbrechungsregeln.
 Erreichbarkeit, deaktivierte zusätzliche Auswahl und Folgerunden mit bis zu
 vierzehn Personen. Physische Geräte und tatsächliche TalkBack-Ausgabe bleiben
 gesonderte Abnahmen.
+
+## Eigene Fotos (#90)
+
+Der Fotoeditor verwendet dieselben Papierflächen und Aktionen für Aufnahmehilfe,
+Kameravorschau, Foto, Verarbeitung, Fehler und Wiederholen. Die Fotovorschau liegt
+auf einem hellen Rahmen mit violettem Schatten; Bilddaten, Zuschnitt und vorhandene
+optionale Effekte bleiben unverändert. Der gemeinsame Avatar-/Fotorahmen in Gruppe
+und Spiel bleibt erhalten. Systemeigene Berechtigungsdialoge bleiben unverändert.
+
+Titel, Vorschauen, Meldungen und Aktionen scrollen gemeinsam. Der vollständige
+Titel bleibt auch mit langen Namen lesbar und als Routenname und Überschrift
+ausgezeichnet. Alle Aktionen werden gemeinsam aufgebaut, damit die Tastatur auch
+bei langem Titel und großer Schrift die zunächst außerhalb des Bildschirms
+liegenden Buttons erreicht. Native Buttonrollen, deaktivierte Zustände, Fokus-
+und Druckreaktionen stammen aus `CutoutAction`. Verarbeitung bleibt eine einzelne
+Live-Ansage; Fehler verwenden zusätzlich zu ihrer Akzentfarbe ein Fehlersymbol
+und die vorhandene konkrete Meldung. Dekorative Symbole erzeugen keine Ansagen.
