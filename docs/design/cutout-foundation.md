@@ -87,4 +87,25 @@ nur bei tatsächlichem Überlauf verkleinert.
 Die zugängliche Weitergabe bleibt ein nativer Button mit Papierkontur,
 deaktiviertem Zustand und eigener Fokuslinie. Öffentliche und private Semantik,
 zeitbegrenztes Aufdecken, Unterbrechungsverdeckung und reduzierte Bewegung
-behalten ihre bisherigen Regeln. Die Bereit-Ansicht folgt separat.
+behalten ihre bisherigen Regeln.
+
+## Rundendauer, Diskussion und Zeitablauf (#88)
+
+Bereit-Karte, Dauerauswahl, Timer und Zeitablauf verwenden `CutoutSurface`
+aus der gemeinsamen Grundlage. Farbe, Schriftfarbe und Schattenfarbe lassen
+sich passend zur Papierlage wählen; die Gruppenansicht behält ihre bisherigen
+Standardwerte. Timerziffern behalten tabellarische Zahlen und passen sich nur
+bei Platzmangel in die verfügbare Breite ein. Ihre Semantik bleibt erkundbar,
+ohne jede Sekunde eine Ansage auszulösen.
+
+Start und Überspringen verwenden `CutoutAction`, die Dauerschritte native
+Symbolbuttons mit Papierkontur und Fokuslinie. Die bestehende Anzeige und
+deaktivierte Semantik an den Dauergrenzen bleiben erhalten. Die Bestätigung
+zum Überspringen erhält ebenfalls eine Papierkontur. Überschrift und beide
+Aktionen scrollen gemeinsam, damit sie auch bei großer Systemschrift erreichbar
+bleiben. Dialogbezeichnung, Überschriftensemantik und native Buttonrollen
+bleiben erhalten.
+
+Dauerregeln, manuelle Auswahl, Zurück-Verhalten, Deadline und Phasenwechsel
+bleiben unverändert. Der Zeitablauf behält seine endliche Bewegung und wird
+bei reduzierter Bewegung weiterhin sofort als ruhige Karte angezeigt.

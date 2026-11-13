@@ -1,4 +1,7 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:secret_word_society/main.dart';
 
@@ -41,6 +44,55 @@ Future<void> _tick(WidgetTester tester) =>
     tester.pump(const Duration(milliseconds: 250));
 
 void main() {
+  testWidgets(
+    'duration, start and skip dialog remain keyboard reachable at 200%',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final semantics = tester.ensureSemantics();
+      final clock = _Clock();
+      await _ready(tester, clock);
+      Future<void> focusNext(String label) async {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        final target = label.startsWith('15 Sekunden')
+            ? find.byTooltip(label)
+            : find.text(label).last;
+        expect(
+          tester.getSemantics(target).flagsCollection.isFocused,
+          Tristate.isTrue,
+        );
+        expect(tester.getRect(target).center.dy, inExclusiveRange(0, 568));
+      }
+
+      await focusNext('15 Sekunden kürzer');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.text('00:30'), findsOneWidget);
+      await focusNext('15 Sekunden länger');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      await focusNext('00:45 starten');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      await focusNext('Timer überspringen');
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      await focusNext('Weiterspielen');
+      await focusNext('Timer überspringen');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Jetzt wird geblufft.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
   testWidgets('skip action confirms and keeps normal voting private', (
     tester,
   ) async {

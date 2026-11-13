@@ -3,33 +3,6 @@ import 'package:flutter/material.dart';
 import 'cutout.dart';
 import 'party_theme.dart';
 
-/// Paper surfaces grow with their contents; the shadow never clips the text.
-class CutoutSurface extends StatelessWidget {
-  const CutoutSurface({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(16),
-  });
-
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 4, bottom: 6),
-    child: DecoratedBox(
-      decoration: const ShapeDecoration(
-        color: PartyColors.surface,
-        shape: PaperBorder(side: BorderSide(color: PartyColors.outline)),
-        shadows: [
-          BoxShadow(color: PartyColors.purple, offset: Cutout.shadowOffset),
-        ],
-      ),
-      child: Padding(padding: padding, child: child),
-    ),
-  );
-}
-
 ButtonStyle groupIconStyle({bool primary = false}) =>
     IconButton.styleFrom(
       minimumSize: const Size(48, 48),
