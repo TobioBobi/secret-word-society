@@ -8,9 +8,10 @@ getrennt: Bereitgestellte Bilder und erfolgreiche Tests ersetzen die Abnahme nic
 
 ## Gemeinsame visuelle Abnahme
 
-**Offen.** Startseite, Gruppe, verdeckte Übergabe und Abstimmung werden zusammen
-als tatsächliche Android-Aufnahmen vorgelegt. Eine Zustimmung des Nutzers ist
-noch nicht dokumentiert. #92 und #84 bleiben deshalb offen.
+**Am 13.11.2026 gemeinsam visuell abgenommen.** Der Nutzer hat das zusammenhängende
+Cutout-Design der vier Referenzsituationen Startseite, Gruppe, verdeckte Übergabe
+und Abstimmung anhand der tatsächlichen Android-Aufnahmen bestätigt. Die
+gesonderten physischen Geräte- und TalkBack-Prüfungen bleiben ausdrücklich offen.
 
 Die Tafeln zeigen unveränderte Bildschirminhalte des Produktions-Releases;
 für den direkten Vergleich wurden die Aufnahmen lediglich verkleinert und
@@ -69,14 +70,12 @@ Die vier Referenzsituationen der Tafeln sind von dieser Korrektur unberührt.
   oder Android-Absturzmeldungen. Flugmodus und deaktiviertes WLAN am Ende
   nochmals überprüft.
 
-## Ausstehende Abnahmen
+## Gesondert ausstehende Abnahmen
 
-- Gemeinsame visuelle Zustimmung zu den vier Referenzsituationen und dem
-  zusammenhängenden Designsystem.
 - Physisches Android-Gerät, echte Selfies und tatsächliche TalkBack-Ausgabe.
 - Beobachtete Erstspieler-Abnahme der Anleitung aus #17; durch das Theme
   und seine automatisierten Tests nicht ersetzt.
 
-Fehlende Abnahmen sind keine bestätigten Fehler. Sie dürfen zugleich nicht als
-erfolgreich geprüft oder durch den Merge einer Prüfungsdokumentation erledigt
-markiert werden.
+Diese gesonderten Abnahmen sind keine bestätigten Fehler. Sie sind durch die
+gemeinsame visuelle Zustimmung und den Merge der Prüfungsdokumentation nicht
+ersetzt und dürfen nicht als erfolgreich geprüft markiert werden.

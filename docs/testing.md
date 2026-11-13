@@ -3,7 +3,7 @@
 ## Cutout-Gesamtprüfung (Issue #92)
 
 Der zusammenhängende Prüfstand nach #85–#91, die vier Android-Referenzsituationen
-und die ausdrücklich noch offene gemeinsame visuelle Abnahme sind in
+und die gemeinsame visuelle Abnahme vom 13.11.2026 sind in
 [`design/cutout-acceptance.md`](design/cutout-acceptance.md) dokumentiert.
 Erfolgreiche automatisierte Prüfungen ersetzen weder die Zustimmung zur
 Gestaltung noch die gesonderte physische Geräte-/TalkBack-Prüfung.

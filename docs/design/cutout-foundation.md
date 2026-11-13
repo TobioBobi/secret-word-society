@@ -2,8 +2,8 @@
 
 Die App verwendet die in #84 bestätigte Bildsprache. Das vorhandene,
 freigestellte Logo und sämtliche Texte und Ziele bleiben erhalten.
-Die Umsetzung der Ansichten aus #85–#91 ist integriert. Prüfstand und noch
-ausstehende gemeinsame Abnahme stehen in [Cutout-Gesamtprüfung](cutout-acceptance.md).
+Die Umsetzung der Ansichten aus #85–#91 ist integriert. Prüfstand und gemeinsame
+visuelle Abnahme stehen in [Cutout-Gesamtprüfung](cutout-acceptance.md).
 
 ## Wiederverwendung
 
