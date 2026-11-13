@@ -241,175 +241,178 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
         surfaceTintColor: Colors.transparent,
       ),
       body: SafeArea(
-        child: ListView(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          children: [
-            Semantics(
-              header: true,
-              namesRoute: true,
-              child: Text(
-                s.photoFor(widget.name),
-                style: PartyTypography.heading,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                namesRoute: true,
+                child: Text(
+                  s.photoFor(widget.name),
+                  style: PartyTypography.heading,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            if (_cameraWanted) ...[
-              CutoutSurface(
-                child: Text(s.photoPosition, textAlign: TextAlign.center),
-              ),
-              const SizedBox(height: 12),
-              if (camera != null && camera.value.isInitialized)
-                Center(
-                  child: SizedBox(
-                    width: 300,
-                    child: CutoutSurface(
-                      padding: const EdgeInsets.all(8),
-                      child: AspectRatio(
-                        aspectRatio: 3 / 4,
-                        child: ClipRect(
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              CameraPreview(camera),
-                              IgnorePointer(
-                                child: Center(
-                                  child: FractionallySizedBox(
-                                    widthFactor: .65,
-                                    heightFactor: .75,
-                                    child: const CustomPaint(
-                                      key: ValueKey('photo-face-guide'),
-                                      painter: _FaceGuidePainter(),
+              const SizedBox(height: 20),
+              if (_cameraWanted) ...[
+                CutoutSurface(
+                  child: Text(s.photoPosition, textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 12),
+                if (camera != null && camera.value.isInitialized)
+                  Center(
+                    child: SizedBox(
+                      width: 300,
+                      child: CutoutSurface(
+                        padding: const EdgeInsets.all(8),
+                        child: AspectRatio(
+                          aspectRatio: 3 / 4,
+                          child: ClipRect(
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CameraPreview(camera),
+                                IgnorePointer(
+                                  child: Center(
+                                    child: FractionallySizedBox(
+                                      widthFactor: .65,
+                                      heightFactor: .75,
+                                      child: const CustomPaint(
+                                        key: ValueKey('photo-face-guide'),
+                                        painter: _FaceGuidePainter(),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  )
+                else if (!_busy)
+                  const CutoutSurface(
+                    child: ExcludeSemantics(
+                      child: Icon(Icons.no_photography_outlined, size: 64),
+                    ),
                   ),
-                )
-              else if (!_busy)
-                const CutoutSurface(
-                  child: ExcludeSemantics(
-                    child: Icon(Icons.no_photography_outlined, size: 64),
-                  ),
-                ),
-            ] else if (photo != null) ...[
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 340),
-                  child: CutoutSurface(
-                    padding: const EdgeInsets.all(8),
-                    color: PartyColors.text,
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: PhotoImage(
-                        bytes: photo.bytes,
-                        label: s.photoPreview,
+              ] else if (photo != null) ...[
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 340),
+                    child: CutoutSurface(
+                      padding: const EdgeInsets.all(8),
+                      color: PartyColors.text,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: PhotoImage(
+                          bytes: photo.bytes,
+                          label: s.photoPreview,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-            if (_busy) ...[
-              const SizedBox(height: 16),
-              Semantics(
-                label: s.photoWorking,
-                liveRegion: true,
-                child: CutoutSurface(
-                  child: ExcludeSemantics(
-                    child: Column(
-                      children: [
-                        Text(s.photoWorking, textAlign: TextAlign.center),
-                        const SizedBox(height: 12),
-                        const LinearProgressIndicator(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Semantics(
+              ],
+              if (_busy) ...[
+                const SizedBox(height: 16),
+                Semantics(
+                  label: s.photoWorking,
                   liveRegion: true,
                   child: CutoutSurface(
-                    color: PartyColors.coral,
-                    foregroundColor: PartyColors.background,
-                    child: Column(
-                      children: [
-                        const ExcludeSemantics(
-                          child: Icon(Icons.error_outline),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(switch (_error) {
-                          'permission' => s.photoPermission,
-                          'noCamera' => s.photoNoCamera,
-                          'noFace' => s.photoNoFace,
-                          'manyFaces' => s.photoManyFaces,
-                          'landmarks' => s.photoLandmarks,
-                          'capture' => s.photoCaptureFailed,
-                          'decode' => s.photoDecodeFailed,
-                          'detection' => s.photoDetectionFailed,
-                          'effect' => s.photoEffectFailed,
-                          _ => s.photoFailed,
-                        }),
-                      ],
+                    child: ExcludeSemantics(
+                      child: Column(
+                        children: [
+                          Text(s.photoWorking, textAlign: TextAlign.center),
+                          const SizedBox(height: 12),
+                          const LinearProgressIndicator(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            const SizedBox(height: 16),
-            if (_cameraWanted) ...[
-              CutoutAction(
-                onPressed: _busy || camera == null ? null : _capture,
-                child: _PhotoActionLabel(Icons.camera_alt, s.takePhoto),
-              ),
-              if (!_busy && camera == null)
+              ],
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: CutoutSurface(
+                      color: PartyColors.coral,
+                      foregroundColor: PartyColors.background,
+                      child: Column(
+                        children: [
+                          const ExcludeSemantics(
+                            child: Icon(Icons.error_outline),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(switch (_error) {
+                            'permission' => s.photoPermission,
+                            'noCamera' => s.photoNoCamera,
+                            'noFace' => s.photoNoFace,
+                            'manyFaces' => s.photoManyFaces,
+                            'landmarks' => s.photoLandmarks,
+                            'capture' => s.photoCaptureFailed,
+                            'decode' => s.photoDecodeFailed,
+                            'detection' => s.photoDetectionFailed,
+                            'effect' => s.photoEffectFailed,
+                            _ => s.photoFailed,
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              if (_cameraWanted) ...[
+                CutoutAction(
+                  onPressed: _busy || camera == null ? null : _capture,
+                  child: _PhotoActionLabel(Icons.camera_alt, s.takePhoto),
+                ),
+                if (!_busy && camera == null)
+                  CutoutAction(
+                    style: CutoutActionStyle.outlined,
+                    onPressed: _openCamera,
+                    child: Text(s.photoRetry),
+                  ),
+              ] else if (photo != null) ...[
+                CutoutAction(
+                  onPressed: _busy || !_active
+                      ? null
+                      : () => Navigator.pop(context, photo),
+                  child: _PhotoActionLabel(Icons.check, s.usePhoto),
+                ),
+                const SizedBox(height: 8),
+                CutoutAction(
+                  style: CutoutActionStyle.secondary,
+                  onPressed: _busy ? null : _reroll,
+                  child: _PhotoActionLabel(Icons.casino_outlined, s.rollEffect),
+                ),
+                const SizedBox(height: 8),
                 CutoutAction(
                   style: CutoutActionStyle.outlined,
-                  onPressed: _openCamera,
-                  child: Text(s.photoRetry),
+                  onPressed: _busy
+                      ? null
+                      : () {
+                          _cameraWanted = true;
+                          unawaited(_openCamera());
+                        },
+                  child: _PhotoActionLabel(
+                    Icons.camera_alt_outlined,
+                    s.retakePhoto,
+                  ),
                 ),
-            ] else if (photo != null) ...[
-              CutoutAction(
-                onPressed: _busy || !_active
-                    ? null
-                    : () => Navigator.pop(context, photo),
-                child: _PhotoActionLabel(Icons.check, s.usePhoto),
-              ),
-              const SizedBox(height: 8),
-              CutoutAction(
-                style: CutoutActionStyle.secondary,
-                onPressed: _busy ? null : _reroll,
-                child: _PhotoActionLabel(Icons.casino_outlined, s.rollEffect),
-              ),
+              ],
               const SizedBox(height: 8),
               CutoutAction(
                 style: CutoutActionStyle.outlined,
-                onPressed: _busy
-                    ? null
-                    : () {
-                        _cameraWanted = true;
-                        unawaited(_openCamera());
-                      },
-                child: _PhotoActionLabel(
-                  Icons.camera_alt_outlined,
-                  s.retakePhoto,
-                ),
+                onPressed: () => Navigator.pop(context),
+                child: Text(s.cancelPhoto),
               ),
             ],
-            const SizedBox(height: 8),
-            CutoutAction(
-              style: CutoutActionStyle.outlined,
-              onPressed: () => Navigator.pop(context),
-              child: Text(s.cancelPhoto),
-            ),
-          ],
+          ),
         ),
       ),
     );

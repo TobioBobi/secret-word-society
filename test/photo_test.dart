@@ -71,6 +71,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final semantics = tester.ensureSemantics();
       final original = source();
       final photo = PlayerPhoto(
         original,
@@ -107,14 +108,28 @@ void main() {
         find.text('Foto für $name'),
       );
       expect(title.didExceedMaxLines, isFalse);
-      await tapWhenStable(
-        tester,
-        find.text('Übernehmen'),
-        scrollable: find.byType(Scrollable).first,
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(find.text('Übernehmen')),
+        matchesSemantics(
+          label: 'Übernehmen',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          isFocused: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
       );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
       expect(accepted, same(photo));
       expect(tester.takeException(), isNull);
+      semantics.dispose();
     },
   );
   test('selectable recipes exclude wizard motifs and always pair filters', () {
