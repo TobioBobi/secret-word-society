@@ -10,6 +10,8 @@ import '../game/player_photo.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/photo_processing.dart';
 import 'photo_image.dart';
+import 'cutout.dart';
+import 'party_theme.dart';
 
 class PhotoEditor extends StatefulWidget {
   const PhotoEditor({
@@ -234,54 +236,79 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
     final camera = _camera;
     final photo = _photo;
     return Scaffold(
-      appBar: AppBar(title: Text(s.photoFor(widget.name))),
+      appBar: AppBar(
+        backgroundColor: PartyColors.background,
+        surfaceTintColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            Semantics(
+              header: true,
+              namesRoute: true,
+              child: Text(
+                s.photoFor(widget.name),
+                style: PartyTypography.heading,
+              ),
+            ),
+            const SizedBox(height: 20),
             if (_cameraWanted) ...[
-              Text(s.photoPosition, textAlign: TextAlign.center),
+              CutoutSurface(
+                child: Text(s.photoPosition, textAlign: TextAlign.center),
+              ),
               const SizedBox(height: 12),
               if (camera != null && camera.value.isInitialized)
                 Center(
                   child: SizedBox(
                     width: 300,
-                    child: AspectRatio(
-                      aspectRatio: 3 / 4,
-                      child: ClipRect(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CameraPreview(camera),
-                            IgnorePointer(
-                              child: Center(
-                                child: FractionallySizedBox(
-                                  widthFactor: .65,
-                                  heightFactor: .75,
-                                  child: const CustomPaint(
-                                    key: ValueKey('photo-face-guide'),
-                                    painter: _FaceGuidePainter(),
+                    child: CutoutSurface(
+                      padding: const EdgeInsets.all(8),
+                      child: AspectRatio(
+                        aspectRatio: 3 / 4,
+                        child: ClipRect(
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CameraPreview(camera),
+                              IgnorePointer(
+                                child: Center(
+                                  child: FractionallySizedBox(
+                                    widthFactor: .65,
+                                    heightFactor: .75,
+                                    child: const CustomPaint(
+                                      key: ValueKey('photo-face-guide'),
+                                      painter: _FaceGuidePainter(),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 )
               else if (!_busy)
-                const Icon(Icons.no_photography_outlined, size: 64),
+                const CutoutSurface(
+                  child: ExcludeSemantics(
+                    child: Icon(Icons.no_photography_outlined, size: 64),
+                  ),
+                ),
             ] else if (photo != null) ...[
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 340),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: PhotoImage(
-                      bytes: photo.bytes,
-                      label: s.photoPreview,
+                  child: CutoutSurface(
+                    padding: const EdgeInsets.all(8),
+                    color: PartyColors.text,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: PhotoImage(
+                        bytes: photo.bytes,
+                        label: s.photoPreview,
+                      ),
                     ),
                   ),
                 ),
@@ -292,7 +319,17 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
               Semantics(
                 label: s.photoWorking,
                 liveRegion: true,
-                child: const LinearProgressIndicator(),
+                child: CutoutSurface(
+                  child: ExcludeSemantics(
+                    child: Column(
+                      children: [
+                        Text(s.photoWorking, textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        const LinearProgressIndicator(),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
             if (_error != null)
@@ -300,60 +337,75 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Semantics(
                   liveRegion: true,
-                  child: Text(switch (_error) {
-                    'permission' => s.photoPermission,
-                    'noCamera' => s.photoNoCamera,
-                    'noFace' => s.photoNoFace,
-                    'manyFaces' => s.photoManyFaces,
-                    'landmarks' => s.photoLandmarks,
-                    'capture' => s.photoCaptureFailed,
-                    'decode' => s.photoDecodeFailed,
-                    'detection' => s.photoDetectionFailed,
-                    'effect' => s.photoEffectFailed,
-                    _ => s.photoFailed,
-                  }),
+                  child: CutoutSurface(
+                    color: PartyColors.coral,
+                    foregroundColor: PartyColors.background,
+                    child: Column(
+                      children: [
+                        const ExcludeSemantics(
+                          child: Icon(Icons.error_outline),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(switch (_error) {
+                          'permission' => s.photoPermission,
+                          'noCamera' => s.photoNoCamera,
+                          'noFace' => s.photoNoFace,
+                          'manyFaces' => s.photoManyFaces,
+                          'landmarks' => s.photoLandmarks,
+                          'capture' => s.photoCaptureFailed,
+                          'decode' => s.photoDecodeFailed,
+                          'detection' => s.photoDetectionFailed,
+                          'effect' => s.photoEffectFailed,
+                          _ => s.photoFailed,
+                        }),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             const SizedBox(height: 16),
             if (_cameraWanted) ...[
-              FilledButton.icon(
+              CutoutAction(
                 onPressed: _busy || camera == null ? null : _capture,
-                icon: const Icon(Icons.camera_alt),
-                label: Text(s.takePhoto),
+                child: _PhotoActionLabel(Icons.camera_alt, s.takePhoto),
               ),
               if (!_busy && camera == null)
-                OutlinedButton(
+                CutoutAction(
+                  style: CutoutActionStyle.outlined,
                   onPressed: _openCamera,
                   child: Text(s.photoRetry),
                 ),
             ] else if (photo != null) ...[
-              FilledButton.icon(
+              CutoutAction(
                 onPressed: _busy || !_active
                     ? null
                     : () => Navigator.pop(context, photo),
-                icon: const Icon(Icons.check),
-                label: Text(s.usePhoto),
+                child: _PhotoActionLabel(Icons.check, s.usePhoto),
               ),
               const SizedBox(height: 8),
-              FilledButton.tonalIcon(
+              CutoutAction(
+                style: CutoutActionStyle.secondary,
                 onPressed: _busy ? null : _reroll,
-                icon: const Icon(Icons.casino_outlined, size: 32),
-                label: Text(s.rollEffect),
+                child: _PhotoActionLabel(Icons.casino_outlined, s.rollEffect),
               ),
               const SizedBox(height: 8),
-              OutlinedButton.icon(
+              CutoutAction(
+                style: CutoutActionStyle.outlined,
                 onPressed: _busy
                     ? null
                     : () {
                         _cameraWanted = true;
                         unawaited(_openCamera());
                       },
-                icon: const Icon(Icons.camera_alt_outlined),
-                label: Text(s.retakePhoto),
+                child: _PhotoActionLabel(
+                  Icons.camera_alt_outlined,
+                  s.retakePhoto,
+                ),
               ),
             ],
             const SizedBox(height: 8),
-            TextButton(
+            CutoutAction(
+              style: CutoutActionStyle.outlined,
               onPressed: () => Navigator.pop(context),
               child: Text(s.cancelPhoto),
             ),
@@ -362,6 +414,29 @@ class _PhotoEditorState extends State<PhotoEditor> with WidgetsBindingObserver {
       ),
     );
   }
+}
+
+/// Wraps the icon separately so large labels retain the full available width.
+class _PhotoActionLabel extends StatelessWidget {
+  const _PhotoActionLabel(this.icon, this.label);
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    alignment: WrapAlignment.center,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    spacing: 8,
+    runSpacing: 4,
+    children: [
+      Icon(icon, size: 28),
+      Text(
+        label,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 20),
+      ),
+    ],
+  );
 }
 
 class _FaceGuidePainter extends CustomPainter {

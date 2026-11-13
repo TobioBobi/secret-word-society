@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -17,6 +18,7 @@ import 'package:secret_word_society/ui/photo_editor.dart';
 import 'package:secret_word_society/ui/player_avatar.dart';
 
 import 'support/handoff.dart';
+import 'support/tap_when_stable.dart';
 import 'widget_test.dart'
     show pumpPreparation, testCatalog, readyGroup, tapVisible, showStart;
 
@@ -60,6 +62,61 @@ class UnavailableCamera extends CameraPlatform {
 }
 
 void main() {
+  testWidgets(
+    'large photo editor keeps the full name and accepts unchanged photo',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final original = source();
+      final photo = PlayerPhoto(
+        original,
+        renderPhoto((original, PhotoEffect.eyes)),
+        PhotoEffect.eyes,
+      );
+      const name = 'AlexandramitbesonderslangemNamen';
+      PlayerPhoto? accepted;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildPartyTheme(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  accepted = await Navigator.push<PlayerPhoto>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PhotoEditor(name: name, initial: photo),
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final title = tester.renderObject<RenderParagraph>(
+        find.text('Foto für $name'),
+      );
+      expect(title.didExceedMaxLines, isFalse);
+      await tapWhenStable(
+        tester,
+        find.text('Übernehmen'),
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      expect(accepted, same(photo));
+      expect(tester.takeException(), isNull);
+    },
+  );
   test('selectable recipes exclude wizard motifs and always pair filters', () {
     expect(
       PhotoEffect.values.any((e) => e.name.toLowerCase().contains('wizard')),
@@ -456,7 +513,7 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.text('Abbrechen'), findsOneWidget);
+        await tester.scrollUntilVisible(find.text('Foto aufnehmen'), 150);
         expect(
           tester
               .widget<FilledButton>(
@@ -465,6 +522,9 @@ void main() {
               .onPressed,
           isNull,
         );
+        await tester.scrollUntilVisible(find.text('Abbrechen'), 150);
+        await tester.pumpAndSettle();
+        expect(find.text('Abbrechen').hitTestable(), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
@@ -606,8 +666,11 @@ void main() {
         );
         await tester.tap(find.text('Open'));
         await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(find.text('Effekt würfeln'), 150);
-        await tester.tap(find.text('Effekt würfeln'));
+        await tapWhenStable(
+          tester,
+          find.text('Effekt würfeln'),
+          scrollable: find.byType(Scrollable).first,
+        );
         await tester.pump();
         expect(processing.input, same(original));
         expect(processing.effect, isNot(photo.effect));
@@ -619,8 +682,11 @@ void main() {
             AppLifecycleState.resumed,
           );
         } else {
-          await tester.scrollUntilVisible(find.text('Abbrechen'), 150);
-          await tester.tap(find.text('Abbrechen'));
+          await tapWhenStable(
+            tester,
+            find.text('Abbrechen'),
+            scrollable: find.byType(Scrollable).first,
+          );
           await tester.pumpAndSettle();
         }
         processing.result.complete(
@@ -630,7 +696,11 @@ void main() {
         if (interrupt) {
           expect(find.text('Große Nase'), findsNothing);
           await tester.scrollUntilVisible(find.text('Übernehmen'), -120);
-          await tester.tap(find.text('Übernehmen'));
+          await tapWhenStable(
+            tester,
+            find.text('Übernehmen'),
+            scrollable: find.byType(Scrollable).first,
+          );
           await tester.pumpAndSettle();
           expect(accepted, same(photo));
         } else {
