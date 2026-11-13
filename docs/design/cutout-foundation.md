@@ -109,3 +109,29 @@ bleiben erhalten.
 Dauerregeln, manuelle Auswahl, Zurück-Verhalten, Deadline und Phasenwechsel
 bleiben unverändert. Der Zeitablauf behält seine endliche Bewegung und wird
 bei reduzierter Bewegung weiterhin sofort als ruhige Karte angezeigt.
+
+
+## Abstimmung und Auflösung (#89)
+
+Verdächtige stehen auf kantigen Papierflächen mit versetzter violetter Lage.
+Die ausgewählte Fläche ist limettengrün; zusätzlich zeigen die nativen Radio-
+beziehungsweise Checkbox-Indikatoren die Auswahl. Die bisherigen Rollen,
+Auswahlgrenzen und deaktivierten Zustände bleiben erhalten. Avatar und Name
+können auf mehrere Zeilen umbrechen, damit lange Namen die verfügbare Breite
+nutzen. Fotos und Avatare behalten ihren Inhalt.
+
+Bestätigung und Folgerundenaktionen verwenden `CutoutAction`, Enthüllungszähler
+und Ergebnis `CutoutSurface`. Die personenbezogene Bestätigung nutzt eine
+kleinere Aktionsschrift, damit auch lange Namen bei großer Systemschrift
+vollständig erreichbar bleiben. Die Systemvergrößerung wird beibehalten.
+Der gemeinsame Verlassen-Dialog übernimmt die Papierkontur; Überschrift,
+Beschreibung und Aktionen scrollen gemeinsam. Seine Nutzung in den vorherigen
+Spielphasen behält dieselben Texte, Aktionen und Unterbrechungsregeln.
+
+`test/voting_test.dart` prüft Radio-Semantik, Tastaturauswahl und Bestätigung
+bis zur Folgerunde bei 320 × 568 mit 200 Prozent Schrift sowie lange Namen,
+Ergebnis und die bestehenden Enthüllungs-/Unterbrechungsregeln.
+`test/dynamic_round_widget_test.dart` prüft Mehrfachauswahl, Checkbox-Semantik,
+Erreichbarkeit, deaktivierte zusätzliche Auswahl und Folgerunden mit bis zu
+vierzehn Personen. Physische Geräte und tatsächliche TalkBack-Ausgabe bleiben
+gesonderte Abnahmen.

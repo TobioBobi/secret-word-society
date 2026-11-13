@@ -13,9 +13,12 @@ import 'widget_test.dart'
         testCatalog,
         expectConcealed;
 
-Future<void> _checkAndroidControls(WidgetTester tester) async {
+Future<void> _checkAndroidControls(
+  WidgetTester tester, {
+  bool result = false,
+}) async {
   expect(tester.takeException(), isNull);
-  if (find.text('Die Auflösung').evaluate().isEmpty) {
+  if (!result) {
     expect(find.text('Gruppe bearbeiten'), findsNothing);
   }
   await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
@@ -99,7 +102,7 @@ void main() {
           now = now.add(const Duration(seconds: 3));
           await tester.pump(const Duration(seconds: 3));
           await tester.pumpAndSettle();
-          await _checkAndroidControls(tester);
+          await _checkAndroidControls(tester, result: true);
           await tester.scrollUntilVisible(
             find.text('Noch eine Runde'),
             180,
@@ -107,7 +110,7 @@ void main() {
           );
           await tester.ensureVisible(find.text('Noch eine Runde'));
           await tester.pumpAndSettle();
-          await _checkAndroidControls(tester);
+          await _checkAndroidControls(tester, result: true);
           await tapVisible(tester, 'Noch eine Runde');
           expectConcealed(tester);
           expect(find.text('Person 1 von 3'), findsOneWidget);
@@ -137,11 +140,15 @@ void main() {
       await tapVisible(tester, 'Geheimnis kurz ansehen');
       await leaveRound(tester);
       expectConcealed(tester);
-      // The dialog has its own scrollable body; buttons must fit outside it.
+      // Scroll the dialog itself so either action is reachable in landscape.
+      await tester.ensureVisible(find.text('Weiterspielen'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Weiterspielen'));
       await tester.pumpAndSettle();
       expectConcealed(tester);
       await leaveRound(tester);
+      await tester.ensureVisible(find.text('Runde verlassen'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Runde verlassen'));
       await tester.pumpAndSettle();
       expect(find.text('3 Personen'), findsOneWidget);

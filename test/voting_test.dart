@@ -128,6 +128,63 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(RoundSignal.channel, null);
   });
+  testWidgets('keyboard voting and next round at 320px with 200% text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final semantics = tester.ensureSemantics();
+    final clock = _Clock();
+    await _voting(tester, clock);
+    await tester.scrollUntilVisible(
+      find.text('Anna'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.ensureVisible(find.text('Anna'));
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .getSemantics(find.bySemanticsLabel('Anna'))
+          .getSemanticsData()
+          .flagsCollection
+          .isChecked,
+      CheckedState.isTrue,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .getSemantics(find.bySemanticsLabel('Ben'))
+          .getSemanticsData()
+          .flagsCollection
+          .isChecked,
+      CheckedState.isTrue,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    await _finishReveal(tester, clock);
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('Person 1 von 3'), findsOneWidget);
+    expectConcealed(tester);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    semantics.dispose();
+  });
+
   for (final largeText in [false, true]) {
     testWidgets(
       'single suspicion uses radio interaction: largeText=$largeText',
@@ -147,6 +204,16 @@ void main() {
 
         Future<void> expectRadio(String name, bool selected) async {
           final tile = find.widgetWithText(RadioListTile<String>, name);
+          tester
+              .widget<CustomScrollView>(find.byType(CustomScrollView))
+              .controller!
+              .jumpTo(0);
+          await tester.pumpAndSettle();
+          await tester.scrollUntilVisible(
+            tile,
+            180,
+            scrollable: find.byType(Scrollable).first,
+          );
           await tester.ensureVisible(tile);
           await tester.pumpAndSettle();
           expect(
@@ -168,6 +235,11 @@ void main() {
         for (final name in _names) {
           await expectRadio(name, false);
         }
+        tester
+            .widget<CustomScrollView>(find.byType(CustomScrollView))
+            .controller!
+            .jumpTo(0);
+        await tester.pumpAndSettle();
         await tapVisible(tester, 'Anna');
         await expectRadio('Ben', false);
         // Exercise the same semantic tap action exposed to a screenreader.
