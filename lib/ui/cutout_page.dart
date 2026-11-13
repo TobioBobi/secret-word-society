@@ -5,10 +5,16 @@ import 'group_cutout.dart';
 
 /// Long route titles scroll with the content instead of truncating in a toolbar.
 class CutoutPage extends StatelessWidget {
-  const CutoutPage({super.key, required this.title, required this.children});
+  const CutoutPage({
+    super.key,
+    required this.title,
+    required this.children,
+    this.sliverBody,
+  });
 
   final String title;
   final List<Widget> children;
+  final Widget? sliverBody;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -24,20 +30,31 @@ class CutoutPage extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  header: true,
-                  namesRoute: true,
-                  child: Text(title, style: PartyTypography.heading),
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        header: true,
+                        namesRoute: true,
+                        child: Text(title, style: PartyTypography.heading),
+                      ),
+                      const SizedBox(height: 24),
+                      ...children,
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 24),
-                ...children,
-              ],
-            ),
+              ),
+              if (sliverBody != null)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: sliverBody!,
+                ),
+            ],
           ),
         ),
       ),

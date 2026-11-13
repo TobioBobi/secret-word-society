@@ -8,6 +8,59 @@ import 'package:secret_word_society/main.dart';
 import 'widget_test.dart' show addName;
 
 void main() {
+  testWidgets('bundled native photo license lays out only nearby paragraphs', (
+    tester,
+  ) async {
+    LicenseRegistry.reset();
+    addTearDown(LicenseRegistry.reset);
+    final nativeLicense = await tester.runAsync(
+      () => rootBundle.loadString('assets/licenses/photo-native.txt'),
+    );
+    LicenseRegistry.addLicense(() async* {
+      yield LicenseEntryWithLineBreaks([
+        'Photo capture and face detection (native)',
+      ], nativeLicense!);
+    });
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Einstellungen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Einstellungen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Datenschutz und Lizenzen'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Lizenzen'), 180);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lizenzen'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Photo capture and face detection (native)'),
+      180,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Photo capture and face detection (native)'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Player photo decorations'),
+      180,
+    );
+    expect(
+      find.textContaining('OF THIS SOFTWARE, EVEN IF ADVISED'),
+      findsNothing,
+    );
+    await tester.scrollUntilVisible(
+      find.textContaining('Player photos: native third-party notices'),
+      180,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'keyboard reaches privacy and licenses and side paths retain the group',
     (tester) async {
@@ -86,58 +139,59 @@ void main() {
     },
   );
 
-  testWidgets(
-    'license details keep long names and the last paragraph reachable',
-    (tester) async {
-      const package = 'Photo capture and face detection (native)';
-      LicenseRegistry.addLicense(() async* {
-        yield LicenseEntryWithLineBreaks(
-          [package],
-          '${List.filled(12, 'License paragraph.').join('\n\n')}\n\nEnd of license.',
-        );
-      });
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(320, 568);
-      tester.platformDispatcher.textScaleFactorTestValue = 2;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(const MyApp());
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Einstellungen'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Einstellungen'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Datenschutz und Lizenzen'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('Lizenzen'), 180);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Lizenzen'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text(package), 180);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(package));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      expect(
-        tester
-            .renderObject<RenderParagraph>(find.text(package))
-            .didExceedMaxLines,
-        isFalse,
+  testWidgets('license details keep long names and the last paragraph reachable', (
+    tester,
+  ) async {
+    const package = 'Photo capture and face detection (native)';
+    LicenseRegistry.addLicense(() async* {
+      yield LicenseEntryWithLineBreaks(
+        [package],
+        '${List.filled(12, 'License paragraph.').join('\n\n')}\n\nEnd of license.',
       );
-      await tester.scrollUntilVisible(find.text('End of license.'), 180);
-      await tester.pumpAndSettle();
-      expect(
-        tester.getRect(find.text('End of license.')).bottom,
-        lessThanOrEqualTo(568),
-      );
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Lizenzen'), findsOneWidget);
-      semantics.dispose();
-    },
-  );
+    });
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Einstellungen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Einstellungen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Datenschutz und Lizenzen'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Lizenzen'), 180);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lizenzen'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text(package), 180);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(package));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester
+          .renderObject<RenderParagraph>(find.text(package))
+          .didExceedMaxLines,
+      isFalse,
+    );
+    // Large license bundles must not build their offscreen paragraphs upfront.
+    expect(find.text('End of license.'), findsNothing);
+    await tester.scrollUntilVisible(find.text('End of license.'), 180);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.text('End of license.')).bottom,
+      lessThanOrEqualTo(568),
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Lizenzen'), findsOneWidget);
+    semantics.dispose();
+  });
 
   testWidgets('privacy heading is fully readable with large system text', (
     tester,

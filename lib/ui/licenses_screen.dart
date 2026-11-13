@@ -103,47 +103,46 @@ class _LicensesScreenState extends State<LicensesScreen> {
 }
 
 class _LicenseDetails extends StatelessWidget {
-  const _LicenseDetails({required this.name, required this.licenses});
+  _LicenseDetails({required this.name, required this.licenses})
+    : paragraphs = licenses.expand((entry) => entry).toList();
 
   final String name;
   final List<List<LicenseParagraph>> licenses;
+  final List<LicenseParagraph> paragraphs;
 
   @override
   Widget build(BuildContext context) => CutoutPage(
     title: name,
+    sliverBody: SliverList.builder(
+      itemCount: paragraphs.length,
+      itemBuilder: (context, index) {
+        final paragraph = paragraphs[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: CutoutSurface(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: paragraph.indent < 0 ? 0 : 16.0 * paragraph.indent,
+              ),
+              child: Text(
+                paragraph.text,
+                textAlign: paragraph.indent == LicenseParagraph.centeredIndent
+                    ? TextAlign.center
+                    : TextAlign.start,
+                style: paragraph.indent == LicenseParagraph.centeredIndent
+                    ? const TextStyle(fontWeight: FontWeight.bold)
+                    : null,
+              ),
+            ),
+          ),
+        );
+      },
+    ),
     children: [
       Text(
         MaterialLocalizations.of(context)
             .licensesPackageDetailText(licenses.length),
       ),
-      const SizedBox(height: 16),
-      for (final paragraphs in licenses) ...[
-        CutoutSurface(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final paragraph in paragraphs)
-                Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    top: 8,
-                    start: paragraph.indent < 0 ? 0 : 16.0 * paragraph.indent,
-                  ),
-                  child: Text(
-                    paragraph.text,
-                    textAlign:
-                        paragraph.indent == LicenseParagraph.centeredIndent
-                        ? TextAlign.center
-                        : TextAlign.start,
-                    style: paragraph.indent == LicenseParagraph.centeredIndent
-                        ? const TextStyle(fontWeight: FontWeight.bold)
-                        : null,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
     ],
   );
 }

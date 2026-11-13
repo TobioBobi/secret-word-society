@@ -133,15 +133,15 @@ class _Scene extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
           children: [
             ExcludeSemantics(child: Icon(icon, color: PartyColors.lime)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Semantics(
-                header: true,
-                child: Text(title, style: PartyTypography.action),
-              ),
+            Semantics(
+              header: true,
+              child: Text(title, style: PartyTypography.action),
             ),
           ],
         ),

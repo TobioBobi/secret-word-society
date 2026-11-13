@@ -166,7 +166,11 @@ Die Lizenzübersicht liest weiterhin `LicenseRegistry.licenses`, gruppiert nach
 Paket und zeigt sämtliche Einträge einschließlich Absätzen und Einrückungen.
 Sie erhält eigene Papierflächen statt der festen Titelzeilen von `LicensePage`,
 die lange Paketnamen bei großer Schrift kürzen. Die bisherigen Anwendungshinweise,
-Lizenzanzahlen, Paketaktionen und Rückwege bleiben erhalten. Lade- und Fehlerzustände
+Lizenzanzahlen, Paketaktionen und Rückwege bleiben erhalten. Lange Lizenzdetails
+verwenden eine Sliver-Liste: Nur sichtbare Absätze werden ausgelegt, auch beim
+rund 1 MB großen nativen Foto-Lizenztext. Die Überschrift scrollt weiter mit;
+einzelne Papierabsätze erhalten weiterhin Einrückungen und zentrierte Titel.
+Lade- und Fehlerzustände
 liegen ebenfalls auf Papierflächen. Lizenzen werden nicht nachgeladen.
 
 `test/side_screens_test.dart` sichert vollständige Titel, letzte Lizenzabsätze,
